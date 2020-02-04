@@ -1,0 +1,1 @@
+supervisorctl -c "/home/user/data/scripts/supervisord.conf"

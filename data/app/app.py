@@ -4,30 +4,33 @@ import os
 import sqlite3
 
 # Third party libraries
-from flask import Flask, redirect, request, url_for
+from flask import Flask, redirect, request, url_for,jsonify
 from flask_login import (
     LoginManager,
     current_user,
     login_required,
     login_user,
-    logout_user,
+    logout_user
 )
 from oauthlib.oauth2 import WebApplicationClient
 import requests
 
 # Internal imports
-from db import init_db_command
-from user import User
+#from db import init_db_command
+#from user import User
 
 # Configuration
-GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", None)
-GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", None)
+GOOGLE_CLIENT_ID = '459227710478-741udk5m52ed4jdtrl3h4upbsar4fpe4.apps.googleusercontent.com'
+GOOGLE_CLIENT_SECRET = 'NPyEdkGa7cmPyMyY-gZwg_cS'
 GOOGLE_DISCOVERY_URL = (
     "https://accounts.google.com/.well-known/openid-configuration"
 )
-
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
 app = Flask(__name__)
+app.config.update(dict(
+  PREFERRED_URL_SCHEME = 'https'
+))
 app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(24)
 
 # User session management setup
@@ -53,6 +56,7 @@ def load_user(user_id):
 
 @app.route("/")
 def index():
+    return 'test:{}'.format(os.environ.get('TEST'))
     if current_user.is_authenticated:
         return (
             "<p>Hello, {}! You're logged in! Email: {}</p>"
@@ -74,15 +78,20 @@ def login():
 
     # Use library to construct the request for login and provide
     # scopes that let you retrieve user's profile from Google
+    #request.base_url + "/callback",
+    _callback = url_for('callback',
+        _external=True,
+        _scheme='https')
+    #return str(request.base_url + "/callback")    
     request_uri = client.prepare_request_uri(
         authorization_endpoint,
-        redirect_uri=request.base_url + "/callback",
+        redirect_uri=_callback,
         scope=["openid", "email", "profile"],
     )
     return redirect(request_uri)
 
 
-@app.route("/login/callback")
+@app.route("/login/callback",endpoint= "callback")
 def callback():
     # Get authorization code Google sent back to you
     code = request.args.get("code")
@@ -92,11 +101,15 @@ def callback():
     google_provider_cfg = get_google_provider_cfg()
     token_endpoint = google_provider_cfg["token_endpoint"]
 
+    _callback = url_for('callback',
+        _external=True,
+        _scheme='https')
+        
     # Prepare and send request to get tokens! Yay tokens!
     token_url, headers, body = client.prepare_token_request(
         token_endpoint,
         authorization_response=request.url,
-        redirect_url=request.base_url,
+        redirect_url=_callback,
         code=code,
     )
     token_response = requests.post(
@@ -124,11 +137,15 @@ def callback():
         users_email = userinfo_response.json()["email"]
         picture = userinfo_response.json()["picture"]
         users_name = userinfo_response.json()["given_name"]
+        name = userinfo_response.json()["name"]
     else:
         return "User email not available or not verified by Google.", 400
 
     # Create a user in our db with the information provided
     # by Google
+    #return jsonify(userinfo_response.json())
+    return 'id:{},email:{},users_name:{},name:{}'.format(unique_id,users_email,users_name,name)
+    """
     user = User(
         id_=unique_id, name=users_name, email=users_email, profile_pic=picture
     )
@@ -142,6 +159,7 @@ def callback():
 
     # Send user back to homepage
     return redirect(url_for("index"))
+    """
 
 
 @app.route("/logout")

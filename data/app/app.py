@@ -20,8 +20,8 @@ import requests
 #from user import User
 
 # Configuration
-GOOGLE_CLIENT_ID = '459227710478-741udk5m52ed4jdtrl3h4upbsar4fpe4.apps.googleusercontent.com'
-GOOGLE_CLIENT_SECRET = 'NPyEdkGa7cmPyMyY-gZwg_cS'
+GOOGLE_CLIENT_ID = ''
+GOOGLE_CLIENT_SECRET = ''
 GOOGLE_DISCOVERY_URL = (
     "https://accounts.google.com/.well-known/openid-configuration"
 )

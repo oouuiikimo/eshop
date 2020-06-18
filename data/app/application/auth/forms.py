@@ -24,6 +24,8 @@ class SignupForm(FlaskForm):
 class LoginForm(FlaskForm):
     """User Login Form."""
     email = StringField('Email', validators=[DataRequired(),
-                                             Email(message='Enter a valid email.')])
-    password = PasswordField('Password', validators=[DataRequired()])
+                        Email(message='Enter a valid email.')],
+                        render_kw={'class':'form-control','placeholder':'Email'})
+    password = PasswordField('Password', validators=[DataRequired()],
+                        render_kw={'class':'form-control','placeholder':'Password'})
     submit = SubmitField('Log In')

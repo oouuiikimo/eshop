@@ -1,5 +1,5 @@
 #from __main__ import app
-from flask import request, render_template, make_response,current_app,g,redirect
+from flask import request, render_template, make_response,current_app,redirect, flash, session, url_for,g
 from flask_login import current_user,login_required
 from datetime import datetime as dt
 from .share.models import db
@@ -7,11 +7,8 @@ from .models.user import User
 from . import login_manager
 
 @current_app.route('/', methods=['GET'])
-def test():
-    if g.user.is_authenticated:
-        return 'it works!TEST_USER:{}'.format(current_user.name)
-    else:
-        return "not logged in"
+def home():
+    return redirect(url_for('admin_bp.admin'))
     
 @current_app.route('/newuser', methods=['GET'])
 @login_required

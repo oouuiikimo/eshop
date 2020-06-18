@@ -1,4 +1,4 @@
-{% extends "layout2.html" %}
+{% extends "auth/layout.html" %}
 
 {% block content %}
   <div class="formwrapper">
@@ -16,7 +16,7 @@
       {% endfor %}
 
       <h1>Log In</h1>
-        {{ form.csrf_token() }}
+{{ form.csrf_token() }}
       <fieldset class="email">
          {{ form.email.label }}
          {{ form.email(placeholder='youremail@example.com') }}

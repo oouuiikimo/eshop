@@ -89,7 +89,7 @@ def insert(menu,model):
             flash_errors(form)
 
     return render_template(formClass.get_template(), form=form, formName=formName,formaction='/admin/insert/{}/{}'.format(menu,model),
-        model=model,menulist=get_menu(), menu=menu, layout=layout)     
+        model=model,menulist=get_menu(menu,model), menu=menu, layout=layout)     
     
 @admin_bp.route('/update/<menu>/<model>/<id>', methods=['GET','POST'])
 @login_required
@@ -110,11 +110,11 @@ def update(menu,model,id):
             flash_errors(form)
 
     return render_template(formClass.get_template(), form=form, formName=formName,formaction='/admin/update/{}/{}/{}'.format(menu,model,id),
-        model=model, id=id,menu=menu,menulist=get_menu(), layout=layout) 
+        model=model, id=id,menu=menu,menulist=get_menu(menu,model), layout=layout) 
 
-@admin_bp.route('/delete/<model>/<id>', methods=['GET','POST'])
+@admin_bp.route('/delete/<menu>/<model>/<id>', methods=['GET','POST'])
 @login_required
-def delete(model,id):
+def delete(menu,model,id):
     #todo:顯示此筆資料,讓使用者確認刪除
     return id
     

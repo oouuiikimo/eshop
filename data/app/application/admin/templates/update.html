@@ -5,9 +5,12 @@
             <!-- general form elements disabled -->
             <div class="card card-primary">
               <div class="card-header">
-                <h3 class="card-title">{{formName}}</h3>
                 {%if id-%}
-                <div class="float-right"><a href="/admin/delete/{{menu}}/{{model}}/{{id}}">刪除此筆</a></div>{%endif-%}
+                <h3 class="card-title">表單修改</h3>
+                <div class="float-right"><a href="/admin/delete/{{menu}}/{{model}}/{{id}}">刪除此筆</a></div>
+                {%else-%}
+                <h3 class="card-title">表單新增</h3>
+                {%endif-%}
               </div>
               <!-- /.card-header -->
               <div class="card-body">

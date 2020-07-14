@@ -17,8 +17,8 @@ def get_menu(menu=None,submenu=None):
         "Articles":{"title":"文章管理","icon":"fa-newspaper","open":"","active":"",
         "submenu":{
             "filemanager":{"title":"filemanager","href":"/files/filemanager","icon":"fa-folder-open","active":""},
-            "ArticleCategory":{"title":"ArticleCategory","href":"/admin/Articles/ArticleCategory","icon":"fa-th-large","active":""},
-            "Article":{"title":"Article","href":"/admin/Articles/Article","icon":"fa-pen-square","active":""}
+            "ArticleCategory":{"title":"文章目錄","href":"/admin/Articles/ArticleCategory","icon":"fa-th-large","active":""},
+            "Article":{"title":"文章","href":"/admin/Articles/Article","icon":"fa-pen-square","active":""}
             }},
         "Orders":{"title":"訂單管理","icon":"fa-shopping-cart","open":"","active":"",
         "submenu":{

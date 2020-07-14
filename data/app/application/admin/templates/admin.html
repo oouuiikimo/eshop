@@ -16,13 +16,13 @@
           <div class="col-12">
             <div class="card">
               <div class="card-header">
-                <h3 class="card-title">{{formName}}-筆數({{pagination.total_count}})</h3>
+                <h3 class="card-title">{{menulist['leftmenu'][menu]['submenu'][model]['title']}}-筆數({{pagination.total_count}})</h3>
                 
                 <div class="row float-right">
                     <div class="input-group input-group-sm" style="width:50px;">
                         <div class="input-group-append">
                           <button type="button" class="btn btn-default" onclick="javascript:location.href='/admin/insert/{{menu}}/{{model}}'"
-                          data-toggle="tooltip" title="新增{{formName}}"><i class="fas fa-plus"></i></button>
+                          data-toggle="tooltip" title="新增{{menulist['leftmenu'][menu]['submenu'][model]['title']}}"><i class="fas fa-plus"></i></button>
                         </div>
                     </div>    
                 <form id="searchForm" class="search" method="POST" action="/admin/{{menu}}/{{model}}?page={{page}}&per_page={{per_page}}">

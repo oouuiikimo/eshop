@@ -211,12 +211,12 @@ body {font-family: Meiryo, "微軟正黑體", "Microsoft JhengHei";}
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1 class="m-0 text-dark">{{menulist['active']["subTitle"]}}</h1>
+            <h1 class="m-0 text-dark">{{menulist['leftmenu'][menu]['submenu'][model]['title']}}</h1>
           </div><!-- /.col -->
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
               <li class="breadcrumb-item"><a href="#">Home</a></li>
-              <li class="breadcrumb-item active">{{menulist['active']["mainTitle"]}}</li>
+              <li class="breadcrumb-item active">{{menulist['leftmenu'][menu]['title']}}</li>
             </ol>
           </div><!-- /.col -->
         </div><!-- /.row -->

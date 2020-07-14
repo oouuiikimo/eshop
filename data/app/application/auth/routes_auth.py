@@ -38,11 +38,11 @@ def login():
                 db.session.commit()
                 next_page = request.args.get('next')
                 #return 'hello {}.{}'.format(user.name,str(current_user.is_authenticated))
-                return redirect(next_page or url_for('admin_bp.admin'))
+                return redirect(next_page or url_for('admin_bp.home'))
         else:
             flash(login_form.errors)          
         flash('Invalid username/password combination')
-        return redirect(url_for('admin_bp.admin'))
+        return redirect(url_for('admin_bp.home'))
 
     return render_template('auth/login.html',
                            form=login_form,

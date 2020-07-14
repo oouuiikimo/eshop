@@ -1,0 +1,9 @@
+npm-check-updates is a nice tool for bumping dependencies versions.
+安裝plugin 有錯誤: 
+...."ckeditor-duplicated-modules"
+fix: 
+1.npm install -g npm-check-updates
+2.rm -rf node_modules 
+3.npm install (redo)
+
+

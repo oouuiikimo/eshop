@@ -1,43 +1,469 @@
+from flask import g
 from flask_wtf import CSRFProtect, FlaskForm
 from wtforms import StringField, TextField, SubmitField,validators,SelectMultipleField,PasswordField,BooleanField \
-,IntegerField,HiddenField
+,IntegerField,HiddenField,SelectField,ValidationError
 from wtforms.validators import (DataRequired,
                                 Email,
                                 EqualTo,
                                 Length,
                                 URL)
 from wtforms_sqlalchemy.fields import QuerySelectField,QuerySelectMultipleField
-
+from ..models.user import User,Roles,getRoles
+from ..models.product import ProductAttribute,ArticleCategory,Article
+from .. import db
+from ..share.helpers import Pagination
+from sqlalchemy import func,exc
+import datetime,re
 """
  fix Flask WTForms and WTForms-SQLAlchemy QuerySelectField produce too many values to unpack 
 """
 from ..models.fix_wtf_sql import fix_wtfsql
 fix_wtfsql()
 
-class UpdateUser(FlaskForm):
-    from ..models.user import User
-    """Contact form."""
-    name = StringField('Name', [
-        DataRequired()])
-    email = StringField('Email', [
-        Email(message=('Not a valid email address.')),
-        DataRequired()]) 
-    source = TextField('source', [
-        DataRequired(),
-        Length(min=4, message=('Your message is too short.'))], 
-        render_kw={'class':'myclass','style':'font-size:150%'})
-    active = BooleanField('Active')        
+def mapUpdateForm(model,id=None):
+        
+    class BaseForm(FlaskForm):
 
-    submit = SubmitField('Submit')    
+        @classmethod
+        def update_data(cls,form,item):
+            try:
+                form.populate_obj(item)
+                db.session.add(item)  
+                db.session.commit()
+            except exc.SQLAlchemyError as e:
+                """ 捕獲錯誤, 否則無法回傳
+                """
+                db.session().rollback()   
+                error = str(e.__dict__['orig'])
+                raise Exception(error)
+                #raise Exception('資料庫更新失敗!!')
+            
 
-class UserRolesForm(FlaskForm):
-    from ..models.user import Roles,getRoles
-    id = HiddenField('id')
-    name = StringField('Name')
-    roles = QuerySelectMultipleField('Roles', 
-            query_factory=getRoles)
-    submit = SubmitField('Submit') 
-    # Custom validate
-    def validate(self):
-        # ... custom validation
-        return True        
+        @classmethod
+        def insert_data(cls,form,item):
+            try:
+                form.populate_obj(item)
+                db.session.add(item)  
+                db.session.commit()
+            except exc.SQLAlchemyError as e:
+                """ 捕獲錯誤, 否則無法回傳
+                """
+                db.session().rollback()   
+                error = str(e.__dict__['orig'])
+                raise Exception(error)
+                #raise Exception('資料庫新增失敗!!')
+            
+        @classmethod
+        def get_count(cls,q):
+            count_q = q.statement.with_only_columns([func.count()]).order_by(None)
+            count = q.session.execute(count_q).scalar()
+            return count
+        
+        @classmethod
+        def get_query(cls,filters,page,per_page):
+            page=int(page)
+            per_page=int(per_page)
+            #get all rows before doing pagination !!
+            q = cls.get_model().query.filter(*filters)
+            q_count = cls.get_count(q)
+            return q_count,q.limit(per_page).offset((page-1)*per_page).all()
+            
+        @classmethod
+        def get_form(cls,id=None):
+            update_layout = cls.get_layout()
+            if id: #"""for update"""
+                item = cls.get_model().query.get(id)
+                form = cls(obj=item)
+            else: #"""for insert"""
+                item = cls.get_model()() # 這裡不能只回傳function , 再實例它才可以:()()
+                form = cls()
+
+            return form,item,update_layout
+        @classmethod
+        def get_pagination(cls,total,page=1, per_page=10):     
+            #total = cls.get_total()
+            return Pagination(page, per_page, total)
+            
+        @classmethod
+        def get_list(cls,page=1,per_page=10,search=None):
+            model = cls.get_model()
+            filters = cls.get_search_filters(search)
+         
+            count,rows = cls.get_query(filters,page,per_page) 
+            out_rows = cls.get_listrows(rows)
+
+            return out_rows, cls.get_pagination(count,page,per_page)   
+         
+        @classmethod
+        def get_template(cls):
+            return 'update.html'    
+            
+        @classmethod
+        def format_datetime(cls,_datetime):
+            return _datetime.strftime("%Y/%m/%d %H:%M") #not second :%S
+        
+    class UpdateArticle(BaseForm):
+        title = StringField('標題', [
+            DataRequired()],render_kw={'class':'form-control'})
+        active = BooleanField('有效', 
+            render_kw={'class':'form-check-input'})
+        category = QuerySelectField('上層', 
+            query_factory=ArticleCategory.get_tree_for_article,
+            allow_blank=True, 
+            render_kw={'class':'form-control'}) #todo: 若是母層, 則不能被指定為文章類別
+        content = TextField('內容',[
+            DataRequired()],render_kw={'class':'form-control'})
+        
+        submit = SubmitField('存檔', 
+            render_kw={'class':'btn btn-primary'})
+        
+        @classmethod
+        def update_data(cls,form,item):
+            form.populate_obj(item)
+            item.author = g.user.email
+            item.updated = datetime.datetime.now()  
+            db.session.add(item)  
+            db.session.commit()
+
+        @classmethod
+        def insert_data(cls,form,item):
+            form.populate_obj(item)
+            item.author = g.user.email
+            db.session.add(item)  
+            db.session.commit()            
+            
+        @classmethod
+        def get_fields(cls):
+            return [('name','名稱'),('category','類別'),('active','有效'),('created','建立日'),('updated','更新日'),('author','作者')]
+           
+        @classmethod
+        def get_model(cls):
+            return Article
+        
+        @classmethod
+        def get_search_filters(cls,search):
+            model = cls.get_model()
+            filters = []
+            if search:
+                if 'title' in search and search.title.data:
+                    filters.append(model.title.like('%{}%'.format(search.title.data)))
+                if 'content' in search and search.content.data:
+                    filters.append(model.content.like('%{}%'.format(search.content.data)))
+                if 'author' in search and search.author.data:
+                    filters.append(model.author.like('%{}%'.format(search.author.data)))
+                if 'category' in search and search.category.data:
+                    statement = db.text(
+                    """
+                    WITH RECURSIVE category_path (id, path) AS
+                    (
+                      SELECT id, name as path
+                        FROM articlecategory
+                        WHERE parent_id ==:id /*IS NULL or ==2*/
+                      UNION ALL
+                      SELECT c.id,  cp.path|| ' > '|| c.name as path
+                        FROM category_path AS cp JOIN articlecategory AS c
+                          ON cp.id = c.parent_id
+                    )
+                    SELECT * FROM category_path
+                    ORDER BY path;
+                    """)
+                    #child = [i.id for i in db.session.execute(statement,{"id":search.category.data.id})]
+                    #filters.append(model.category_id.in_(child))
+                    filters.append(model.category_id==search.category.data.id)
+            return filters
+                        
+        @classmethod
+        def get_listrows(cls,rows):
+            out_rows = []
+            for row in rows:
+                out_rows.append(['<a href="/admin/update/Articles/Article/{}">{}</a>'.format(row.id,row.title),
+                    row.category if row.category else "無" ,'有效' if row.active else '失效',
+                    cls.format_datetime(row.created),cls.format_datetime(row.updated),row.author])
+            return out_rows
+            
+        @classmethod
+        def get_layout(cls): 
+            return [
+                    ['title'],['active','category'],['content']
+                ]    
+ 
+    class UpdateArticleCategory(BaseForm):
+        #todo: 
+        # .validate 要加上自己上層不能是自己下層
+        # .validate 若有下層不能刪除
+        # .validate 若文章目錄有文章, 不能刪除    
+        name = StringField('名稱', [
+            DataRequired()],render_kw={'class':'form-control'})
+        parent = QuerySelectField('上層', 
+            query_factory=ArticleCategory.get_tree(id),
+            allow_blank=True, 
+            render_kw={'class':'form-control'})
+        is_leaf = BooleanField('文章目錄', 
+            render_kw={'class':'form-check-input'})
+
+        submit = SubmitField('存檔', 
+            render_kw={'class':'btn btn-primary'}) 
+                               
+        @classmethod
+        def get_fields(cls):
+            return [('name','名稱'),('parent','上層'),('is_leaf','文章目錄')]
+           
+        @classmethod
+        def get_model(cls):
+            return ArticleCategory
+
+        @classmethod
+        def get_form(cls,id=None):
+            update_layout = cls.get_layout()
+            if id: #"""for update"""
+                """ 自訂表單輸出:若是母層,把is_leaf 欄位拿掉 
+                """
+                item = cls.get_model().query.get(id)
+                form = cls(obj=item)
+                if ArticleCategory.is_has_child(id):
+                    del form.is_leaf
+                    update_layout[0].remove('is_leaf')
+
+            else: #"""for insert"""
+                item = cls.get_model()() # 這裡不能只回傳function , 再實例它才可以:()()
+                form = cls()
+            return form,item,update_layout
+        
+        @classmethod
+        def get_search_filters(cls,search):
+            model = cls.get_model()
+            filters = []
+            if search:
+                if 'name' in search and search.name.data:
+                    filters.append(model.name.like('%{}%'.format(search.name.data)))
+                if 'parent' in search and search.parent.data:
+                    statement = db.text(
+                    """
+                    WITH RECURSIVE category_path (id, path) AS
+                    (
+                      SELECT id, name as path
+                        FROM articlecategory
+                        WHERE parent_id ==:id /*IS NULL or ==2*/
+                      UNION ALL
+                      SELECT c.id,  cp.path|| ' > '|| c.name as path
+                        FROM category_path AS cp JOIN articlecategory AS c
+                          ON cp.id = c.parent_id
+                    )
+                    SELECT * FROM category_path
+                    ORDER BY path;
+                    """)
+                    child = [i.id for i in db.session.execute(statement,{"id":search.parent.data.id})]
+                    filters.append(model.id.in_(child))
+            return filters
+                        
+        @classmethod
+        def get_listrows(cls,rows):
+            out_rows = []
+            for row in rows:
+                out_rows.append(['<a href="/admin/update/Articles/ArticleCategory/{}">{}</a>'.format(row.id,row.name),
+                row.parent if row.parent else "無",
+                "文章目錄" if row.is_leaf else "類別目錄"])
+            return out_rows
+            
+        @classmethod
+        def get_layout(cls): 
+            return [
+                    ['name','parent','is_leaf']
+                ]    
+    
+    class UpdateProductAttribute(BaseForm):
+        name = StringField('屬性名稱', [
+            DataRequired()],render_kw={'class':'form-control'})
+        submit = SubmitField('存檔', 
+            render_kw={'class':'btn btn-primary'})    
+           
+        @classmethod
+        def get_fields(cls):
+            return [('name','名稱')]    
+           
+        @classmethod
+        def get_model(cls):
+            return ProductAttribute
+        
+        @classmethod
+        def get_search_filters(cls,search):
+            model = cls.get_model()
+            filters = []
+            if search:
+                if 'name' in search and search.name.data:
+                    filters.append(model.name.like('%{}%'.format(search.name.data)) )
+            return filters
+
+        @classmethod
+        def get_listrows(cls,rows):
+            out_rows = []
+            for row in rows:
+                out_rows.append(['<a href="/admin/update/Products/ProductAttribute/{}">{}</a>'.format(row.id,row.name)])
+            return out_rows
+            
+        @classmethod
+        def get_layout(cls): 
+            return [
+                    ['name']
+                ]
+            
+    class UpdateUser(BaseForm):
+    
+        """Contact form."""
+        name = StringField('名稱', [
+            DataRequired()],render_kw={'class':'form-control'})
+        email = StringField('Email', [
+            Email(message=('郵件格式有問題, 請確認')),
+            DataRequired()],render_kw={'class':'form-control'}) 
+        source = SelectField('帳號來源', [
+            DataRequired(),
+            Length(min=4, message=('Your message is too short.'))], 
+            render_kw={'class':'form-control'},
+            choices = [('google', 'google'),
+                   ('facebook', 'facebook'),
+                   ('local', '本地')])
+        roles = QuerySelectMultipleField('權限', 
+            query_factory=getRoles, 
+            render_kw={'class':'form-control'})
+        active = BooleanField('有效', 
+            render_kw={'class':'form-check-input'})        
+
+        submit = SubmitField('存檔', 
+            render_kw={'class':'btn btn-primary'})    
+        
+        @classmethod
+        def get_model(cls):
+            return User
+            
+        @classmethod
+        def update_data(cls,form,item):
+            form.populate_obj(item)
+            db.session.add(item)
+            item.roles.clear()
+            for role in form.roles.data:
+                item.roles.append(role)        
+            db.session.commit()
+            
+        @classmethod
+        def get_fields(cls):
+            return [('name','名稱'),('email','郵箱'),('active','有效'),('source','來源'),('roles','權限')]    
+
+        @classmethod
+        def get_search_filters(cls,search):
+            model = cls.get_model()
+            filters = []
+            if search:
+                if 'name' in search and search.name.data:
+                    filters.append(model.name==search.name.data)
+                if 'email' in search and search.email.data:
+                    filters.append(model.email.like('%{}%'.format(search.email.data)) )            
+                if 'source' in search and search.source.data:
+                    filters.append(model.source==search.source.data)   
+                if 'roles' in search and search.roles.data:
+                    filters.append(model.roles.any(Roles.role==search.roles.data.role))
+                if 'active' in search and search.active.data:
+                    filters.append(model.active==search.active.data)    
+            return filters
+
+        @classmethod
+        def get_listrows(cls,rows):
+            out_rows = []
+            for row in rows:
+                out_rows.append(['<a href="/admin/update/Accounts/User/{}">{}</a>'.format(row.id,row.name),
+                    row.email,'有效' if row.active else '失效',row.source,'<a href="/admin/update/UserRoles/{}">{}</a>'.format(row.id,row.roles)])
+            return out_rows
+            
+        @classmethod
+        def get_layout(cls): 
+            return [
+                    ['name','email','source'],
+                    ['roles','active']
+                ]
+
+    class UserRolesForm(BaseForm):
+        #from ..models.user import Roles,getRoles
+        id = HiddenField('id')
+        name = StringField('Name', render_kw={'readonly': True})
+        roles = QuerySelectMultipleField('Roles', 
+                query_factory=getRoles)
+        submit = SubmitField('Submit') 
+        
+        # Custom validate
+        def validate(self):
+            # ... custom validation
+            
+            return True 
+
+        @classmethod
+        def update_data(cls,form,item):
+            item.roles.clear()
+            for role in form.roles.data:
+                item.roles.append(role)
+            db.session.commit()
+            
+        @classmethod
+        def get_form(cls,id):
+            item = User.query.get(id)
+            return cls(obj=item),item
+       
+    model_form = {"User":("帳戶",UpdateUser),"UserRoles":("帳戶權限",UserRolesForm)
+        ,"ProductAttribute":("商品屬性",UpdateProductAttribute),"Article":("文章",UpdateArticle)
+        ,"ArticleCategory":("文章類別",UpdateArticleCategory)}
+    return model_form[model]
+    
+def mapSearchForm(model):    
+
+    class SearchArticleCategory(FlaskForm):
+        
+        parent = QuerySelectField('上層', 
+            query_factory=ArticleCategory.get_tree_for_search,
+            allow_blank=True, 
+            render_kw={'class':'form-control'})
+        name = StringField('名稱', render_kw={'class':'form-control'})
+
+
+    class SearchArticle(FlaskForm):
+        
+        category = QuerySelectField('上層', 
+            query_factory=ArticleCategory.get_tree_for_article,
+            allow_blank=True, 
+            render_kw={'class':'form-control'})
+        title = StringField('標題', render_kw={'class':'form-control'})
+        content = StringField('內容', render_kw={'class':'form-control'})
+        
+    class SearchProductAttribute(FlaskForm):
+        name = StringField('屬性名稱', render_kw={'class':'form-control'})
+        
+
+
+    class SearchUser(FlaskForm):
+        
+        """Contact form."""
+        name = StringField('名稱', render_kw={'class':'form-control'})
+        email = StringField('Email', 
+            render_kw={'class':'form-control'}) 
+        source = SelectField('帳號來源', 
+            render_kw={'class':'form-control'},
+            choices = [('',''),('google', 'google'),
+                   ('facebook', 'facebook'),
+                   ('local', '本地')])
+        roles = QuerySelectField('權限', 
+            query_factory=getRoles,
+            allow_blank=True, 
+            render_kw={'class':'form-control'})
+        active = SelectField('有效', 
+            render_kw={'class':'form-control'},
+            choices = [('',''),('1', '有效'),('0', '無效')])
+
+            
+
+
+    class SearchUserRoles(FlaskForm):
+        pass
+
+
+    model_form = {"User":SearchUser,"UserRoles":SearchUserRoles,"ProductAttribute":SearchProductAttribute
+        ,"ArticleCategory":SearchArticleCategory,"Article":SearchArticle}
+    return model_form[model]
+    
+

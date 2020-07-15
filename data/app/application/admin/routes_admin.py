@@ -6,7 +6,7 @@ from ..models.user import User,Roles
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import CSRFProtect, FlaskForm
 from ..share.formhelp import flash_errors
-from ..admin.forms_admin import mapUpdateForm,mapSearchForm
+from ..admin.forms_admin import mapUpdateForm,mapSearchForm,mapDeleteForm
 from ..admin.menu_admin import get_menu
 """
 from flask_principal import Principal, Permission, RoleNeed, UserNeed, Identity, AnonymousIdentity, identity_changed, \
@@ -14,6 +14,7 @@ from flask_principal import Principal, Permission, RoleNeed, UserNeed, Identity,
 from flask_caching import Cache    
 from flask_mail import Mail,  Message
 """
+
 # Set up a Blueprint
 admin_bp = Blueprint('admin_bp', __name__,
                     url_prefix='/admin',
@@ -112,21 +113,25 @@ def update(menu,model,id):
     return render_template(formClass.get_template(), form=form, formName=formName,formaction='/admin/update/{}/{}/{}'.format(menu,model,id),
         model=model, id=id,menu=menu,menulist=get_menu(menu,model), layout=layout) 
 
-@admin_bp.route('/delete/<menu>/<model>/<id>', methods=['GET','POST'])
+@admin_bp.route('/delete/<menu>/<model>', methods=['POST'])
 @login_required
-def delete(menu,model,id):
+def delete(menu,model):
     #todo:顯示此筆資料,讓使用者確認刪除
-    return id
+    remove_items = request.form.get('id')
+    return 'will delete : {}'.format(remove_items)
+    #deleteClass = mapDeleteForm(model)
+    #result = deleteClass.delete_data(remove_items)
+    return str(result)
     
 @admin_bp.route('/Trumbowyg', methods=['GET'])
 @login_required
 def Trumbowyg():
-    return render_template('editor.html',activelink='{}.{}'.format('Tests','Trumbowyg'),menu=get_menu())
+    return render_template('editor.html',activelink='{}.{}'.format('Tests','Trumbowyg'),menulist=get_menu())
     
 @admin_bp.route('/ckeditor', methods=['GET'])
 @login_required
 def ckeditor():
-    return render_template('ckeditor.html',activelink='{}.{}'.format('Tests','ckeditor'),menu=get_menu())
+    return render_template('ckeditor.html',menulist=get_menu("Tests","ckeditor"),menu="Tests",model="ckeditor")
 
 @admin_bp.route('/test', methods=['GET'])
 @login_required  

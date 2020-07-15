@@ -1,9 +1,14 @@
 {% extends "layout.html" %}
+{% block css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Trumbowyg/2.21.0/ui/trumbowyg.min.css" 
+    integrity="sha256-gGT+1paaAYq1+9QOclw7eVo/EqQo9ZNdwJqkTTOa/Gs=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-resizable@1.0.6/resizable.css">    
+{% endblock %}
 {% block content %}
 
           <div class="col-md-12">
             <!-- general form elements disabled -->
-            <div class="card card-primary">
+            <div class="card ">
               <div class="card-header">
                 {%if id-%}
                 <h3 class="card-title">表單修改</h3>
@@ -58,8 +63,26 @@
             </div>
           </div>
 {% endblock %}  
-{% block js%}
+{%block js%}
+<script src="/admin/statics/js/ckeditor.js?v=3"></script>
 <script>
+
+    var ckeditor = document.querySelectorAll("textarea[id=editor]");
+    //alert(ckeditor.length);
+    if (ckeditor.length) {init_ckeditor()}
+    function init_ckeditor() {
+        ClassicEditor.create( document.querySelector( '#editor' ) )
+            .then( editor => {
+                window.editor = editor;
+            } )
+            .catch( error => {
+                console.error( 'There was a problem initializing the editor.', error );
+            } );
+            
+        //editor.getData()  
+        //for image test : https://cdn.pixabay.com/photo/2015/09/16/08/55/online-942406_640.jpg
+    }
+
     function addClsToEle(ele,cls) {
       var element = document.getElementById(ele);
       element.classList.add(cls);

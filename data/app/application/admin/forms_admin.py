@@ -1,7 +1,7 @@
 from flask import g
 from flask_wtf import CSRFProtect, FlaskForm
 from wtforms import StringField, TextField, SubmitField,validators,SelectMultipleField,PasswordField,BooleanField \
-,IntegerField,HiddenField,SelectField,ValidationError
+,IntegerField,HiddenField,SelectField,ValidationError,TextAreaField
 from wtforms.validators import (DataRequired,
                                 Email,
                                 EqualTo,
@@ -111,11 +111,11 @@ def mapUpdateForm(model,id=None):
             query_factory=ArticleCategory.get_tree_for_article,
             allow_blank=True, 
             render_kw={'class':'form-control'}) #todo: 若是母層, 則不能被指定為文章類別
-        content = TextField('內容',[
-            DataRequired()],render_kw={'class':'form-control'})
+        content = TextAreaField('內容',[
+            DataRequired()],render_kw={'class':'form-control','id':'editor'}) #init ckeditor 必須參照這裡的做法:TextAreaField,'id':'editor'
         
         submit = SubmitField('存檔', 
-            render_kw={'class':'btn btn-primary'})
+            render_kw={'class':'btn btn-default'})
         
         @classmethod
         def update_data(cls,form,item):
@@ -176,7 +176,8 @@ def mapUpdateForm(model,id=None):
         def get_listrows(cls,rows):
             out_rows = []
             for row in rows:
-                out_rows.append(['<a href="/admin/update/Articles/Article/{}">{}</a>'.format(row.id,row.title),
+                out_rows.append(['<input type="checkbox" name="delete" value="{}">'.format(row.id),
+                    '<a href="/admin/update/Articles/Article/{}">{}</a>'.format(row.id,row.title),
                     row.category if row.category else "無" ,'有效' if row.active else '失效',
                     cls.format_datetime(row.created),cls.format_datetime(row.updated),row.author])
             return out_rows
@@ -191,7 +192,7 @@ def mapUpdateForm(model,id=None):
         #todo: 
         # .validate 要加上自己上層不能是自己下層
         # .validate 若有下層不能刪除
-        # .validate 若文章目錄有文章, 不能刪除    
+        # .validate 若文章目錄有文章, 不能刪除
         name = StringField('名稱', [
             DataRequired()],render_kw={'class':'form-control'})
         parent = QuerySelectField('上層', 
@@ -202,7 +203,7 @@ def mapUpdateForm(model,id=None):
             render_kw={'class':'form-check-input'})
 
         submit = SubmitField('存檔', 
-            render_kw={'class':'btn btn-primary'}) 
+            render_kw={'class':'btn btn-default'}) 
                                
         @classmethod
         def get_fields(cls):
@@ -260,7 +261,8 @@ def mapUpdateForm(model,id=None):
         def get_listrows(cls,rows):
             out_rows = []
             for row in rows:
-                out_rows.append(['<a href="/admin/update/Articles/ArticleCategory/{}">{}</a>'.format(row.id,row.name),
+                out_rows.append(['<input type="checkbox" name="delete" value="{}">'.format(row.id),
+                    '<a href="/admin/update/Articles/ArticleCategory/{}">{}</a>'.format(row.id,row.name),
                 row.parent if row.parent else "無",
                 "文章目錄" if row.is_leaf else "類別目錄"])
             return out_rows
@@ -275,7 +277,7 @@ def mapUpdateForm(model,id=None):
         name = StringField('屬性名稱', [
             DataRequired()],render_kw={'class':'form-control'})
         submit = SubmitField('存檔', 
-            render_kw={'class':'btn btn-primary'})    
+            render_kw={'class':'btn btn-default'})    
            
         @classmethod
         def get_fields(cls):
@@ -298,7 +300,8 @@ def mapUpdateForm(model,id=None):
         def get_listrows(cls,rows):
             out_rows = []
             for row in rows:
-                out_rows.append(['<a href="/admin/update/Products/ProductAttribute/{}">{}</a>'.format(row.id,row.name)])
+                out_rows.append(['<input type="checkbox" name="delete" value="{}">'.format(row.id),
+                    '<a href="/admin/update/Products/ProductAttribute/{}">{}</a>'.format(row.id,row.name)])
             return out_rows
             
         @classmethod
@@ -329,7 +332,7 @@ def mapUpdateForm(model,id=None):
             render_kw={'class':'form-check-input'})        
 
         submit = SubmitField('存檔', 
-            render_kw={'class':'btn btn-primary'})    
+            render_kw={'class':'btn btn-default'})    
         
         @classmethod
         def get_model(cls):
@@ -369,7 +372,8 @@ def mapUpdateForm(model,id=None):
         def get_listrows(cls,rows):
             out_rows = []
             for row in rows:
-                out_rows.append(['<a href="/admin/update/Accounts/User/{}">{}</a>'.format(row.id,row.name),
+                out_rows.append(['<input type="checkbox" name="delete" value="{}">'.format(row.id),
+                    '<a href="/admin/update/Accounts/User/{}">{}</a>'.format(row.id,row.name),
                     row.email,'有效' if row.active else '失效',row.source,'<a href="/admin/update/UserRoles/{}">{}</a>'.format(row.id,row.roles)])
             return out_rows
             
@@ -467,3 +471,39 @@ def mapSearchForm(model):
     return model_form[model]
     
 
+
+def mapDeleteForm(model):
+    
+    class DeleteUser():
+        pass
+
+    class DeleteUserRoles():
+        pass
+
+    class DeleteProductAttribute():
+        
+        @classmethod
+        def delete_data(cls,item):
+            try:
+
+                db.session.query.get(id).delete()
+                db.session.commit()
+            except exc.SQLAlchemyError as e:
+                """ 捕獲錯誤, 否則無法回傳
+                """
+                db.session().rollback()   
+                error = str(e.__dict__['orig'])
+                raise Exception(error)
+                #raise Exception('資料庫更新失敗!!')
+
+    class DeleteArticleCategory():
+        pass
+
+    class DeleteArticle():
+        pass        
+
+    model_form = {"User":DeleteUser,"UserRoles":DeleteUserRoles,"ProductAttribute":DeleteProductAttribute
+        ,"ArticleCategory":DeleteArticleCategory,"Article":DeleteArticle}
+    return model_form[model]
+    
+    

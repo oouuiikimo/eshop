@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_login import LoginManager
-
+from flask_wtf import CSRFProtect
 from .share.models import db
 # Globally accessible libraries
 login_manager = LoginManager()
@@ -16,6 +16,8 @@ def create_app():
     # Initialize Plugins
     login_manager.init_app(app) #need secretkey
     db.init_app(app)
+    csrf = CSRFProtect()
+    csrf.init_app(app)
     with app.app_context():
         """ Include our Routes 
         must after Initialize plugins otherwise you can not import them inside bp

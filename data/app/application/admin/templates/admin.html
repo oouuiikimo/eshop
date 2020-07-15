@@ -21,6 +21,12 @@
                 <div class="row float-right">
                     <div class="input-group input-group-sm" style="width:50px;">
                         <div class="input-group-append">
+                          <button type="button" class="btn btn-default" onclick="javascript:delete_checked();"
+                          data-toggle="tooltip" title="刪除{{menulist['leftmenu'][menu]['submenu'][model]['title']}}"><i class="fas fa-minus"></i></button>
+                        </div>
+                    </div>                  
+                    <div class="input-group input-group-sm" style="width:50px;">
+                        <div class="input-group-append">
                           <button type="button" class="btn btn-default" onclick="javascript:location.href='/admin/insert/{{menu}}/{{model}}'"
                           data-toggle="tooltip" title="新增{{menulist['leftmenu'][menu]['submenu'][model]['title']}}"><i class="fas fa-plus"></i></button>
                         </div>
@@ -64,7 +70,7 @@
               <div class="card-body table-responsive p-0">
                 <table class="table table-hover text-nowrap">
                   <thead>
-                    <tr>
+                    <tr><th><input type="checkbox" value=""></th>
                     {%for key,value in fields%}
                       <th>{{value}}</th>
                     {%endfor%}  
@@ -179,17 +185,82 @@
 
 {%block js%}
 <script>
+var csrf_token = "{{csrf_token()}}";
+//console.log(csrf_token);
+
 var per_page_sel = document.getElementById("per_page_sel")
 var per_page = {{per_page}} || 10
 
 function gotopage(page) {
     per_page = per_page_sel.value
     form = document.getElementById("searchForm")
-    form.action = '/admin/{{model}}?page='+page+'&per_page='+per_page
+    form.action = '/admin/{{menu}}/{{model}}?page='+page+'&per_page='+per_page
     form.submit()
     
 }
 
+function delete_checked() {
+
+    var x = document.querySelectorAll("input[type=checkbox][name=delete]:checked");
+    //alert(x.length);
+    var delete_items = []
+    x.forEach(element => delete_items.push(element.value));
+    //alert(delete_items)
+    
+    var formData = new FormData();
+    formData.append('id', delete_items);
+    formData.append('csrf_token',csrf_token);
+    ajax("/admin/delete/{{menu}}/{{model}}", "POST",formData)
+    .then(function(result) {
+      console.log(result);
+      alert(result);
+        })
+    .then(function(result) {
+      gotopage(1);
+        })
+    ;
+    //var cboxes = document.getElementsByName("delete");
+    //var len = cboxes.length;
+    //for (var i=0; i<len; i++) {
+    //    alert(i + (cboxes[i].checked?' checked ':' unchecked ') + cboxes[i].value);
+    //}
+}
+
 per_page_sel.addEventListener("change", function(){gotopage(1)});
+
+
+function ajax(url, method, data) {
+  return new Promise(function(resolve, reject) {
+    var request = new XMLHttpRequest();
+
+    request.responseType = "text";
+
+    request.onreadystatechange = function() {
+      if (request.readyState === XMLHttpRequest.DONE) {
+        if (request.status === 200) {
+          resolve(request.responseText);
+        } else {
+          reject(new Error(request.statusText));
+        }
+      }
+    };
+
+    request.onerror = function() {
+      reject(new Error("Network Error"));
+    };
+
+    request.open(method, url, true);
+    request.send(data);
+  });
+}
+
+//使用範例
+/*
+var formData = new FormData();
+formData.append('id', 1);
+ajax("/admin/delete/{{menu}}/{{model}}", "POST",formData).then(function(result) {
+  console.log(result);
+});
+*/
 </script>
 {% endblock %}

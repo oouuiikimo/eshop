@@ -1,6 +1,6 @@
 from .models.product import ProductAttribute,ProductType,Article,ArticleCategory
 from .models.user import User,Roles,user_roles
-
+   
 def init_db(db):
         
     db.drop_all()

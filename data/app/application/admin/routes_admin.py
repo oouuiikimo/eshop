@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template,current_app,json,request,redirect, flash, session, url_for,g
+from flask import Blueprint, render_template,current_app,json,request,redirect, flash, session, url_for,g,jsonify
 from flask_login import login_required
 from sqlalchemy.orm import load_only,joinedload,lazyload,outerjoin
 from .. import db,login_manager
@@ -40,11 +40,13 @@ def admin(menu,model):
         search=searchForm()
     else:
         search=None
-    rows,pagination = formClass.get_list(page=page,per_page=per_page,search=search)
+    page,rows,pagination = formClass.get_list(page=page,per_page=per_page,search=search)
     data = {'model':model,'fields':fields,'rows':rows,'menulist':get_menu(menu,model),
         'pagination':pagination,'menu':menu,'formName':formName,
         'searchform':searchForm(),'debug':searchForm(),'page':int(page),'per_page':int(per_page)}
     #return str(type(searchForm().roles.data))
+    #todo:store last page url to session['lastURL'] = '/admin/{}/{}?page={}&per_page={}'.format(menu,model,int(page),int(per_page))
+    session['lastURL'] = '/admin/{}/{}?page={}&per_page={}'.format(menu,model,int(page),int(per_page))
     return render_template('admin.html',**data)
 
 @admin_bp.route('/search/<model>', methods=['POST'])
@@ -81,11 +83,16 @@ def insert(menu,model):
     if request.method == 'POST':
         if form.validate():           
             #form.populate_obj(item)
-            formClass.insert_data(form,item)
+            try:
+                formClass.insert_data(form,item)
             
-            db.session.add(item)
-            db.session.commit()
-            return redirect(url_for('admin_bp.admin',model=model,menu=menu))
+            #db.session.add(item)
+            #db.session.commit()
+                if 'lastURL' in session and session['lastURL'] is not None:
+                    return redirect(session['lastURL'])
+                return redirect(url_for('admin_bp.admin',model=model,menu=menu))
+            except Exception as e:
+                flash(str(e), 'error')
         else:
             flash_errors(form)
 
@@ -104,6 +111,8 @@ def update(menu,model,id):
             #form.populate_obj(item)
             try:
                 formClass.update_data(form,item)
+                if 'lastURL' in session and session['lastURL'] is not None:
+                    return redirect(session['lastURL'])
                 return redirect(url_for('admin_bp.admin',model=model,menu=menu))
             except Exception as e:
                 flash(str(e), 'error')
@@ -118,10 +127,17 @@ def update(menu,model,id):
 def delete(menu,model):
     #todo:顯示此筆資料,讓使用者確認刪除
     remove_items = request.form.get('id')
-    return 'will delete : {}'.format(remove_items)
-    #deleteClass = mapDeleteForm(model)
-    #result = deleteClass.delete_data(remove_items)
-    return str(result)
+    lastURL = ""
+    if "lastURL" in session:
+        lastURL = session['lastURL']
+
+    deleteClass = mapDeleteForm(model)
+    error = deleteClass.delete_data(remove_items)
+    if error:
+        return jsonify({"error":'有錯誤 :{}'.format(error)})
+    return jsonify({"success":'己刪除記錄 :{}'.format(remove_items),"redirect":lastURL}) 
+    #'deleted : {},redirect:{}'.format(remove_items,session['lastURL'])
+
     
 @admin_bp.route('/Trumbowyg', methods=['GET'])
 @login_required

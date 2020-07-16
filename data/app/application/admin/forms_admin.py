@@ -1,4 +1,4 @@
-from flask import g
+from flask import g,current_app
 from flask_wtf import CSRFProtect, FlaskForm
 from wtforms import StringField, TextField, SubmitField,validators,SelectMultipleField,PasswordField,BooleanField \
 ,IntegerField,HiddenField,SelectField,ValidationError,TextAreaField
@@ -8,12 +8,13 @@ from wtforms.validators import (DataRequired,
                                 Length,
                                 URL)
 from wtforms_sqlalchemy.fields import QuerySelectField,QuerySelectMultipleField
-from ..models.user import User,Roles,getRoles
+from ..models.user import User,Roles,getRoles,user_roles
 from ..models.product import ProductAttribute,ArticleCategory,Article
 from .. import db
 from ..share.helpers import Pagination
 from sqlalchemy import func,exc
 import datetime,re
+
 """
  fix Flask WTForms and WTForms-SQLAlchemy QuerySelectField produce too many values to unpack 
 """
@@ -61,12 +62,16 @@ def mapUpdateForm(model,id=None):
         
         @classmethod
         def get_query(cls,filters,page,per_page):
+            import math
             page=int(page)
             per_page=int(per_page)
             #get all rows before doing pagination !!
             q = cls.get_model().query.filter(*filters)
             q_count = cls.get_count(q)
-            return q_count,q.limit(per_page).offset((page-1)*per_page).all()
+            #修正不正確的頁數顯示
+            if (page-1)*per_page > q_count:
+                page = math.ceil(q_count / per_page)
+            return page,q_count,q.limit(per_page).offset((page-1)*per_page).all()
             
         @classmethod
         def get_form(cls,id=None):
@@ -89,10 +94,10 @@ def mapUpdateForm(model,id=None):
             model = cls.get_model()
             filters = cls.get_search_filters(search)
          
-            count,rows = cls.get_query(filters,page,per_page) 
+            page,count,rows = cls.get_query(filters,page,per_page) 
             out_rows = cls.get_listrows(rows)
 
-            return out_rows, cls.get_pagination(count,page,per_page)   
+            return page,out_rows, cls.get_pagination(count,page,per_page)   
          
         @classmethod
         def get_template(cls):
@@ -425,7 +430,6 @@ def mapSearchForm(model):
             render_kw={'class':'form-control'})
         name = StringField('名稱', render_kw={'class':'form-control'})
 
-
     class SearchArticle(FlaskForm):
         
         category = QuerySelectField('上層', 
@@ -437,8 +441,6 @@ def mapSearchForm(model):
         
     class SearchProductAttribute(FlaskForm):
         name = StringField('屬性名稱', render_kw={'class':'form-control'})
-        
-
 
     class SearchUser(FlaskForm):
         
@@ -475,7 +477,29 @@ def mapSearchForm(model):
 def mapDeleteForm(model):
     
     class DeleteUser():
-        pass
+        @classmethod
+        def delete_data(cls,item):
+            try:
+                """檢查:管理員不能刪除"""
+                for user in item:
+                    _del = User.query.filter(User.id==user).first()
+                    if _del.email == current_app.config['ADMIN']:
+                        return "此帳號-{},是管理員,不能刪除!".format(_del.name)
+
+                str_roles = "delete from user_roles where user_id in (:item);"
+                db.session.execute(str_roles,{'item':item})
+                stm = User.__table__.delete().where(User.id.in_(item))
+                db.session.execute(stm)
+                db.session.commit()
+            except exc.SQLAlchemyError as e:
+                """ 捕獲錯誤, 否則無法回傳
+                """
+                db.session().rollback()   
+                if 'orig' in e.__dict__:
+                    return str(e.__dict__['orig'])
+                #raise e
+                return '刪除失敗!!'
+            return None  
 
     class DeleteUserRoles():
         pass
@@ -485,22 +509,57 @@ def mapDeleteForm(model):
         @classmethod
         def delete_data(cls,item):
             try:
-
-                db.session.query.get(id).delete()
+                stm = ProductAttribute.__table__.delete().where(ProductAttribute.id.in_(item))
+                db.session.execute(stm)
                 db.session.commit()
             except exc.SQLAlchemyError as e:
                 """ 捕獲錯誤, 否則無法回傳
                 """
                 db.session().rollback()   
-                error = str(e.__dict__['orig'])
-                raise Exception(error)
-                #raise Exception('資料庫更新失敗!!')
+                if 'orig' in e.__dict__:
+                    return str(e.__dict__['orig'])
+                return '刪除失敗!!'
+            return None  
 
     class DeleteArticleCategory():
-        pass
+        @classmethod
+        def delete_data(cls,item):
+            try:
+                #檢查是否有目錄及文章在此目錄下
+                for cat in item:
+                    articles = Article.query.filter(Article.category_id == cat).all()
+                    if articles:
+                        return '刪除失敗!!尚有文章在此目錄下'
+                    categories = ArticleCategory.query.filter(ArticleCategory.parent_id == cat).all()
+                    if categories:
+                        return '刪除失敗!!尚有其它目錄在此目錄下'
+                    stm = ArticleCategory.__table__.delete().where(ArticleCategory.id==cat)
+                    db.session.execute(stm)
+                db.session.commit()
+            except exc.SQLAlchemyError as e:
+                """ 捕獲錯誤, 否則無法回傳
+                """
+                db.session().rollback()   
+                if 'orig' in e.__dict__:
+                    return str(e.__dict__['orig'])
+                return '刪除失敗!!'
+            return None     
 
     class DeleteArticle():
-        pass        
+        @classmethod
+        def delete_data(cls,item):
+            try:
+                stm = Article.__table__.delete().where(Article.id.in_(item))
+                db.session.execute(stm)
+                db.session.commit()
+            except exc.SQLAlchemyError as e:
+                """ 捕獲錯誤, 否則無法回傳
+                """
+                db.session().rollback()   
+                if 'orig' in e.__dict__:
+                    return str(e.__dict__['orig'])
+                return '刪除失敗!!'
+            return None        
 
     model_form = {"User":DeleteUser,"UserRoles":DeleteUserRoles,"ProductAttribute":DeleteProductAttribute
         ,"ArticleCategory":DeleteArticleCategory,"Article":DeleteArticle}

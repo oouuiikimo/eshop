@@ -19,7 +19,7 @@
               </div>
               <!-- /.card-header -->
               <div class="card-body">
-                <form method="POST" action="{{formaction}}">
+                <form novalidate method="POST" action="{{formaction}}">
                 {% for row in layout%}
                     {%for field in row%}
                     {% if (loop.index % ((row|length)|int) ==1) or (row|length)|int ==1 -%}

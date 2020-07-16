@@ -179,6 +179,7 @@
           </div>
         </div>
         {%for item in debug if not item.name=='csrf_token'%} {{'' if not item.data else '{}:{}/'.format(item.id,item.data)}} {%endfor%}
+        <p>{{session['lastURL']}}</p>
     </div>
 
 {% endblock %}
@@ -212,12 +213,19 @@ function delete_checked() {
     formData.append('csrf_token',csrf_token);
     ajax("/admin/delete/{{menu}}/{{model}}", "POST",formData)
     .then(function(result) {
+      data = JSON.parse(result)
       console.log(result);
-      alert(result);
+      alert(data['success']);
+      return data['redirect']
         })
     .then(function(result) {
-      gotopage(1);
+      //gotopage(1);
+      window.location = result
+      
         })
+    .catch((error) => {
+      alert(error);
+    })    
     ;
     //var cboxes = document.getElementsByName("delete");
     //var len = cboxes.length;
@@ -238,7 +246,9 @@ function ajax(url, method, data) {
     request.onreadystatechange = function() {
       if (request.readyState === XMLHttpRequest.DONE) {
         if (request.status === 200) {
-          resolve(request.responseText);
+          data = JSON.parse(request.responseText)
+          if (data['success']) {resolve(request.responseText);}
+          else {reject(new Error(data['error']));}
         } else {
           reject(new Error(request.statusText));
         }

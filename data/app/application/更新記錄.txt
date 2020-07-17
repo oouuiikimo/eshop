@@ -2,4 +2,4 @@
 2020/07/15(wed):刪除頁面功能,ckeditor打包新功能, 並加入文章編輯頁
 2020/07/16(Thu):試著動態載入form class 失敗, 處理新刪修動作後回到上一頁路徑,修正頁數若大於最後頁, 一律顯示最後頁
                 完善刪除功能到各model,確認relation刪除正確
-2020/07/17(Fri):principals,flask_mail,flask_caching
+2020/07/17(Fri):principals,flask_mail,flask_caching,瞭解sqlalchemy和flask-sqlalchemy使用差別

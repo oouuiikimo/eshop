@@ -27,7 +27,7 @@ def get_menu(menu=None,submenu=None):
         "Tests":{"title":"功能測試","icon":"fa-question-circle","open":"","active":"",
         "submenu":{
             "ckeditor":{"title":"ckeditor","href":"/admin/ckeditor","icon":"fa-pencil-alt","active":""},
-            "Trumbowyg":{"title":"Trumbowyg","href":"/admin/Trumbowyg","icon":"fa-edit","active":""}
+            "editUser":{"title":"editUser","href":"/admin/editUser","icon":"fa-edit","active":""}
             }}
         }
 

@@ -7,6 +7,7 @@ from flask_mail import Mail,  Message
 from flask_sqlalchemy import SQLAlchemy
 from flask_principal import Principal, Permission, RoleNeed, UserNeed, Identity, AnonymousIdentity, identity_changed, \
     identity_loaded, Denial
+from .models.database import DB_SESSION    
 # Globally accessible libraries
 
 #db = SQLAlchemy()
@@ -26,6 +27,7 @@ def create_app():
     mail = Mail(app)
     cache = Cache(config=app.config['CACHE'])
     cache.init_app(app)
+    app.db_session = DB_SESSION(app.config['SQLALCHEMY_DATABASE_URI'])
     
     with app.app_context():
         """ Include our Routes 

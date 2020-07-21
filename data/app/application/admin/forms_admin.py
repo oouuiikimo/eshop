@@ -1,4 +1,5 @@
-from flask import g,current_app
+from flask import g,current_app as app
+from flask_login import current_user
 from flask_wtf import CSRFProtect, FlaskForm
 from wtforms import StringField, TextField, SubmitField,validators,SelectMultipleField,PasswordField,BooleanField \
 ,IntegerField,HiddenField,SelectField,ValidationError,TextAreaField
@@ -91,7 +92,6 @@ def mapUpdateForm(model,id=None):
             
         @classmethod
         def get_list(cls,page=1,per_page=10,search=None):
-            model = cls.get_model()
             filters = cls.get_search_filters(search)
          
             page,count,rows = cls.get_query(filters,page,per_page) 
@@ -125,7 +125,7 @@ def mapUpdateForm(model,id=None):
         @classmethod
         def update_data(cls,form,item):
             form.populate_obj(item)
-            item.author = g.user.email
+            #item.author = g.user.email
             item.updated = datetime.datetime.now()  
             db.session.add(item)  
             db.session.commit()
@@ -358,19 +358,18 @@ def mapUpdateForm(model,id=None):
 
         @classmethod
         def get_search_filters(cls,search):
-            model = cls.get_model()
             filters = []
             if search:
                 if 'name' in search and search.name.data:
-                    filters.append(model.name==search.name.data)
+                    filters.append(User.name==search.name.data)
                 if 'email' in search and search.email.data:
-                    filters.append(model.email.like('%{}%'.format(search.email.data)) )            
+                    filters.append(User.email.like('%{}%'.format(search.email.data)) )            
                 if 'source' in search and search.source.data:
-                    filters.append(model.source==search.source.data)   
+                    filters.append(User.source==search.source.data)   
                 if 'roles' in search and search.roles.data:
-                    filters.append(model.roles.any(Roles.role==search.roles.data.role))
+                    filters.append(User.roles.any(Roles.role==search.roles.data.role))
                 if 'active' in search and search.active.data:
-                    filters.append(model.active==search.active.data)    
+                    filters.append(User.active==search.active.data)    
             return filters
 
         @classmethod
@@ -485,6 +484,8 @@ def mapDeleteForm(model):
                     _del = User.query.filter(User.id==user).first()
                     if _del.email == current_app.config['ADMIN']:
                         return "此帳號-{},是管理員,不能刪除!".format(_del.name)
+                    if _del.id ==current_user.id:
+                        return "此帳號-{},己登入,不能刪除!".format(_del.name)
 
                 str_roles = "delete from user_roles where user_id in (:item);"
                 db.session.execute(str_roles,{'item':item})

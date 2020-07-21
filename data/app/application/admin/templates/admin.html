@@ -179,7 +179,7 @@
           </div>
         </div>
         {%for item in debug if not item.name=='csrf_token'%} {{'' if not item.data else '{}:{}/'.format(item.id,item.data)}} {%endfor%}
-        <p>{{session['lastURL']}}</p>
+        <p>roles:{{current_user.roles}}</p>
     </div>
 
 {% endblock %}

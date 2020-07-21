@@ -1,11 +1,27 @@
+#from sqlalchemy import Table, MetaData, Column, String, Integer, Text, create_engine
+from sqlalchemy.orm import mapper, sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+
 from sqlalchemy.orm import validates,load_only,relationship,backref
-from sqlalchemy import Integer,ForeignKey,String,DateTime,Table,Column,Boolean,Text
+from sqlalchemy import Integer,ForeignKey,String,DateTime,Table,Column,Boolean,Text, create_engine
 import datetime,re
 
 from werkzeug.security import generate_password_hash, check_password_hash
-from sqlalchemy.ext.declarative import declarative_base
-Base = declarative_base()
 
+Base = declarative_base()
+engine = create_engine('sqlite:///dev.db', echo=True)
+Session = sessionmaker(bind=engine)
+session = Session()
+
+
+class Post(Base):
+    __tablename__ = 'posts'
+    id = Column(Integer, primary_key=True)
+    title = Column(String)
+    body = Column(Text)
+
+    def __repr__(self):
+        return self.title
 
 user_roles = Table('user_roles', Base.metadata,
     Column('id',Integer, primary_key=True),
@@ -20,14 +36,20 @@ class Roles(Base):
                          nullable=False)
     users = relationship('User', secondary=user_roles, backref='Roles')
     def __repr__(self):
-        return str(self.role)
+        return str(self.id)
 
-# used for query_factory 
-def getRoles(session):
-    fields = ['roles']
-    a = session.query(Roles).all()
-    return a
+class Dynamic(dict):
+  """Dynamic objects are just bags of properties, some of which may happen to be functions"""
+  def __init__(self, **kwargs):
+    self.__dict__ = self
+    self.update(kwargs)
 
+  def __setattr__(self, name, value):
+    import types    
+    if isinstance(value, types.FunctionType):
+      self[name] = types.MethodType(value, self)
+    else:
+      super(Dynamic, self).__setattr__(name, value)
 
 class User(Base):
     """Model for user accounts."""
@@ -89,3 +111,57 @@ class User(Base):
     def __repr__(self):
         return '<User {}>'.format(self.name)
           
+class PostRepo(object):
+          
+    def __init__(self):
+        self.session = Session()
+        #self.init_db()
+
+    def init_db(self):
+        user = User(name='tom',email='tom@your-tom.com',active=True,source='local')
+        role = Roles(role='admin')
+        user.roles.append(role)
+        self.session.add(user)
+        self.session.commit()
+        
+    def all(self):
+        return self.session.query(Post).all()
+
+    def create(self, title, body):
+        post = Post(title=title, body=body)
+        self.session.add(post)
+        self.session.commit()
+        return post
+
+    def find(self, id):
+        #todo:必須結合select 到roles model
+        u={"id":1,"name":"tom","email":"oo@yppyy.cc","source":"facebook","active":1,"roles":[1]}
+        d = Dynamic(**u)
+        class U():
+            def __init__(self):
+                self.id = 1
+                self.name = "tom"
+        user = d #{"id":1,"name":"tom","email":"oo@yyy.cc","source":"google","active":1,"roles":[(1,"admin")]}
+        return self.session.query(User).filter(User.id == id).first()
+
+    def update(self, User):
+        
+        self.session.add(User)
+        self.session.commit()
+
+    def delete(self, post):
+        self.session.delete(post)
+        self.session.commit()
+        
+    def restore_roles(self,roles):
+        #return User.roles
+        if roles:
+            roles = self.session.query(Roles).filter(Roles.id.in_(roles)).all()
+            #User.roles =roles
+            return roles
+        return None
+    def get_roles(self):
+        return [(str(g.id), g.role) for g in self.session.query(Roles).all()]
+
+
+Base.metadata.create_all(engine)

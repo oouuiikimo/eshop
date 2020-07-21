@@ -20,7 +20,9 @@ def create_user():
     
 @current_app.before_request
 def before_request():
-    g.user = current_user#.get_id()
+    if current_user.is_authenticated:
+        g.user = current_user
+
     
 @login_manager.unauthorized_handler
 def unauthorized_callback(): 

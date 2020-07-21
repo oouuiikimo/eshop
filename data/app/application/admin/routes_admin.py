@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template,current_app,json,request,redirect, flash, session, url_for,g,jsonify
-from flask_login import login_required
+from flask_login import login_required,current_user
 from sqlalchemy.orm import load_only,joinedload,lazyload,outerjoin
 from .. import db,login_manager
 from ..models.user import User,Roles
@@ -22,7 +22,9 @@ admin_bp = Blueprint('admin_bp', __name__,
                      static_folder='statics')
                      
 @admin_bp.route('/', methods=['GET','POST'])
+@login_required
 def home():
+    #return str(current_user)
     return redirect(url_for('admin_bp.admin',model='User',menu='Accounts'))
 
 @admin_bp.route('/<menu>/<model>', methods=['GET','POST'])
@@ -143,6 +145,35 @@ def delete(menu,model):
 @login_required
 def Trumbowyg():
     return render_template('editor.html',activelink='{}.{}'.format('Tests','Trumbowyg'),menulist=get_menu())
+
+@admin_bp.route('/editUser/<int:post_id>', methods=['GET','POST'])    
+def editUser(post_id):
+    from ..admin.f_user import UserForm
+    from ..admin.m_user import PostRepo,Roles,User,user_roles
+    post_repo = PostRepo()
+    post = post_repo.find(post_id)
+    
+    form = UserForm(obj=post)
+    #return str(post.roles)
+    #form.body.choices = [(1, 'C++'), (2, 'Python'), (3, 'Plain Text'), (4, 'yyyyyn Text')]
+    #return str(post_repo.get_roles())
+    form.roles.choices = post_repo.get_roles()
+    
+    if request.method == 'POST' and form.validate():
+        #return str([str(i.id) for i in post_repo.restore_roles(post)])
+        #return str(request.form['roles'])
+        roles = post_repo.restore_roles(request.form['roles'])
+        #return str(form.roles)
+        post.roles = roles #post_repo.restore_roles(form.roles.data)
+        post.name = request.form['name']
+        #return str(post.roles)
+        #form.populate_obj(post) #說明: 這是將form data 放到post , 讓post 取得form 填入的資料
+        #做法1:將form.roles.data 轉成 roles 再populate 到 post 
+        #return "OK" #jsonify([i.role for i in post_repo.restore_roles(form.roles.data)])
+        post_repo.update(post)
+        return "fucking OK"
+        return redirect(url_for('show_post', post_id=post.id))
+    return render_template('posts_edit.html', form=form, post=post)
     
 @admin_bp.route('/ckeditor', methods=['GET'])
 @login_required

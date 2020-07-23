@@ -1,6 +1,12 @@
-2020/07/14(Tue):更改左側表單成自動變化,menu_admin.py
-2020/07/15(wed):刪除頁面功能,ckeditor打包新功能, 並加入文章編輯頁
-2020/07/16(Thu):試著動態載入form class 失敗, 處理新刪修動作後回到上一頁路徑,修正頁數若大於最後頁, 一律顯示最後頁
+2020/07/14 Tue:更改左側表單成自動變化,menu_admin.py
+2020/07/15 wed:刪除頁面功能,ckeditor打包新功能, 並加入文章編輯頁
+2020/07/16 Thu:試著動態載入form class 失敗, 處理新刪修動作後回到上一頁路徑,修正頁數若大於最後頁, 一律顯示最後頁
                 完善刪除功能到各model,確認relation刪除正確
-2020/07/17(Fri):principals,flask_mail,flask_caching,瞭解sqlalchemy和flask-sqlalchemy使用差別
-2020/07/20(Mon):更改auth 不使用 flask-sqlalchemy
+2020/07/17 Fri:principals,flask_mail,flask_caching,瞭解sqlalchemy和flask-sqlalchemy使用差別
+2020/07/20 Mon:更改auth 不使用 flask-sqlalchemy
+2020/07/21 Tue:解決 modelREPO 集中處理session 事務的困難及問題, 尋找到新的後台管理UI-stack horizontal
+2020/07/22 Wed:stack template 熟悉,list 頁面
+    - active 子項, 母項menu 會自動更改顯示active, 所以只需要在子項增加 class active 即可
+    - menu 並不會常變動,所以寫死在layout 中即可
+2020/07/23 Thu:rows_to_dict()功能, 實現將query 結果轉為dict, 包含relation結果;list, update, insert頁面 
+完善modelREPO

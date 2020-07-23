@@ -1,0 +1,19 @@
+/*================================================================================
+	Item Name: Stack - Responsive Admin Theme
+	Author: PIXINVENT
+	Author URL: http://www.themeforest.net/user/pixinvent
+================================================================================
+
+NOTE:
+------
+PLACE HERE YOUR OWN SCSS CODES AND IF NEEDED, OVERRIDE THE STYLES FROM THE OTHER STYLESHEETS.
+WE WILL RELEASE FUTURE UPDATES SO IN ORDER TO NOT OVERWRITE YOUR STYLES IT'S BETTER LIKE THIS.  */
+
+    body ,.header-navbar {
+    font-family: "微軟正黑體", "Microsoft JhengHei", "Segoe UI Semibold", "Segoe UI";
+    font-size: 16px;
+    }
+    .form-control {
+        font-family: "微軟正黑體", "Microsoft JhengHei", "Segoe UI Semibold", "Segoe UI";
+        /*font-size: 15px;*/
+    }

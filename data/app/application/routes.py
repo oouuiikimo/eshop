@@ -8,6 +8,7 @@ from . import login_manager
 
 @current_app.route('/', methods=['GET'])
 def home():
+    return redirect(url_for('captain.home'))
     return redirect(url_for('admin_bp.home'))
     return redirect(url_for('admin_bp.admin',model='User'))
     

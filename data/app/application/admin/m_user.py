@@ -1,11 +1,8 @@
-#from sqlalchemy import Table, MetaData, Column, String, Integer, Text, create_engine
-from sqlalchemy.orm import mapper, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-
-from sqlalchemy.orm import validates,load_only,relationship,backref
+from sqlalchemy.orm import (validates,load_only,relationship,backref,
+    mapper, sessionmaker)
 from sqlalchemy import Integer,ForeignKey,String,DateTime,Table,Column,Boolean,Text, create_engine
 import datetime,re
-
 from werkzeug.security import generate_password_hash, check_password_hash
 
 Base = declarative_base()

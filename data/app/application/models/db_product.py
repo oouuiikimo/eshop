@@ -6,14 +6,14 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 
 class ProductAttribute(Base):
-    __tablename__ = 'productattribute'
+    __tablename__ = 'product_attribute'
     id = Column(Integer, primary_key = True)
     name = Column(String(50),
                          unique=True,
                          nullable=False) 
                          
 class ProductType(Base):
-    __tablename__ = 'producttype'
+    __tablename__ = 'produc_ttype'
     id = Column(Integer, primary_key = True)
     name = Column(String(50),
                          unique=True,

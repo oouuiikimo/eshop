@@ -22,6 +22,7 @@ class Config:
     MAIL_USERNAME = 'tom@your-tom.com',
     MAIL_PASSWORD = '6ouigugI'
     CACHE = {'CACHE_TYPE': 'filesystem','CACHE_DIR':'cache','CACHE_DEFAULT_TIMEOUT':300}
+    EXPLAIN_TEMPLATE_LOADING = False
 
 
 

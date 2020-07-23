@@ -37,13 +37,14 @@ def create_app():
         from . import routes
         from .admin import routes_admin
         from .auth import routes_auth
+        from .captain import routes as routes_captain
         from .RichFilemanager.File import bluePrint as fileBluePrint
         # Register Blueprints
         app.register_blueprint(routes_admin.admin_bp)
         app.register_blueprint(routes_auth.auth_bp)
-        
+        app.register_blueprint(routes_captain.captain)
         app.register_blueprint(fileBluePrint)
-        from .dbcreate import init_db,update_db,test_page,add_articleCategories
+        #from .dbcreate import init_db,update_db,test_page,add_articleCategories
         #init_db(db) #,routes_auth.User) 
         #update_db(db) #,routes_auth.User) 
         #test_page(db)

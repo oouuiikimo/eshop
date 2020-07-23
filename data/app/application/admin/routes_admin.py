@@ -150,13 +150,35 @@ def Trumbowyg():
 def editUser(post_id):
     from ..admin.f_user import UserForm
     from ..admin.m_user import PostRepo,Roles,User,user_roles
+    import importlib
+    
+    def _class(_package,_module):
+
+        #module = importlib.import_module(_package)
+        module = importlib.import_module('application.admin.repo.{}'.format(_package))
+        return getattr(module, _module)
+        
+    def _get_repo(model):
+        _package = model #實體檔案
+        _module = model.capitalize() #檔案內class 名稱
+        return _class(_package,_module)
+
+        
+            
+    repo = _get_repo("user")
+    return str(repo())
+    """
+    1.引用class,依model type 
+    2.查詢或回傳model及form
+    3.POST 處理update,insert,delete
+    4.回傳或轉頁
+    """
+    
+    
     post_repo = PostRepo()
     post = post_repo.find(post_id)
     
     form = UserForm(obj=post)
-    #return str(post.roles)
-    #form.body.choices = [(1, 'C++'), (2, 'Python'), (3, 'Plain Text'), (4, 'yyyyyn Text')]
-    #return str(post_repo.get_roles())
     form.roles.choices = post_repo.get_roles()
     
     if request.method == 'POST' and form.validate():

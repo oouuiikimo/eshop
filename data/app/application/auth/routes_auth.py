@@ -28,7 +28,7 @@ def login():
     with app.db_session.session_scope() as session: 
         if current_user.is_authenticated:
             
-            return redirect(url_for('admin_bp.home'))
+            return redirect(url_for('captain.home'))
             return "you're logged in:{}".format("OK")  # Bypass if user is logged in
 
         login_form = LoginForm()
@@ -42,11 +42,11 @@ def login():
                     login_user(login)
                     user.login() # update last_login time
                     next_page = request.args.get('next')
-                    return redirect(next_page or url_for('admin_bp.home'))
+                    return redirect(next_page or url_for('captain.home'))
             else:
                 flash(login_form.errors)          
             flash('Invalid username/password combination')
-            return redirect(url_for('admin_bp.home'))
+            return redirect(url_for('captain.home'))
 
         return render_template('auth/login.html',
                                form=login_form,
@@ -63,7 +63,7 @@ def logout():
     #    session.pop(key, None)
 
     #identity_changed.send(current_app._get_current_object(), identity=AnonymousIdentity())
-    return redirect(url_for("auth_bp.login"))
+    return redirect(url_for("captain.login"))
     
 @auth_bp.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -93,7 +93,7 @@ def signup():
                     login = UserLogin(user)
                     login_user(login)
                     next_page = request.args.get('next')
-                    return redirect(next_page or url_for('admin_bp.home'))
+                    return redirect(next_page or url_for('captain.home'))
                     
                 flash('A user already exists with that email address.')
                 return redirect(url_for('auth_bp.signup'))

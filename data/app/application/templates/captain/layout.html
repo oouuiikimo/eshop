@@ -34,8 +34,17 @@
     <!-- END: Page CSS-->
 
     <!-- BEGIN: Custom CSS-->
-    <link rel="stylesheet" type="text/css" href="/captain/statics/css/style.css?v=10">
-
+    <link rel="stylesheet" type="text/css" href="/captain/statics/css/style.css?v=27">
+    <style>
+    .mt-alerts {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    width: 100%;
+    z-index:9999; 
+    border-radius:0px;
+        }
+    </style>
     {%block css %} {%endblock%}
     <!-- END: Custom CSS-->
 
@@ -44,7 +53,11 @@
 
   <!-- BEGIN: Body-->
   <body class="horizontal-layout horizontal-menu horizontal-menu-padding 2-columns  " data-open="hover" data-menu="horizontal-menu" data-col="2-columns">
-
+    <!-- alert meesage -->
+    <div class="alert alert-danger mt-alerts col-12 col-sm-12 col-md-9	col-lg-6 col-xl-3" role="alert">
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <strong>Success!</strong> You have been signed in successfully!
+    </div>
     <!-- BEGIN: Header-->
     <nav class="header-navbar navbar-expand-md navbar navbar-with-menu navbar-static-top navbar-light navbar-border navbar-brand-center">
       <div class="navbar-wrapper">
@@ -170,7 +183,7 @@
     <!-- END: Header-->
     
     <!-- BEGIN: Main Menu-->
-    {% include 'menu.html' %}
+    {% include 'captain/menu.html' %}
     <!-- END: Main Menu-->
 
     <!-- BEGIN: Content-->

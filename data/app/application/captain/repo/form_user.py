@@ -1,47 +1,64 @@
-from wtforms import Form, StringField, TextField, validators,BooleanField
-from wtforms.validators import (DataRequired,
+from wtforms import (Form, StringField, TextField, validators,widgets,
+    BooleanField,SelectMultipleField,SelectField,RadioField)
+from wtforms.validators import (DataRequired,ValidationError,
                                 Email,
                                 EqualTo,
                                 Length,
                                 URL)
-from wtforms.fields import SelectField,SelectMultipleField
-import sqlalchemy
+from flask_wtf import CSRFProtect, FlaskForm
 
-class UpdateFrom(Form):
+class MultiCheckboxField(SelectMultipleField):
+    widget = widgets.ListWidget(prefix_label=False)
+    option_widget = widgets.CheckboxInput()
+
+
+class SelectCheckboxField(SelectField):
+    widget = widgets.ListWidget(prefix_label=False)
+    option_widget = widgets.CheckboxInput()
     
-    """Contact form."""
+    
+    
+class UpdateForm(FlaskForm):
+
     name = StringField('名稱', [
-        DataRequired()],render_kw={'class':'form-control'})
+        DataRequired()],
+        render_kw={'class':'form-control','placeholder':'請輸入帳號代表名稱'})
     email = StringField('Email', [
         Email(message=('郵件格式有問題, 請確認')),
-        DataRequired()],render_kw={'class':'form-control'}) 
-    source = SelectField('帳號來源', [
-        DataRequired(),
-        Length(min=4, message=('Your message is too short.'))], 
+        DataRequired()],
+        render_kw={'class':'form-control','placeholder':'請輸入電子郵件位址'}) 
+    source = SelectCheckboxField('帳號來源',  [DataRequired("沒有選擇來源")],
         render_kw={'class':'form-control'},
         choices = [('google', 'google'),
                ('facebook', 'facebook'),
-               ('local', '本地')])
-    roles = SelectMultipleField('權限', 
-        #coerce=int, 
+               ('local', '本地')],
+        default='local')
+    roles = MultiCheckboxField('權限', 
+        choices = [],#('1', 'admin'),('2', 'customer')],
         render_kw={'class':'form-control'})
-    active = BooleanField('有效', default='checked',
-        render_kw={'class':'form-control form-check-input'})     
+    active = RadioField('有效', 
+        choices = [('1', '有效'),('0', '失效')],
+        render_kw={'class':'custom-control-input'})    
+    
         
-class SearchForm(Form):
+class SearchForm(FlaskForm):
     
     """Contact form."""
-    name = StringField('名稱', render_kw={'class':'form-control'})
+    name = StringField('名稱', 
+        render_kw={'class':'form-control','style':'width:100px;'})
     email = StringField('Email', 
-        render_kw={'class':'form-control'}) 
+        render_kw={'class':'form-control','style':'width:200px;'}) 
     source = SelectField('帳號來源', 
         render_kw={'class':'form-control'},
-        choices = [('',''),('google', 'google'),
+        choices = [('','- 請選擇 -'),('google', 'google'),
                ('facebook', 'facebook'),
                ('local', '本地')])
-    roles = SelectMultipleField('權限', 
-        #coerce=int, 
+    roles = SelectField('權限', 
+        choices = [('','- 請選擇 -')],
         render_kw={'class':'form-control'})
     active = SelectField('有效', 
         render_kw={'class':'form-control'},
-        choices = [('',''),('1', '有效'),('0', '無效')])        
+        choices = [('',' 請選擇 '),('1', '有效'),('0', '無效')])     
+        
+    
+    

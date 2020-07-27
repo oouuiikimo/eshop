@@ -23,7 +23,7 @@ class BaseRepo(object):
                 return count
             
             page=int(page)
-            per_page=int(per_page)
+            per_page=int(per_page) or 10
             #get all rows before doing pagination !!
             
             q = session.query(self.model).filter(*filters)
@@ -38,9 +38,12 @@ class BaseRepo(object):
             page,count,rows = get_query(session,filters,page,per_page) 
             out_rows = self.get_listrows(rows)
 
-        return page,out_rows,get_pagination(count,page,per_page)
+        return page,out_rows,count,get_pagination(count,page,per_page)
 
-
+        
+    class Struct:
+        def __init__(self, **entries):
+            self.__dict__.update(entries)
         
 
         

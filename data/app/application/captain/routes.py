@@ -21,11 +21,7 @@ repo_path = 'application.captain.repo'
                      
 @captain.route('/', methods=['GET','POST'])
 @login_required
-def home():
-    """
-    顯示model 資料列表
-    """
-   
+def home():   
     return redirect(url_for('captain.list',repo_name='user'))
 
 @captain.route('/list/<repo_name>', methods=['GET','POST'])
@@ -37,56 +33,53 @@ def list(repo_name):
     page = request.args.get('page') or 1
     per_page = request.args.get('per_page') or default_per_page
     #準備 repo_modelname_list
-    repo = _repo("user")()
+    repo = _repo(repo_name)()
     
     #準備 repo_modelname_search_form       
-    search_form = repo.search_form()
+    searchForm = repo.search_form()
+
     #if post filter 處理查詢條件,else 回傳空值
     if request.method == 'POST':
-        search = search_form
+        search = searchForm
+        
     else:
         search=None
     #準備資料集
+    session['lastURL'] = '/captain/list/{}?page={}&per_page={}'.format(repo_name,int(page),int(per_page))
+    page,data,count,pagination = repo.get_list(page=page,per_page=per_page,search=search)
+    data_to_template = {'page':page,'per_page':per_page,'data':data,'count':count,'pagination':pagination,
+        'search_form':searchForm,'repo_name':repo_name,'repo_title':repo.title,'repo_desc':repo.description}
+    return render_template('/captain/list.html',**data_to_template)
     
-    page,data,pagination = repo.get_list(page=page,per_page=per_page,search=search)
-    """
-    data = {'model':model,'fields':fields,'rows':rows,'menulist':get_menu(menu,model),
-        'pagination':pagination,'menu':menu,'formName':formName,
-        'searchform':searchForm(),'debug':searchForm(),'page':int(page),'per_page':int(per_page)}
+@captain.route('/update/<repo_name>/', defaults={'id': None}, methods=['GET','POST'])    
+@captain.route('/update/<repo_name>/<id>', methods=['GET','POST'])
+@login_required
+def update(repo_name,id):
+    repo = _repo(repo_name)()  
+    form,item = repo.update_form(id)   
+    if request.method == 'POST' and form.validate():
+        form.populate_obj(obj=item)
+        repo.update(item,id)
+        if 'lastURL' in session and session['lastURL'] is not None:
+            return redirect(session['lastURL'])
+        return redirect(url_for('captain.list',repo_name=repo_name))
 
-    session['lastURL'] = '/captain/{}/{}?page={}&per_page={}'.format(menu,model,int(page),int(per_page)) 
-    """
-    data_to_template = {'page':page,'data':data,'pagination':pagination}
-    return render_template('list.html',**data_to_template)#str(rows)
+    data_to_template = {'form':form,'item':item,'update_type':'{}.{}'.format(repo.title,'新增' if not id else '編輯')}
+    return render_template('/captain/update.html',**data_to_template)
     
-@captain.route('/update/<repo_name>', methods=['GET','POST'])
-@login_required
-def update(repo_name):
-    return str(_repo("user")())
-    
-@captain.route('/insert/<repo_name>', methods=['GET','POST'])
-@login_required
-def insert(repo_name):
-    return str(_repo("user")())
-    
-@captain.route('/delete/<repo_name>', methods=['GET','POST'])
+@captain.route('/delete/<repo_name>', methods=['POST'])
 @login_required
 def delete(repo_name):
-    return str(_repo("user")())
-    
-def filter(repo_name):
-    return str(_repo("user")())    
-    
-def menu(path):    
-    """ 
-    功能:
-    - 回傳整個menu tree (可多層)
-    - 回傳某個menu的 完整 tree path ,用 list 表示 ['path1','path2',....]
-    說明:
-    - 每個menu 名稱必須唯一 , 格式可為: route_name+'_'+repo_name
-    
-    """
-    menu = get_menu()
+    repo = _repo(repo_name)() 
+    remove_items = json.loads(request.form.get('id'))
+    lastURL = ""
+    if "lastURL" in session:
+        lastURL = session['lastURL']
+        
+    error = repo.delete(remove_items)
+    if error:
+        return jsonify({"error":'有錯誤 :{}'.format(error)})
+    return jsonify({"success":'己刪除記錄 :{}'.format(remove_items),"redirect":lastURL}) 
     
 def _repo(name):
     import importlib

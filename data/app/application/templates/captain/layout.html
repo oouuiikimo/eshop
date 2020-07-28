@@ -36,14 +36,58 @@
     <!-- BEGIN: Custom CSS-->
     <link rel="stylesheet" type="text/css" href="/captain/statics/css/style.css?v=27">
     <style>
-    .mt-alerts {
-    position: absolute;
+    .alerts {
+	font-family: "微軟正黑體", "Microsoft JhengHei", "Segoe UI Semibold", "Segoe UI";
+    position: fixed;
     top: 0px;
     right: 0px;
     width: 100%;
     z-index:9999; 
     border-radius:0px;
+    margin:5px;
+	
         }
+    .alert {position: relative;
+	top: 0px;
+    right: 0px;
+	margin-top:0px;margin-bottom:5px;}
+
+
+	.hide {
+	  opacity: 0;
+	  transition: opacity 1000ms;
+	}		
+	.fadein {
+animation: fadeIn ease 1s;
+-webkit-animation: fadeIn ease 1s;
+-moz-animation: fadeIn ease 1s;
+-o-animation: fadeIn ease 1s;
+-ms-animation: fadeIn ease 1s;
+}
+@keyframes fadeIn {
+0% {opacity:0;}
+100% {opacity:1;}
+}
+
+@-moz-keyframes fadeIn {
+0% {opacity:0;}
+100% {opacity:1;}
+}
+
+@-webkit-keyframes fadeIn {
+0% {opacity:0;}
+100% {opacity:1;}
+}
+
+@-o-keyframes fadeIn {
+0% {opacity:0;}
+100% {opacity:1;}
+}
+
+@-ms-keyframes fadeIn {
+0% {opacity:0;}
+100% {opacity:1;}
+}
     </style>
     {%block css %} {%endblock%}
     <!-- END: Custom CSS-->
@@ -52,12 +96,12 @@
   <!-- END: Head-->
 
   <!-- BEGIN: Body-->
-  <body class="horizontal-layout horizontal-menu horizontal-menu-padding 2-columns  " data-open="hover" data-menu="horizontal-menu" data-col="2-columns">
+  <body class="horizontal-layout horizontal-menu horizontal-menu-padding 2-columns show" data-open="hover" data-menu="horizontal-menu" data-col="2-columns">
     <!-- alert meesage -->
-    <div class="alert alert-danger mt-alerts col-12 col-sm-12 col-md-9	col-lg-6 col-xl-3" role="alert">
-      <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-      <strong>Success!</strong> You have been signed in successfully!
-    </div>
+	<div class="alerts d-flex align-items-end flex-column" id="div_alert">
+
+	</div>
+
     <!-- BEGIN: Header-->
     <nav class="header-navbar navbar-expand-md navbar navbar-with-menu navbar-static-top navbar-light navbar-border navbar-brand-center">
       <div class="navbar-wrapper">
@@ -221,6 +265,87 @@
 
     <!-- BEGIN: Custom JS-->
     {%block js %} {%endblock%}
+	<script>
+	var divalert = document.getElementById("div_alert");
+	
+	$(window).on("load", function(){
+      // Handler when all assets (including images) are loaded
+      //myFunction(el, 1000);
+	  title = '她擋住了我的日出'
+	  msg = '登機落座，身邊是一位瘦小的老太太，在ipad上聚精會神地玩撲克遊戲，起飛，她靠著舷窗睡著了。她擋住了我的日出。'+
+			'乘務員送飲料了，她醒來輕輕說：「番茄汁，一點點冰」。'
+	  //type:primary ,secondary ,success ,danger ,warning ,info ,light ,dark 
+	  //fire_alert('success',title,msg,5000)
+	  //fadeOut(x[0])
+	  /*
+	  var timeoutID
+	  let i;
+		for (i = 0; i < x.length; i++) {
+		  set_fadeout(x[i]);
+		}
+	  */
+    });  
+	
+	function set_fadeout(el,time) {
+		timeoutID = window.setTimeout(fadeOut,time,el);
+	}
+	
+	function fadeIn(el){
+	  el.classList.remove('hide'); 
+	  el.classList.add('fadein');
+	  el.classList.add('show');
+	  
+	  
+	}
+
+	function fadeOut(el){
+	  el.classList.add('hide');
+	  el.classList.remove('fadein');
+	  el.remove()
+	}
+	
+	function fire_alert(type='info',title,msg,close) { //type,title,msg,close
+	//create
+    //type:primary ,secondary ,success ,danger ,warning ,info ,light ,dark 
+	uuid = uuidv4()
+    var str ='<div id="'+uuid+'" class="alert alert-info alert-dismissible col-12 col-sm-9 col-md-7 col-lg-5 col-xl-4 fade hide" role="alert">\n'+
+	  '<strong>'+title+'</strong> '+msg +
+	  '<button type="button" class="close" data-dismiss="alert" aria-label="Close">\n'+
+	  '<span aria-hidden="true">&times;</span>\n'+
+	  '</button>\n'+
+	'</div>'
+	var str2 = '<div id="'+uuid+'" class="alert alert-'+type+' alert-dismissible col-12 col-sm-9 col-md-7 col-lg-5 col-xl-4 fade hide" role="alert">\n'+
+		'<h4 class="alert-heading">'+title+'!</h4>'+
+		'<hr>'+
+		'<p>'+msg+'</p>'+
+		//'<p class="mb-0">Whenever you need to, be sure to use margin utilities to keep things nice and tidy.</p>'+
+		'<button type="button" class="close" data-dismiss="alert" aria-label="Close">\n'+
+		  '<span aria-hidden="true">&times;</span>\n'+
+		  '</button>\n'+
+		'</div>'
+	let frag1 = document.createRange().createContextualFragment(str2);
+	//let frag2 = document.createRange().createContextualFragment(str);
+	divalert.appendChild(frag1);
+	//divalert.appendChild(frag2);
+	//show
+	
+	//close if needed
+	var x = document.getElementById(uuid);
+	fadeIn(x)
+	if (close)
+		timeoutID = window.setTimeout(fadeOut,5000,x);
+	//set_fadeout(frag,3000)
+	}
+	
+	function uuidv4() {
+	  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+		var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+		return v.toString(16);
+	  });
+	}
+
+	</script>
+	
     <!-- END: Custom JS-->
   </body>
   <!-- END: Body-->

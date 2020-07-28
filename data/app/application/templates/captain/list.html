@@ -35,7 +35,7 @@
 					<div class="form-group row mr-1" style="width:55px;">
                		  <div class="col-md-9">
 						<div class="input-group">
-							<button type="button" class="btn btn-danger"data-toggle="tooltip" name="btn_clear_filter" title="清空篩選條件" onclick="javascript:remove_filter();">
+							<button type="button" class="btn btn-info"data-toggle="tooltip" name="btn_clear_filter" title="清空篩選條件" onclick="javascript:remove_filter();">
                             <i class="feather icon-slash" style ="font-size:20px;"></i></button>
 						</div>
 					  </div>
@@ -43,7 +43,7 @@
 					<div class="form-group row mr-1" style="width:55px;">
                		  <div class="col-md-9">
 						<div class="input-group">
-							<button type="submit" class="btn btn-success" name="btn_submit" data-toggle="tooltip" title="依篩選條件查詢">
+							<button type="submit" class="btn btn-info" name="btn_submit" data-toggle="tooltip" title="依篩選條件查詢">
                             <i class="feather icon-search" style ="font-size:20px;"></i></button>
 						</div>
 					  </div>
@@ -59,7 +59,7 @@
     <div class="col-12">
         <div class="card">
             <div class="card-header">
-                <h4 class="card-title"><span class="under_line-red">{{repo_title}}</span></h4>
+                <h4 class="card-title"><span class="under_line-red">{{repo_title}}.列表</span></h4>
   
                 <div class="heading-elements">
                     <ul class="list-inline mb-0">
@@ -79,9 +79,9 @@
                     <li>
                         <select class="form-control " id="per_page_sel" >
                                 <option value="">每頁筆數</option>
-                                <option value="5">每頁5筆</option>
-                                <option value="10">每頁10筆</option>
-                                <option value="20">每頁20筆</option>
+                                <option value="5" {%if per_page=='5'%}selected{%endif%}>每頁5筆</option>
+                                <option value="10" {%if per_page=='10'%}selected{%endif%}>每頁10筆</option>
+                                <option value="20" {%if per_page=='20'%}selected{%endif%}>每頁20筆</option>
                             </select>
                     </li>
                     </ul>
@@ -94,7 +94,7 @@
                         <table class="table">
                             <thead>
                                 <tr>
-                                    <th><input type="checkbox" value=""></th>
+                                    <th><input id="check_toggle" type="checkbox" value="" onclick="javascript:toggle_check();"></th>
                                 {%for field in data.fields-%}
                                     <th>{{field}}</th>
                                 {%endfor-%}
@@ -164,7 +164,7 @@ var per_page = {{per_page}} || 10
 
 $(window).on("load", function(){
   // Handler when all assets (including images) are loaded
-  set_per_page();
+  //set_per_page();
   per_page_sel.addEventListener("change", function(){gotopage(1)});
 });
 
@@ -193,6 +193,20 @@ function gotopage(page) {
     
 }
 
+function toggle_check() {
+	var x = document.querySelectorAll("input[type=checkbox][name=delete]");
+	var me = document.getElementById("check_toggle")
+	if (me.checked == true){
+		for (i=0;i<x.length;i++) {
+			x[i].checked = true;
+			}
+	  } else {
+			for (i=0;i<x.length;i++) {
+				x[i].checked = false;
+			}
+	  }
+	}
+
 function delete_items(item=null) {
 
     var x = document.querySelectorAll("input[type=checkbox][name=delete]:checked");
@@ -210,20 +224,30 @@ function delete_items(item=null) {
     ajax("/captain/delete/{{repo_name}}", "POST",formData)
     .then(function(result) {
       data = JSON.parse(result)
-      alert(data['success']);
-      return data['redirect']
+      //alert(data['success']);
+	  fire_alert('success','刪除作業成功',data['success'],5000) 
+	   return data['redirect']
+
+      
         })
     .then(function(result) {
       //gotopage(1);
-      window.location = result
+	  
+	  	var timeoutID = window.setTimeout((function(result) {
+		window.location = result
+		//alert('result:'+result)
+		}),5000,result);
+	  //return data['redirect']
+      
       
         })
     .catch((error) => {
-      alert(error);
+      fire_alert('danger','刪除作業失敗',error,5000)
     })    
     ;
 
 }
+
 
 function ajax(url, method, data) {
   return new Promise(function(resolve, reject) {

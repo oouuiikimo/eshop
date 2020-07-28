@@ -118,16 +118,17 @@ class RepoUser(BaseRepo):
                 for user in item:
                     
                     _del = session.query(User).filter(User.id==user).first()
-                    #return str(_del.id ==current_user.id)
-                    if _del.email == app.config['ADMIN']:
-                        return "此帳號-{},是管理員,不能刪除!".format(_del.name)
-                    if _del.id ==current_user.id:
-                        return "此帳號-{},己登入,不能刪除!".format(_del.name)
-
-                str_roles = "delete from user_roles where user_id in (:item);"
-                session.execute(str_roles,{'item':item})
-                stm = User.__table__.delete().where(User.id.in_(item))
-                session.execute(stm)
+                    if _del:
+                        #return str(_del.id )
+                        if _del.email == app.config['ADMIN']:
+                            return "此帳號-{},是管理員,不能刪除!".format(_del.name)
+                        if _del.id ==current_user.id:
+                            return "此帳號-{},己登入,不能刪除!".format(_del.name)
+                            
+                        #_del.roles.clear()
+                        #session.commit()
+                        #session.delete(_del)
+                        return "有錯誤發生" 
                 
         except exc.SQLAlchemyError as e:
             """ 捕獲錯誤, 否則無法回傳

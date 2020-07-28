@@ -77,7 +77,9 @@ def delete(repo_name):
         lastURL = session['lastURL']
         
     error = repo.delete(remove_items)
+    
     if error:
+        #raise Exception(error)
         return jsonify({"error":'有錯誤 :{}'.format(error)})
     return jsonify({"success":'己刪除記錄 :{}'.format(remove_items),"redirect":lastURL}) 
     

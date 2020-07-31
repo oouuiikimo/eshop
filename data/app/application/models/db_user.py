@@ -52,9 +52,12 @@ class User(Base):
                          unique=False,
                          nullable=True)
     source = Column(String(20),
-                        nullable=False)
+                        unique=False,
+                         nullable=True)
+    social_id = Column(String(50),
+                        unique=True)
     active = Column(Boolean)                     
-    bio = Column(Text,
+    photo = Column(String(200),
                     index=False,
                     unique=False,
                     nullable=True)

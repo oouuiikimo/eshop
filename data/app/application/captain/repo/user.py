@@ -53,8 +53,10 @@ class RepoUser(BaseRepo):
         out_rows = []
         for row in rows:
             out_rows.append(['<div style="width:100px;"><input type="checkbox" name="delete" value="{}">'.format(row.id)+
-                '<a href="javascript:delete_items({});" class="ml-1"><i class="feather icon-x-circle"></a></i>'.format(row.id)+
-                '<a href="/captain/update/user/{}" class="ml-1"><i class="feather icon-edit"></a></i></div>'.format(row.id),
+                '<a href="javascript:delete_items({});" class="ml-1">'.format(row.id)+
+                '<i class="feather icon-x-circle" data-toggle="tooltip" title="刪除{}{}"></a></i>'.format(self.title,row.name)+
+                '<a href="/captain/update/user/{}" class="ml-1">'.format(row.id)+
+                '<i class="feather icon-edit" data-toggle="tooltip" title="編輯{}{}"></a></i></div>'.format(self.title,row.name),
                 row.name,
                 row.email,'有效' if row.active else '失效',row.source, str(row.roles) if row.roles else "無"])
         return {
@@ -65,17 +67,17 @@ class RepoUser(BaseRepo):
     def get_search_filters(self,search):
         filters = []
         if search:
-            if 'name' in search and search.name.data:
-                filters.append(User.name==search.name.data)
-            if 'email' in search and search.email.data:
-                filters.append(User.email.like('%{}%'.format(search.email.data)) )            
-            if 'source' in search and search.source.data:
-                filters.append(User.source==search.source.data)   
-            if 'roles' in search and search.roles.data:
+            if 'name' in search and search['name']: #search.name.data:
+                filters.append(User.name==search['name'])
+            if 'email' in search and search['email']: #search.email.data:
+                filters.append(User.email.like('%{}%'.format(search['email'])) )            
+            if 'source' in search and search['source']: #search.source.data:
+                filters.append(User.source==search['source'])   
+            if 'roles' in search and search['roles']: #search.roles.data:
                 #filters.append(User.roles.any(Roles.role==search.roles.data.role))
-                filters.append(User.roles.any(Roles.id == search.roles.data))
-            if 'active' in search and search.active.data:
-                filters.append(User.active==search.active.data)    
+                filters.append(User.roles.any(Roles.id == search['roles']))
+            if 'active' in search and search['active']: #search.active.data:
+                filters.append(User.active==search['active'])    
         return filters
   
     def find(self, id=None):

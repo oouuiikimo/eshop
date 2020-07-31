@@ -1,5 +1,5 @@
 """Routes for user authentication."""
-from flask import Blueprint, render_template, request,redirect, flash, session, url_for,g
+from flask import Blueprint, render_template, request,redirect, flash, session, url_for,g,jsonify
 from flask_login import login_required,logout_user, current_user, login_user
 from flask import current_app as app
 from .forms import LoginForm, SignupForm
@@ -7,6 +7,7 @@ from .. import db,login_manager
 #from ..models.user import User
 from ..models.db_user import User
 from .user_login import UserLogin
+from .callback_google import callback_google,get_google_provider_cfg
 
 # Blueprint Configuration
 auth_bp = Blueprint('auth_bp', __name__,
@@ -15,6 +16,9 @@ auth_bp = Blueprint('auth_bp', __name__,
                     static_folder='statics')
 #compile_auth_assets(app)
 
+@auth_bp.route('/login/fb', methods=['GET', 'POST'])
+def login_fb():
+    return render_template('auth/fb.html')
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -53,6 +57,46 @@ def login():
                                title='Log in.',
                                template='login-page', next=request.args.get('next') or '',
                                body="Log in with your User account.")
+                               
+@auth_bp.route('/login/g/<type>', methods=['GET', 'POST'])
+def login_google(type):
+    from .callback_google import client
+    # Find out what URL to hit for Google login
+    google_provider_cfg = get_google_provider_cfg()
+    authorization_endpoint = google_provider_cfg["authorization_endpoint"]
+
+    # Use library to construct the request for login and provide
+    # scopes that let you retrieve user's profile from Google
+    #request.base_url + "/callback",
+    #4 type: user_login,customer_login,register_user,register_customer
+    _callback = url_for('auth_bp.callback',
+        _external=True,
+        _scheme='https',
+        social='g',
+        type = type)
+    #return str(request.base_url + "/callback")    
+    request_uri = client.prepare_request_uri(
+        authorization_endpoint,
+        redirect_uri=_callback,
+        scope=["openid", "email", "profile"],
+    )
+    #return request_uri
+    #process:find db if user exist then redirect to homepage or nextURL
+    return redirect(request_uri)
+    
+@auth_bp.route('/login/f', methods=['GET', 'POST'])
+def login_facebook():
+    pass
+    
+@auth_bp.route('/login/t', methods=['GET', 'POST'])
+def login_twitter():
+    pass
+
+@auth_bp.route("/callback/<social>/<type>",endpoint= "callback")
+def callback(social,type):
+    if social == 'g':
+        return jsonify({'{}-{}:'.format(social,type):callback_google(request,type)})
+  
 
 @auth_bp.route('/logout')
 @login_required
@@ -63,7 +107,7 @@ def logout():
     #    session.pop(key, None)
 
     #identity_changed.send(current_app._get_current_object(), identity=AnonymousIdentity())
-    return redirect(url_for("captain.login"))
+    return redirect(url_for("auth_bp.login"))
     
 @auth_bp.route('/signup', methods=['GET', 'POST'])
 def signup():

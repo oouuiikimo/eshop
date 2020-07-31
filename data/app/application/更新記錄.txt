@@ -14,7 +14,26 @@
 2020/07/26 Sun:修改theme color 主色, 修改form custom input樣式, 增加美觀
 -----
 2020/07/27 Mon:刪除功能,登入增加google認証
-2020/07/28 Tue:
-2020/07/29 Wed:
+2020/07/28 Tue:flash alert,delete repo action
+2020/07/29 Wed:social login ,register
+            - social登入:若己有帳號即登入
+            - social登入:若尚未有帳號, 詢問是否要註冊成為會員, 
+            -- 是: 即建立帳號並登入
+            -- 否: 登出social 並回到登入頁
+            - 登入後, 若是有其它會員資料尚未填寫, 可秀出是否要進入完備個人資料選項, 但不強制
+            - 登出步驟:
+            -- 使用者按下登出
+            -- logout route 中判斷登入的類型
+            --- 若是 google , 可轉到專用html 頁面, 並自動按下轉址退出位址, 執行退出google
+            var logout = function() {
+                document.location.href = "https://www.google.com/accounts/Logout?continue=https://appengine.google.com/_ah/logout?continue=http://www.example.com";
+            }
+            ,或者, 只提示目前只退出本網站, 但尚未登出google , 並給一個登出google連結給使用者登出
+            --- 若是facebook 可以call fb.logout 將使用者登出fb
+            
 2020/07/30 Thu:
-2020/07/31 Fri:
+2020/07/31 Fri:fb登入熟悉運作,處理list頁查詢的form 結果,改成存到session ,否則更新資料的取消返回上頁會詢問是否重新送出查詢,
+            - 前站blueprint 構思,前站分幾個bp:
+            -- shop: 不論登入與否, 都可以看到的各項商品展示頁面及功能
+            -- member 專屬會員的各項查詢及功能
+            -- cart 購物車功能及結帳功能

@@ -14,7 +14,7 @@ from flask_mail import Mail,  Message
 # Set up a Blueprint
 captain = Blueprint('captain', __name__,
                     url_prefix='/captain',
-                     template_folder='templates/captain',
+                     template_folder='templates',
                      static_folder='statics')
                      
 repo_path = 'application.captain.repo'
@@ -40,12 +40,25 @@ def list(repo_name):
 
     #if post filter 處理查詢條件,else 回傳空值
     if request.method == 'POST':
-        search = searchForm
         
+        session['search'] = {repo_name:{
+            i.id: i.data for i in searchForm if i.id is not 'csrf_token' and
+            (i.data is not "" and i.data is not None)
+            }} 
+        return redirect(session['lastURL']) #jsonify(session['search'])
+        
+    if session['search'][repo_name]:
+        search=session['search'][repo_name]
     else:
         search=None
-    #準備資料集
+        
+    #復原searchForm內容
+    if repo_name in session['search'] and session['search'][repo_name]:
+        for i in session['search'][repo_name]:
+            searchForm[i].data = session['search'][repo_name][i]
+    #記住上一頁的位址及頁碼,供post,update取消鍵返回之用
     session['lastURL'] = '/captain/list/{}?page={}&per_page={}'.format(repo_name,int(page),int(per_page))
+    #準備資料集
     page,data,count,pagination = repo.get_list(page=page,per_page=per_page,search=search)
     data_to_template = {'page':page,'per_page':per_page,'data':data,'count':count,'pagination':pagination,
         'search_form':searchForm,'repo_name':repo_name,'repo_title':repo.title,'repo_desc':repo.description}

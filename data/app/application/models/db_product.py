@@ -13,7 +13,7 @@ class ProductAttribute(Base):
                          nullable=False) 
                          
 class ProductType(Base):
-    __tablename__ = 'produc_ttype'
+    __tablename__ = 'produc_type'
     id = Column(Integer, primary_key = True)
     name = Column(String(50),
                          unique=True,

@@ -13,7 +13,7 @@ class UserLogin(UserMixin):
         self.created = str(_user.created)
         self.source = str(_user.source)
         self.active = str(_user.active)
-        self.bio = str(_user.bio)
+        self.photo = str(_user.photo)
         self.last_login = str(_user.last_login)
         self.roles = [str(i.role) for i in _user.roles]
         

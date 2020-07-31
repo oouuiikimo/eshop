@@ -1,25 +1,43 @@
 from database import DB_SESSION
-from db_user import *
-from db_product import *
+from db_user import User,Roles,user_roles,Base as UserBase
+from db_product import ProductAttribute,ProductType,Product,Article,ArticleCategory,Base as ProductBase
+
+SQLALCHEMY_DATABASE_URI = 'sqlite:////home/user/data/app/application/models/site.db'
 
 def run_my_program(func):
     result = None
-    SQLALCHEMY_DATABASE_URI = 'sqlite:////home/user/data/app/application/models/site.db'
+    
     db = DB_SESSION(SQLALCHEMY_DATABASE_URI)
     with db.session_scope() as session:
         result = func(session)
     return result    
+    
+def create():
+
+    db = DB_SESSION(SQLALCHEMY_DATABASE_URI)
+    ProductBase.metadata.drop_all(db.engine) 
+    ProductBase.metadata.create_all(db.engine) 
+    #meta.drop_all(db.engine)
+    #User.drop(db.engine)
+    #User.create(db.engine)
+    
         
 def user_add(session):
-    cust = Roles(role='customer')
-    admin =Roles(role='admin')
-    role1 = Roles(role='role1')
-    tom = User(name='tom',email='tom@your-tom.com',active=True,source='local')
+    Account = Roles(role='Account')
+    admin =Roles(role='Admin')
+
+    tom = User(name='tom',email='tom@your-tom.com',active=True,source='google')
     tom.set_password('')
     session.add(admin)
+    session.add(Account)
     tom.roles.append(admin)
-    session.add(cust)
     session.add(tom)
+    
+def user_add2(session):
+    oouuii_kimo = User(name='oouuii_kimo',email='oouuii_kimo@hotmail.com',active=True,source='facebook')
+    account = session.query(Roles).filter_by(role='Account').first()
+    oouuii_kimo.roles.append(account)
+    session.add(oouuii_kimo)    
 
 def update_user_roles(session):
 
@@ -52,11 +70,11 @@ def add_productAttribute(session):
     
 if __name__ == "__main__":
     
-    
+    #create()
     #user_add()
     #user = db_session.query(User).filter(User.name=='tom').first()
     #func = add_productAttribute
     #func = query_productAttribute
-    func = update_user_roles
-    result = run_my_program(func)
-    print(result)
+    #func = update_user_roles
+    #result = run_my_program(func)
+    print(run_my_program(user_add2))

@@ -18,10 +18,39 @@ auth_bp = Blueprint('auth_bp', __name__,
 
 @auth_bp.route('/login/fb', methods=['GET', 'POST'])
 def login_fb():
-    return render_template('auth/fb.html')
+    if current_user.is_authenticated:
+        # Bypass if user is logged in
+        return redirect(url_for('captain.home'))
+        
+    fbID = request.form.get('fbID')
+    fbEmail = request.form.get('fbEmail')
+           
+    """登入
+    取得fb email,userID
+    依條件取DB裡的用戶資料, 若有則登入用戶,返回success
+    若無, 則返回error 
+    """
+    error = None
+    with app.db_session.session_scope() as session: 
+        user = session.query(User).filter_by(email=fbEmail,active=True,source="facebook").first()
+        if user:
+            login = UserLogin(user) #取得 UserMixin 
+            login_user(login) #將user login
+            user.update_last_login() # update last_login time
+            return jsonify({"success":user.name})
+        else:
+            error = "登入失敗!無此帳戶或無效"
+    
+    if error:
+        #raise Exception(error)
+        return jsonify({"error":'有錯誤 :{}'.format(error)})
+    return jsonify({"success":{"redirect":lastURL}})
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
+    if current_user.is_authenticated:
+        # Bypass if user is logged in
+        return redirect(url_for('captain.home'))
     """
     User login page.
 
@@ -30,21 +59,17 @@ def login():
     """
     #raise Exception(current_user)
     with app.db_session.session_scope() as session: 
-        if current_user.is_authenticated:
-            
-            return redirect(url_for('captain.home'))
-            return "you're logged in:{}".format("OK")  # Bypass if user is logged in
 
         login_form = LoginForm()
         if request.method == 'POST':
             if login_form.validate_on_submit():
                 email = login_form.email.data
                 password = login_form.password.data
-                user = session.query(User).filter_by(email=email,active=True).first()
+                user = session.query(User).filter_by(email=email,active=True,source="local").first()
                 if user and user.check_password(password=password):
-                    login = UserLogin(user)
-                    login_user(login)
-                    user.login() # update last_login time
+                    login = UserLogin(user) #取得 UserMixin 
+                    login_user(login) #將user login
+                    user.update_last_login() # update last_login time
                     next_page = request.args.get('next')
                     return redirect(next_page or url_for('captain.home'))
             else:
@@ -61,6 +86,10 @@ def login():
 @auth_bp.route('/login/g/<type>', methods=['GET', 'POST'])
 def login_google(type):
     from .callback_google import client
+    if current_user.is_authenticated:
+        # Bypass if user is logged in
+        return redirect(url_for('captain.home'))
+        
     # Find out what URL to hit for Google login
     google_provider_cfg = get_google_provider_cfg()
     authorization_endpoint = google_provider_cfg["authorization_endpoint"]
@@ -84,19 +113,23 @@ def login_google(type):
     #process:find db if user exist then redirect to homepage or nextURL
     return redirect(request_uri)
     
-@auth_bp.route('/login/f', methods=['GET', 'POST'])
-def login_facebook():
-    pass
-    
-@auth_bp.route('/login/t', methods=['GET', 'POST'])
-def login_twitter():
-    pass
 
 @auth_bp.route("/callback/<social>/<type>",endpoint= "callback")
 def callback(social,type):
     if social == 'g':
-        return jsonify({'{}-{}:'.format(social,type):callback_google(request,type)})
-  
+        #return {'social_id':unique_id,'email':users_email,'users_name':users_name,'name':name,'picture':picture}
+        google_user = callback_google(request,type)
+        with app.db_session.session_scope() as session: 
+            user = session.query(User).filter_by(email=google_user["email"],active=True,source="google").first()
+            if user:
+                login = UserLogin(user) #取得 UserMixin 
+                login_user(login) #將user login
+                user.update_last_login() # update last_login time
+                
+        
+        #return jsonify({'{}-{}:'.format(social,type):callback_google(request,type)})
+        
+    return redirect("/captain")
 
 @auth_bp.route('/logout')
 @login_required

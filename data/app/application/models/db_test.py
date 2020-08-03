@@ -21,7 +21,10 @@ def create():
     #User.drop(db.engine)
     #User.create(db.engine)
     
-        
+def set_user(session):        
+    tom = session.query(User).filter_by(email="tom@your-tom.com").first()
+    tom.set_password('')
+    
 def user_add(session):
     Account = Roles(role='Account')
     admin =Roles(role='Admin')
@@ -77,4 +80,4 @@ if __name__ == "__main__":
     #func = query_productAttribute
     #func = update_user_roles
     #result = run_my_program(func)
-    print(run_my_program(user_add2))
+    print(run_my_program(set_user))

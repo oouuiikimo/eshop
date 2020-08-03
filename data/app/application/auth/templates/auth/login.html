@@ -82,11 +82,8 @@
         {% for message in messages %}
          <div class="alert alert-warning">
             <button type="button" class="close" data-dismiss="alert">&times;</button>
-            {{ message }}
+            <span id="spanmsg">{{ message }}</span>
             
-<script async defer crossorigin="anonymous" src="https://connect.facebook.net/zh_TW/sdk.js#xfbml=1&version=v7.0" nonce="KGbu5w1S"></script>
-<div class="fb-login-button" data-size="medium" data-button-type="continue_with" data-layout="default" 
-            data-auto-logout-link="true" data-use-continue-as="true" data-width=""></div>
         </div>
         {% endfor %}
   {% endif %}
@@ -136,6 +133,9 @@
 <script async defer crossorigin="anonymous" src="https://connect.facebook.net/zh_TW/sdk.js#xfbml=1&version=v7.0" nonce="49Nohvcg"></script>
 
 <script>
+var csrf_token = "{{csrf_token()}}";
+//console.log(csrf_token);
+
   window.fbAsyncInit = function() {
     FB.init({
       appId      : '3047683778598908',
@@ -157,7 +157,9 @@
     FB.login(function(response) {
       if (response.status === 'connected') {
         // Logged into your webpage and Facebook.
+
         let userId = response.authResponse.userID;
+
         getUserInfo(userId);
       } else {
         // The person is not logged into your webpage or we are unable to tell. 
@@ -175,38 +177,24 @@
   
   function statusChangeCallback(response) {  // Called with the results from FB.getLoginStatus().
     console.log('statusChangeCallback');
-    console.log(response);                   // The current login status of the person.
+    //console.log(response);                   // The current login status of the person.
     if (response.status === 'connected') {   // Logged into your webpage and Facebook.
-      //testAPI(response);  
-      var accessToken = response.authResponse.accessToken;
       let userId = response.authResponse.userID;
-      // console.log(userId);
-      //console.log('login'+accessToken);
-      //fetchUserDetail()
-      getUserInfo(userId);
+      //testAPI(response)
+      //getUserInfo(userId);
       
     } else {                                 // Not logged into your webpage or we are unable to tell.
       //document.getElementById('status').innerHTML = 'Please log ' +
       //  'into this webpage.';
+      return ;
     }
   }
 
-
-  function checkLoginState() {               // Called when a person is finished with the Login Button.
-    FB.getLoginStatus(function(response) {   // See the onlogin handler
-      statusChangeCallback(response);
-    });
-  }
-
-
-
- 
   function testAPI(response) {                      // Testing Graph API after login.  See statusChangeCallback() for when this call is made.
-    console.log('Welcome!  Fetching your information.... '+response.authResponse.signedRequest.email);
+    //console.log('Welcome!  Fetching your information.... '+response.authResponse.signedRequest.email);
     FB.api('/me', function(response) {
-      console.log('Successful login foraaa: ' + response.signedRequest );
-      document.getElementById('status').innerHTML =
-        'Thanks for logging in, ' + response.signedRequest  + '!';
+      console.log('Successful login for: ' + JSON.stringify(response) ); //.signedRequest
+
     });
   }
 
@@ -222,11 +210,79 @@ function getUserInfo(userId) {
         let id = response.id;
         let name = response.name;
         let email = response.email;
-        console.log('id:'+id+',name:'+name+',email:'+email)
+        //console.log('id:'+id+',name:'+name+',email:'+email)
+        login_to_app(userId,email)
         //loginViaEmail(email);
       }
     );
   }
+  
+function login_to_app(fbID,fbEmail) {
+  /*ajax 取得登入結果
+    - 若成功, 則轉址到頁面 
+    -若不成功, 顯示原因訊息
+  */
+  var formData = new FormData();
+    formData.append('fbID', fbID);
+    formData.append('fbEmail', fbEmail);
+    formData.append('csrf_token',csrf_token);
+    ajax("/auth/login/fb", "POST",formData)
+    .then(function(result) {
+      //data = JSON.parse(result)
+      console.log('登入facebook:' +result)
+      window.location = '{{next}}'
+      
+      })
+    .catch((error) => {
+      console.log('登入facebook失敗' +error)
+      //fire_alert('danger','登入facebook失敗',error,5000)
+    })    
+    ;
+}
+
+function ajax(url, method, data) {
+
+  return new Promise(function(resolve, reject) {
+    
+    var request = new XMLHttpRequest();
+    
+    request.addEventListener("load", transferComplete);
+    request.addEventListener("error", transferFailed);
+    request.addEventListener("abort", transferCanceled);
+
+    request.onerror = function() {
+      reject(new Error("Network Error"));
+    };
+    
+    function transferComplete(evt) {
+        data = JSON.parse(this.response)
+        
+        if (data['success']) {
+            //console.log('transferComplete:'+data['success'])
+            resolve(data['success']);
+            
+        }
+        else {
+            console.log('transferComplete:'+data['success'])
+            reject(new Error(data['error']));
+            }
+
+      //console.log("The transfer is complete."+this.response);
+    }
+
+    function transferFailed(evt) {
+      console.log("An error occurred while transferring the file.");
+      reject(new Error("Network Error"));
+    }
+
+    function transferCanceled(evt) {
+      console.log("The transfer has been canceled by the user.");
+    }
+    
+    request.open(method, url, true);
+    request.send(data);
+  });
+}  
 </script>
 </body>
 </html>

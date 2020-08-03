@@ -45,15 +45,15 @@ def list(repo_name):
             i.id: i.data for i in searchForm if i.id is not 'csrf_token' and
             (i.data is not "" and i.data is not None)
             }} 
-        return redirect(session['lastURL']) #jsonify(session['search'])
+        #return redirect(session['lastURL']) #jsonify(session['search'])
         
-    if session['search'][repo_name]:
+    if 'search' in session and repo_name in session['search'] and session['search'][repo_name]:
         search=session['search'][repo_name]
     else:
         search=None
         
     #復原searchForm內容
-    if repo_name in session['search'] and session['search'][repo_name]:
+    if 'search' in session and repo_name in session['search'] and session['search'][repo_name]:
         for i in session['search'][repo_name]:
             searchForm[i].data = session['search'][repo_name][i]
     #記住上一頁的位址及頁碼,供post,update取消鍵返回之用
@@ -61,7 +61,8 @@ def list(repo_name):
     #準備資料集
     page,data,count,pagination = repo.get_list(page=page,per_page=per_page,search=search)
     data_to_template = {'page':page,'per_page':per_page,'data':data,'count':count,'pagination':pagination,
-        'search_form':searchForm,'repo_name':repo_name,'repo_title':repo.title,'repo_desc':repo.description}
+        'search_form':searchForm,'repo_name':repo_name,'repo_title':repo.title,'repo_desc':repo.description,
+        "active_menu":"sub_list_user"}
     return render_template('/captain/list.html',**data_to_template)
     
 @captain.route('/update/<repo_name>/', defaults={'id': None}, methods=['GET','POST'])    
@@ -77,7 +78,8 @@ def update(repo_name,id):
             return redirect(session['lastURL'])
         return redirect(url_for('captain.list',repo_name=repo_name))
 
-    data_to_template = {'form':form,'item':item,'update_type':'{}.{}'.format(repo.title,'新增' if not id else '編輯')}
+    data_to_template = {'form':form,'item':item,'update_type':'{}.{}'.format(repo.title,'新增' if not id else '編輯'),
+        "active_menu":"sub_list_user"}
     return render_template('/captain/update.html',**data_to_template)
     
 @captain.route('/delete/<repo_name>', methods=['POST'])
@@ -85,6 +87,8 @@ def update(repo_name,id):
 def delete(repo_name):
     repo = _repo(repo_name)() 
     remove_items = json.loads(request.form.get('id'))
+    if remove_items is None or len(remove_items)==0:
+        return jsonify({"error":'有錯誤 :{}'.format("沒有可刪除的項目!")})
     lastURL = ""
     if "lastURL" in session:
         lastURL = session['lastURL']
@@ -95,6 +99,12 @@ def delete(repo_name):
         #raise Exception(error)
         return jsonify({"error":'有錯誤 :{}'.format(error)})
     return jsonify({"success":'己刪除記錄 :{}'.format(remove_items),"redirect":lastURL}) 
+    
+@captain.route('/account-setting', methods=['GET'])
+@login_required
+def account_setting():  
+    data_to_template = {"active_menu":"sub_account_setting"}
+    return render_template('/captain/account_setting.html',**data_to_template)
     
 def _repo(name):
     import importlib

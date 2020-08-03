@@ -34,7 +34,7 @@
     <!-- END: Page CSS-->
 
     <!-- BEGIN: Custom CSS-->
-    <link rel="stylesheet" type="text/css" href="/captain/statics/css/style.css?v=27">
+    <link rel="stylesheet" type="text/css" href="/captain/statics/css/style.css?v=31">
     <style>
     .alerts {
 	font-family: "微軟正黑體", "Microsoft JhengHei", "Segoe UI Semibold", "Segoe UI";
@@ -118,7 +118,7 @@ animation: fadeIn ease 1s;
           <div class="collapse navbar-collapse" id="navbar-mobile">
             <ul class="nav navbar-nav mr-auto float-left">
               <li class="nav-item d-none d-md-block"><a class="nav-link nav-menu-main menu-toggle hidden-xs" href="#"><i class="feather icon-menu"></i></a></li>
-              <li class="nav-item d-none d-md-block"><a class="nav-link nav-link-expand" href="#"><i class="ficon feather icon-maximize"></i></a></li>
+              <!--<li class="nav-item d-none d-md-block"><a class="nav-link nav-link-expand" href="#"><i class="feather icon-maximize"></i></a></li>-->
             </ul>
             <ul class="nav navbar-nav float-right">
               <li class="dropdown dropdown-notification nav-item"><a class="nav-link nav-link-label" href="#" data-toggle="dropdown"><i class="ficon feather icon-bell"></i><span class="badge badge-pill badge-danger badge-up">5</span></a>
@@ -230,7 +230,7 @@ animation: fadeIn ease 1s;
     <!-- END: Content-->
     
     <!-- BEGIN: Footer-->
-    <footer class="footer footer-static footer-light navbar-shadow">
+    <footer class="footer footer-static footer-light navbar-shadow fixed-bottom">
       <p class="clearfix blue-grey lighten-2 text-sm-center mb-0 px-2 container center-layout">
       <span class="float-md-left d-block d-md-inline-block">Copyright  &copy; 2020 
       <a class="text-bold-800 grey darken-2" href="https://www.your-tom.com" target="_blank">Your-Tom 			</a></span>
@@ -279,8 +279,20 @@ animation: fadeIn ease 1s;
 		  set_fadeout(x[i]);
 		}
 	  */
+      set_menu_active('{{active_menu}}');
     });  
 	
+    function set_menu_active(active_menu) {
+        //alert(active_menu)
+        var el = document.querySelector("li[data-menu='"+active_menu+"']");
+        el.classList.add("active");
+        var parentli = el.parentElement.closest("li[data-menu='dropdown-submenu']")
+        parentli.classList.add("open");
+        parentli.classList.add("active");
+        var main = el.parentElement.closest("li[data-menu='dropdown']")
+        main.classList.add("active");
+    }
+    
 	function set_fadeout(el,time) {
 		timeoutID = window.setTimeout(fadeOut,time,el);
 	}

@@ -76,7 +76,7 @@ class User(Base):
 
       return email
 
-    def login(self):
+    def update_last_login(self):
         self.last_login = datetime.datetime.now()
                            
     def set_password(self, password):

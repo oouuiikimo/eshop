@@ -216,7 +216,8 @@ function delete_items(item=null) {
         delete_items.push(item)
     else
         x.forEach(element => delete_items.push(element.value));
-    
+        
+    if (delete_items.length ==0) return null
     
     var formData = new FormData();
     formData.append('id', JSON.stringify(delete_items));
@@ -248,7 +249,7 @@ function delete_items(item=null) {
 
 }
 
-
+// 返回promise,執行ajax呼叫
 function ajax(url, method, data) {
   return new Promise(function(resolve, reject) {
     

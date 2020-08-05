@@ -1,7 +1,7 @@
 {
     "_comment": "IMPORTANT : go to the wiki page to know about options configuration https://github.com/servocoder/RichFilemanager/wiki/Configuration-options",
     "options": {
-        "culture": "en",
+        "culture": "zh-TW",
         "theme": "flat-dark",
         "defaultViewMode": "grid",
         "localizeGUI": true,

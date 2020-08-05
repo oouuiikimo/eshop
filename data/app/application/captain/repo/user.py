@@ -1,7 +1,7 @@
 from flask import current_app as app
 from flask_login import current_user
 from .baserepo import BaseRepo
-from ...models.db_user import Base,User,Roles,user_roles
+from ...models.db_user import User,Roles,user_roles
 from .form_user import SearchForm,UpdateForm
 from sqlalchemy import exc
 #from ...models.db_product import Article,ArticleCategory,ProductAttribute

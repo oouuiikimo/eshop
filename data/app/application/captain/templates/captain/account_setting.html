@@ -102,15 +102,15 @@
                                 aria-labelledby="account-pill-general" aria-expanded="true">
                                 <div class="media">
                                     <a href="javascript: void(0);">
-                                        <img src="/captain/statics/images/portrait/small/{{current_user.email}}.jpg"
+                                        <img id="account_photo" src="/captain/statics/images/portrait/small/{{current_user.email}}.jpg"
                                             class="rounded mr-75" alt="profile image" height="64" width="64">
                                     </a>
                                     <div class="media-body mt-75">
                                         <div class="col-12 px-0 d-flex flex-sm-row flex-column justify-content-start">
-                                            <label class="btn btn-sm btn-primary ml-50 mb-50 mb-sm-0 cursor-pointer"
+                                            <label class="btn btn-sm btn-secondary ml-50 mb-50 mb-sm-0 cursor-pointer"
                                                 for="account-upload">上傳頭像</label>
-                                            <input type="file" id="account-upload" hidden>
-                                            <button class="btn btn-sm btn-secondary ml-50">變更頭像</button>
+                                            <input type="file" id="account-upload" hidden accept=".jpg, .jpeg, .png">
+                                            <button class="btn btn-sm btn-primary ml-50">變更頭像</button>
                                         </div>
                                         <p class="text-muted ml-75 mt-50"><small>Allowed JPG, GIF or PNG. Max
                                                 size of
@@ -469,17 +469,44 @@
 <script>
 
 var csrf_token = "{{csrf_token()}}";
-//console.log(csrf_token);
-
 
 
 $(window).on("load", function(){
   // Handler when all assets (including images) are loaded
-
+  const fileSelector = document.getElementById('account-upload');
+  fileSelector.addEventListener('change', (event) => {
+    const file = event.target.files[0];
+    resize_image_preview(file)
+  });
 });
 
+function resize_image_preview(file) { //image preview after select image
+  if (file) {
+    var filerdr = new FileReader();
 
+    filerdr.onload = function(e) {
+      var img = new Image();
 
+      img.onload = function() {
+        var canvas = document.createElement('canvas');
+        var ctx = canvas.getContext('2d');
+        canvas.width = 250;
+        canvas.height = canvas.width * (img.height / img.width);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
+        // SEND THIS DATA TO WHEREVER YOU NEED IT
+		let account_photo = document.getElementById('account_photo');
+		account_photo.src =  canvas.toDataURL('image/png');
+        //var data = canvas.toDataURL('image/png');
+
+        $('#imgprvw').attr('src', img.src);
+        //$('#imgprvw').attr('src', data);//converted image in variable 'data'
+      }
+      img.src = e.target.result;
+    }
+    filerdr.readAsDataURL(file);
+  }
+}
+              
 </script>
 {%endblock%}

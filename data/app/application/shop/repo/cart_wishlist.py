@@ -2,13 +2,13 @@ from flask import current_app as app
 from .baserepo import BaseRepo
 from ...models.db_product import ProductAttribute
    
-class CartList(BaseRepo):
+class CartWishlist(BaseRepo):
 
     def __init__(self,request):
         super().__init__(request)
-        self.title = "購物車內容"
-        self.template = "/shop/cart.html"
-        self.description = "您在{}網站中目前添購了{}項商品, 共{}元,請前往結帳, 謝謝您的惠顧。"
+        self.title = "暫存購買清單"
+        self.template = "/shop/cart_wishlist.html"
+        self.description = "您在{}網站中目前暫存了{}項購買商品, 共{}元,可依需要喜好儘快購買, 謝謝您的惠顧。"
         self.data = self.gen_data()
         
     def gen_data(self):    

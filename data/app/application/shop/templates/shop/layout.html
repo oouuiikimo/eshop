@@ -5,10 +5,9 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Molla - Bootstrap eCommerce Template</title>
-    <meta name="keywords" content="HTML5 Template">
-    <meta name="description" content="Molla - Bootstrap eCommerce Template">
-    <meta name="author" content="p-themes">
+    <title>{{title}}</title>
+    <meta name="description" content="{{description}}">
+    <meta name="author" content="">
     <!-- Favicon -->
     <link rel="apple-touch-icon" sizes="180x180" href="/shop/assets/images/icons/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/shop/assets/images/icons/favicon-32x32.png">
@@ -24,6 +23,7 @@
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests"> 
     <!-- Plugins CSS File -->
     <link rel="stylesheet" href="/shop/assets/css/bootstrap.min.css?v=1">
+    {%block css%} {%endblock%}
     <!-- Main CSS File -->
     <link rel="stylesheet" href="/shop/assets/css/style.css?v=6">
     <style>
@@ -99,6 +99,7 @@
     <script src="/shop/assets/js/superfish.min.js"></script>
     <script src="/shop/assets/js/owl.carousel.min.js"></script>
     <script src="/shop/assets/js/bootstrap-input-spinner.js"></script>
+    {% block js %}{%endblock%}
     <!-- Main JS File -->
     <script src="/shop/assets/js/main.js"></script>
     <script>

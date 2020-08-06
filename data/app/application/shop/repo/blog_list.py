@@ -1,20 +1,20 @@
 from flask import current_app as app
 from .baserepo import BaseRepo
-from ...models.db_product import ProductAttribute
+from ...models.db_article import Article,ArticleCategory
    
-class CartList(BaseRepo):
+class BlogList(BaseRepo):
 
     def __init__(self,request):
         super().__init__(request)
-        self.title = "購物車內容"
-        self.template = "/shop/cart.html"
-        self.description = "您在{}網站中目前添購了{}項商品, 共{}元,請前往結帳, 謝謝您的惠顧。"
+        self.title = "Blog列表"
+        self.template = "/shop/blog_list.html"
+        self.description = "這是一份blog文章列表"
         self.data = self.gen_data()
         
     def gen_data(self):    
         return {"repo":self.title,
             "title":self.title,
-            "description":self.description.format('Your-tom Eshop','10','1538'),
+            "description":self.description,
             "test":"this is data"}
         
     def post(self,action):

@@ -19,42 +19,8 @@ repo_path = 'application.shop.repo'
 @shop.route('/', methods=['GET','POST'])
 @login_required
 def home():   
-    return redirect(url_for('shop.cart'),repo='cart')
+    return redirect(url_for('shop.repo_route',repo_pre='cart',repo_name='list'))
     
-@shop.route('/cart/<repo_name>', methods=['GET','POST'])
-@login_required
-def cart(repo_name): 
-    """
-    try:
-        repo = _repo('cart',repo_name)()    
-    except:
-        return render_template('404.html'), 404
-    """    
-    
-    repo = _repo('cart',repo_name)()   
-    #repo 傳送post,ajax
-    if request.method== 'POST':    
-        _is_ajax = bool(request.args.get('ajax'))
-        _post_action = request.args.get('action')
-        #呼叫repo 內的 action 動作, 並回傳
-        if not _post_action:
-            return None
-        result = repo.post(_post_action) #{"success":"OK"}
-        if _is_ajax:
-            return jsonify(result)
-        if 'error' in result: 
-            return None
-        return redirect(url_for('shop.cart',repo_name='list'))
-        
-    #共通頁面資訊
-    data_public = {'wishcount':5}
-    #repo 頁面資訊
-    data_repo = repo.data
-    #結合資訊
-    data_to_template = {**data_public, **data_repo}
-    #return jsonify(data_to_template)
-    return render_template(repo.template,**data_to_template)
-
 @shop.route('/article/<article_name>', methods=['GET','POST'])
 @login_required
 def article(article_name): 
@@ -70,6 +36,47 @@ def article(article_name):
     data_to_template = {'wishcount':5}
     return render_template('/shop/article.html', **data_to_template)
 
+@shop.route('/blog/show/<blog_name>', methods=['GET'])
+@login_required
+def blog_show(blog_name): 
+    #return blog_name
+    """
+    try:
+        repo = _repo("blog","show")(request)   
+    except:
+        return render_template('404.html'), 404
+    """
+    repo = _repo("blog","show")(request)   
+    #共通頁面資訊
+    data_public = {'wishcount':5}
+    #repo 頁面資訊
+    data_repo = repo.data
+    #結合資訊
+    data_to_template = {**data_public, **data_repo}
+    #return jsonify(data_to_template)
+    return render_template(repo.template,**data_to_template)
+
+@shop.route('/blog', defaults={'category': None}, methods=['GET'])  
+@shop.route('/blog/<category>', methods=['GET'])    
+@login_required
+def blog_list(category): 
+    """
+    try:
+        repo = _repo("blog","list")(request)   
+    except:
+        return render_template('404.html'), 404
+    """
+    repo = _repo("blog","list")(request)
+    #共通頁面資訊
+    data_public = {'wishcount':5}
+    #repo 頁面資訊
+    data_repo = repo.data
+    #結合資訊
+    data_to_template = {**data_public, **data_repo}
+    #return jsonify(data_to_template)
+    return render_template(repo.template,**data_to_template)
+    
+"""
 @shop.route('/member/<repo_name>', methods=['GET','POST'])
 @login_required
 def member(repo_name): 
@@ -80,7 +87,44 @@ def member(repo_name):
      
     data_to_template = {'wishcount':5}
     return render_template('/shop/member.html', **data_to_template)
-    
+"""
+
+@shop.route('/<repo_pre>/<repo_name>', methods=['GET','POST'])
+@login_required
+def repo_route(repo_pre,repo_name): 
+    if repo_pre not in ['products','cart','member']: 
+        return render_template('404.html'), 404
+    """
+    try:
+        repo = _repo('cart',repo_name)()    
+    except:
+        return render_template('404.html'), 404
+    """    
+    #return "request:{}".format(request.args.get('test'))
+    repo = _repo(repo_pre,repo_name)(request)   
+    #repo 傳送post,ajax
+    if request.method== 'POST':    
+        _is_ajax = bool(request.args.get('ajax'))
+        _post_action = request.args.get('action')
+        #呼叫repo 內的 action 動作, 並回傳
+        if not _post_action:
+            return None
+        result = repo.post(_post_action) #{"success":"OK"}
+        if _is_ajax:
+            return jsonify(result)
+        if 'error' in result: 
+            return None
+        return redirect(url_for('shop.repo_route',repo_pre=repo_pre,repo_name=repo_name))
+        
+    #共通頁面資訊
+    data_public = {'wishcount':5}
+    #repo 頁面資訊
+    data_repo = repo.data
+    #結合資訊
+    data_to_template = {**data_public, **data_repo}
+    #return jsonify(data_to_template)
+    return render_template(repo.template,**data_to_template)
+   
 def _repo(pre,name):
     import importlib
     

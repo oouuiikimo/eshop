@@ -8,8 +8,9 @@ class BaseRepo(object):
     def __repr__(self):
         return self.title
         
-    def __init__(self):
+    def __init__(self,request):
         self.session =  app.db_session.session_scope()
+        self.request =request
         
     def get_list(self,page=1,per_page=10,search=None):
     

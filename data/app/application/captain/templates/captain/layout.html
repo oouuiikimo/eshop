@@ -264,31 +264,19 @@ animation: fadeIn ease 1s;
 	var divalert = document.getElementById("div_alert");
 	
 	$(window).on("load", function(){
-      // Handler when all assets (including images) are loaded
-      //myFunction(el, 1000);
-	  title = '她擋住了我的日出'
-	  msg = '登機落座，身邊是一位瘦小的老太太，在ipad上聚精會神地玩撲克遊戲，起飛，她靠著舷窗睡著了。她擋住了我的日出。'+
-			'乘務員送飲料了，她醒來輕輕說：「番茄汁，一點點冰」。'
-	  //type:primary ,secondary ,success ,danger ,warning ,info ,light ,dark 
-	  //fire_alert('success',title,msg,5000)
-	  //fadeOut(x[0])
-	  /*
-	  var timeoutID
-	  let i;
-		for (i = 0; i < x.length; i++) {
-		  set_fadeout(x[i]);
-		}
-	  */
+
       set_menu_active('{{active_menu}}');
     });  
 	
-    function set_menu_active(active_menu) {
+    function set_menu_active(active_menu) { // 更新menu active : 取自 repo.active_menu
         //alert(active_menu)
         var el = document.querySelector("li[data-menu='"+active_menu+"']");
         el.classList.add("active");
         var parentli = el.parentElement.closest("li[data-menu='dropdown-submenu']")
-        parentli.classList.add("open");
-        parentli.classList.add("active");
+        if (parentli) {
+            parentli.classList.add("open");
+            parentli.classList.add("active");
+        }
         var main = el.parentElement.closest("li[data-menu='dropdown']")
         main.classList.add("active");
     }

@@ -7,7 +7,9 @@
     <style>
     .errmessages {color:#ff7588;}
     .errmessages li{list-style-type: disc;}
-
+    .ck-editor__editable:not(.ck-editor__nested-editable) {
+        min-height: 500px;
+    }
 	</style>
 {%endblock%}
 {% block content %}
@@ -42,7 +44,7 @@
 								<form class="form form-horizontal" method="post" action="">
 									<div class="form-body">
 										{% for field in form%}<!--id:{{field.id}}-->
-										{%if field.type != 'CSRFTokenField'-%}
+										{%if field.type != 'CSRFTokenField' and field.type != 'HiddenField'-%}
 										{%if field.type != 'RadioField' and field.type != 'MultiCheckboxField' and field.type != 'SelectCheckboxField'-%}
 										<div class="form-group row">
 											<label class="col-md-3 label-control" for="{{field.id}}">{{ field.label.text }}</label>
@@ -129,22 +131,28 @@
 	
 <script src="/captain/statics/js/ckeditor.js?v=3"></script>
 <script>
-
-    var ckeditor = document.querySelectorAll("textarea[class=editor]");
-    //alert(ckeditor.length);
     
     $(window).on("load", function(){
       // Handler when all assets (including images) are loaded
-      if (ckeditor.length) {init_ckeditor()}
+      var ckeditor = document.querySelectorAll(".editor");
+        //alert(ckeditor.length);
+      if (ckeditor.length) {
+        ckeditor.forEach(element => init_ckeditor(element));
+        
+      }
       show_form_error();
+    {% for message in get_flashed_messages() %}
+        //console.log('{{message}}')    
+        fire_alert(type='danger','更新失敗','{{message}}',true)
+    {% endfor %}
     });    
     
     function cancel() {
         window.location.href = '{{session["lastURL"]|safe}}';
     }
     
-    function init_ckeditor() {
-        ClassicEditor.create( document.querySelector( '#editor' ) )
+    function init_ckeditor(ckeditor) {
+        ClassicEditor.create(ckeditor)// document.querySelector( '#editor' ) )
             .then( editor => {
                 window.editor = editor;
             } )
@@ -166,20 +174,8 @@
       element.classList.remove(cls);
     }
     
-    function createErrorSpan(eleId,errorMessage) {
-        // Create a new element
-        var newNode = document.createElement('span');
-        // add the class to the 'spam'
-        newNode.innerHTML = errorMessage;
-        newNode.setAttribute('class', 'error invalid-feedback');
-        // Get the parent node
-        var parentNode = document.getElementById(eleId).parentElement
-        //var parentNode = document.querySelector('#some-element');
-        // Insert the new node after the last element in the parent node
-        parentNode.append(newNode);    
-    }
-    
     function show_form_error() {
+
         var error = []
         {% for field in form if field.id != 'csrf_token' and field.type !='HiddenField'-%}
             {% if field.errors %}
@@ -190,7 +186,7 @@
 
             {% for err in field.errors %}
             {{field.id}}.push('{{err}}')
-            //createErrorSpan('{{field.id}}','{{error}}')
+
             var err_{{field.id}} = document.querySelector("#err_{{field.id}}");
             var entry = document.createElement('li');
             entry.appendChild(document.createTextNode('{{err}}'));
@@ -200,16 +196,7 @@
             {% endif -%}
         {%endfor-%}
         console.log(error)
-        //flash messages
-        /*
-        {% with messages = get_flashed_messages(with_categories=true) -%}
-            {% if messages -%}
-                {% for category, message in messages %}
-            toastr['{{category}}']('{{message}}');
-                {% endfor -%}
-            {% endif -%}
-        {% endwith -%}
-        */
+
    }
    
 </script>          

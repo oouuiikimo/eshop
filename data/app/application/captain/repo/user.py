@@ -18,6 +18,7 @@ class RepoUser(BaseRepo):
         super().__init__()
         self.title = "管理員"
         self.model = User
+        self.active_menu = "sub_list_user"
         self.description = """
         說明: 本頁面管理後台的使用者帳戶基本資料及權限, 但最初的管理員帳號無法刪除, 失效, 更改權限。
         """
@@ -55,7 +56,7 @@ class RepoUser(BaseRepo):
             out_rows.append(['<div style="width:100px;"><input type="checkbox" name="delete" value="{}">'.format(row.id)+
                 '<a href="javascript:delete_items({});" class="ml-1">'.format(row.id)+
                 '<i class="feather icon-x-circle" data-toggle="tooltip" title="刪除{}{}"></a></i>'.format(self.title,row.name)+
-                '<a href="/captain/update/user/{}" class="ml-1">'.format(row.id)+
+                '<a href="/captain/update/User/{}" class="ml-1">'.format(row.id)+
                 '<i class="feather icon-edit" data-toggle="tooltip" title="編輯{}{}"></a></i></div>'.format(self.title,row.name),
                 row.name,
                 row.email,'有效' if row.active else '失效',row.source, str(row.roles) if row.roles else "無"])
@@ -92,7 +93,7 @@ class RepoUser(BaseRepo):
         return form_item
 
     def update(self,user,id=None):
-        with self.session as session:
+        with app.db_session.session_scope() as session:
             if id and id is not None:
                 db_user = session.query(User).get(id)
             else:
@@ -116,7 +117,7 @@ class RepoUser(BaseRepo):
         try:
             """檢查:管理員不能刪除"""
             #return str(type(item))
-            with self.session as session: 
+            with app.db_session.session_scope() as session: 
                 for user in item:
                     
                     _del = session.query(User).filter(User.id==user).first()

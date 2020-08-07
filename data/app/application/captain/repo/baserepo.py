@@ -5,7 +5,7 @@ from ...share.helpers import Pagination
 
 class BaseRepo(object):
     def __init__(self):
-        self.session =  app.db_session.session_scope()
+        pass
         
     def get_list(self,page=1,per_page=10,search=None):
     
@@ -27,6 +27,7 @@ class BaseRepo(object):
             #get all rows before doing pagination !!
             
             q = session.query(self.model).filter(*filters)
+            
             q_count = get_count(q)
             #修正不正確的頁數顯示
             if (page-1)*per_page > q_count:
@@ -34,7 +35,7 @@ class BaseRepo(object):
             return page,q_count,q.limit(per_page).offset((page-1)*per_page).all()    
         
         filters = self.get_search_filters(search)
-        with self.session as session: 
+        with app.db_session.session_scope() as session: 
             page,count,rows = get_query(session,filters,page,per_page) 
             out_rows = self.get_listrows(rows)
 

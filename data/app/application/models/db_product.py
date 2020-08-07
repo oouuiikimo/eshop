@@ -11,6 +11,7 @@ class ProductAttribute(Base):
     name = Column(String(50),
                          unique=True,
                          nullable=False) 
+                             
                          
 class ProductType(Base):
     __tablename__ = 'produc_type'
@@ -50,8 +51,11 @@ ProductCategory
 """
     
 """    
-#class ProductVariantMaster(db.Model):
+#class ProductVariant(db.Model):
+    #sku 應用在此, 包裝或組合,規格..等等的唯一型號
+    #todo:如何處理不同的組合, 規格呈現及資料儲存方式
     id
+    sku
     product_id
     detail_id
     quanty

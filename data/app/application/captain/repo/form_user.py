@@ -6,17 +6,7 @@ from wtforms.validators import (DataRequired,ValidationError,
                                 Length,
                                 URL)
 from flask_wtf import CSRFProtect, FlaskForm
-
-class MultiCheckboxField(SelectMultipleField):
-    widget = widgets.ListWidget(prefix_label=False)
-    option_widget = widgets.CheckboxInput()
-
-
-class SelectCheckboxField(SelectField):
-    widget = widgets.ListWidget(prefix_label=False)
-    option_widget = widgets.CheckboxInput()
-    
-    
+from .form_base import MultiCheckboxField,SelectCheckboxField   
     
 class UpdateForm(FlaskForm):
 

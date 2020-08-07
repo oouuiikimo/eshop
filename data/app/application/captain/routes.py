@@ -22,7 +22,7 @@ repo_path = 'application.captain.repo'
 @captain.route('/', methods=['GET','POST'])
 @login_required
 def home():   
-    return redirect(url_for('captain.list',repo_name='user'))
+    return redirect(url_for('captain.list',repo_name='User'))
 
 @captain.route('/list/<repo_name>', methods=['GET','POST'])
 @login_required
@@ -62,7 +62,7 @@ def list(repo_name):
     page,data,count,pagination = repo.get_list(page=page,per_page=per_page,search=search)
     data_to_template = {'page':page,'per_page':per_page,'data':data,'count':count,'pagination':pagination,
         'search_form':searchForm,'repo_name':repo_name,'repo_title':repo.title,'repo_desc':repo.description,
-        "active_menu":"sub_list_user"}
+        "active_menu":repo.active_menu}
     return render_template('/captain/list.html',**data_to_template)
     
 @captain.route('/update/<repo_name>/', defaults={'id': None}, methods=['GET','POST'])    
@@ -73,13 +73,17 @@ def update(repo_name,id):
     form,item = repo.update_form(id)   
     if request.method == 'POST' and form.validate():
         form.populate_obj(obj=item)
-        repo.update(item,id)
-        if 'lastURL' in session and session['lastURL'] is not None:
-            return redirect(session['lastURL'])
-        return redirect(url_for('captain.list',repo_name=repo_name))
+        error = repo.update(item,id)
+        if error:
+            flash(error)
+            #raise ValidationError(error)
+        else:    
+            if 'lastURL' in session and session['lastURL'] is not None:
+                return redirect(session['lastURL'])
+            return redirect(url_for('captain.list',repo_name=repo_name))
 
     data_to_template = {'form':form,'item':item,'update_type':'{}.{}'.format(repo.title,'新增' if not id else '編輯'),
-        "active_menu":"sub_list_user"}
+        "active_menu":repo.active_menu}
     return render_template('/captain/update.html',**data_to_template)
     
 @captain.route('/delete/<repo_name>', methods=['POST'])
@@ -111,12 +115,12 @@ def _repo(name):
     
     def _class(_package,_module):
 
-        module = importlib.import_module('{}.{}'.format(repo_path,_package))
+        module = importlib.import_module('{}.{}'.format(repo_path,_package.lower()))
         return getattr(module, _module)
         
     def _get_repo(model):
         _package = model #實體檔案 {}.py
-        _module = 'Repo{}'.format(model.capitalize()) #檔案內class 名稱 ,第一個字大寫
+        _module = 'Repo{}'.format(model) #檔案內class 名稱 ,第一個字大寫
         return _class(_package,_module)
                 
     return _get_repo(name)

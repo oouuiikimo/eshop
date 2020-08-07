@@ -1,5 +1,5 @@
 ----- 2020.08
-2020/08/07 Fri:db_article 更改, advanced update mode增加(多頁式)
+2020/08/07 Fri:db_article 更改, 
 2020/08/06 Thu:-前台頁面補充:blog,products,cart...
                -研究最新SEO:
                --響應式最佳

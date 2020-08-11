@@ -4,12 +4,32 @@
     <link rel="stylesheet" type="text/css" href="/captain/statics/vendors/css/forms/icheck/custom.css">
     <link rel="stylesheet" type="text/css" href="/captain/statics/css/pages/page-users.min.css">
 	<link rel="stylesheet" type="text/css" href="/captain/statics/css/plugins/forms/checkboxes-radios.min.css">
+    <link rel="stylesheet" type="text/css" href="/captain/statics/css/bootstrap-tagsinput.css">
     <style>
     .errmessages {color:#ff7588;}
     .errmessages li{list-style-type: disc;}
     .ck-editor__editable:not(.ck-editor__nested-editable) {
         min-height: 500px;
     }
+    
+    .label-info {
+    background-color: #5bc0de;
+}
+.label {
+    display: inline;
+    padding: .2em .6em .3em;
+    font-size: 75%;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: .25em;
+}
+.bootstrap-tagsinput {
+    width:100%;
+}
 	</style>
 {%endblock%}
 {% block content %}
@@ -27,25 +47,19 @@
 						<div class="card-header">
 							<h4 class="card-title" id="horz-layout-icons"><span class="under_line-red">{{update_type}}</span></h4>
 							<a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
-							<div class="heading-elements"><!--
-								<ul class="list-inline mb-0">
-									<li><a data-action="collapse"><i class="feather icon-minus"></i></a></li>
-									<li><a data-action="reload"><i class="feather icon-rotate-cw"></i></a></li>
-									<li><a data-action="expand"><i class="feather icon-maximize"></i></a></li>
-									<li><a data-action="close"><i class="feather icon-x"></i></a></li>
-								</ul>-->
-							</div>
+							<div class="heading-elements"><!-- 右上角功能鍵,省略 --></div>
 						</div>
 						<div class="card-content collpase show">
 							<div class="card-body">
 								<div class="card-text">
 									<p></p>
 								</div>
-								<form class="form form-horizontal" method="post" action="">
-									<div class="form-body">
+								<form class="form form-horizontal striped-rows" method="post" action="" >
+							<div class="form-body">
 										{% for field in form%}<!--id:{{field.id}}-->
 										{%if field.type != 'CSRFTokenField' and field.type != 'HiddenField'-%}
-										{%if field.type != 'RadioField' and field.type != 'MultiCheckboxField' and field.type != 'SelectCheckboxField'-%}
+										{%if field.type != 'RadioField' and field.type != 'MultiCheckboxField' 
+                                            and field.type != 'SelectCheckboxField'-%}
 										<div class="form-group row">
 											<label class="col-md-3 label-control" for="{{field.id}}">{{ field.label.text }}</label>
 											<div class="col-md-9">
@@ -93,7 +107,7 @@
                                         
                                         </ul>
 									</div>
-		                        </div>											  
+		                        </div>
 										{%endif-%}
 										{%endif-%}<!--{{field.data}}-->
 										{%endfor-%}
@@ -108,7 +122,7 @@
 										</button>
 									</div>
 								</form>
-
+                            </div>
 							</div>
 						</div>
 					</div>
@@ -125,11 +139,11 @@
 
 {% endblock %}    
 {%block js%} 
-
+    <script src="/captain/statics/vendors/js/forms/tags/tagging.min.js"></script>
     <script src="/captain/statics/vendors/js/forms/icheck/icheck.min.js"></script>
     <script src="/captain/statics/js/scripts/forms/checkbox-radio.min.js?v=3"></script>
-	
-<script src="/captain/statics/js/ckeditor.js?v=3"></script>
+	<script src="/captain/statics/js/bootstrap-tagsinput.min.js"></script>
+    <script src="/captain/statics/js/ckeditor.js?v=3"></script>
 <script>
     
     $(window).on("load", function(){
@@ -145,6 +159,7 @@
         //console.log('{{message}}')    
         fire_alert(type='danger','更新失敗','{{message}}',true)
     {% endfor %}
+      
     });    
     
     function cancel() {
@@ -198,6 +213,8 @@
         console.log(error)
 
    }
+   
+
    
 </script>          
 {%endblock%}

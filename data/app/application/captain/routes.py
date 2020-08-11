@@ -32,6 +32,7 @@ def list(repo_name):
     default_per_page = 10
     page = request.args.get('page') or 1
     per_page = request.args.get('per_page') or default_per_page
+    sort = request.args.get('sort')
     #準備 repo_modelname_list
     repo = _repo(repo_name)()
     
@@ -45,24 +46,27 @@ def list(repo_name):
             i.id: i.data for i in searchForm if i.id is not 'csrf_token' and
             (i.data is not "" and i.data is not None)
             }} 
+        session['sort']=sort
         #return redirect(session['lastURL']) #jsonify(session['search'])
-        
-    if 'search' in session and repo_name in session['search'] and session['search'][repo_name]:
+    #return jsonify(session['search'])    
+    if session['search'] and repo_name in session['search'] and session['search'][repo_name]:
         search=session['search'][repo_name]
     else:
         search=None
         
     #復原searchForm內容
-    if 'search' in session and repo_name in session['search'] and session['search'][repo_name]:
+    if session['search'] and repo_name in session['search'] and session['search'][repo_name]:
+        #session['search']= None
+        #return jsonify(session['search'])
         for i in session['search'][repo_name]:
             searchForm[i].data = session['search'][repo_name][i]
     #記住上一頁的位址及頁碼,供post,update取消鍵返回之用
     session['lastURL'] = '/captain/list/{}?page={}&per_page={}'.format(repo_name,int(page),int(per_page))
     #準備資料集
-    page,data,count,pagination = repo.get_list(page=page,per_page=per_page,search=search)
+    page,data,count,pagination = repo.get_list(page=page,per_page=per_page,search=search,sort=sort)
     data_to_template = {'page':page,'per_page':per_page,'data':data,'count':count,'pagination':pagination,
         'search_form':searchForm,'repo_name':repo_name,'repo_title':repo.title,'repo_desc':repo.description,
-        "active_menu":repo.active_menu}
+        "active_menu":repo.active_menu,'sort':sort}
     return render_template('/captain/list.html',**data_to_template)
     
 @captain.route('/update/<repo_name>/', defaults={'id': None}, methods=['GET','POST'])    
@@ -70,8 +74,10 @@ def list(repo_name):
 @login_required
 def update(repo_name,id):
     repo = _repo(repo_name)()  
-    form,item = repo.update_form(id)   
+    form,item = repo.update_form(id)  
+    #return str(form.validate())  
     if request.method == 'POST' and form.validate():
+        #return "OK"
         form.populate_obj(obj=item)
         error = repo.update(item,id)
         if error:

@@ -4,6 +4,7 @@ from .baserepo import BaseRepo
 from ...models.db_user import User,Roles,user_roles
 from .form_user import SearchForm,UpdateForm
 from sqlalchemy import exc
+import datetime
 #from ...models.db_product import Article,ArticleCategory,ProductAttribute
 """
 - model 集中放置於 /application/models/
@@ -50,21 +51,21 @@ class RepoUser(BaseRepo):
 
         return form
 
-    def get_listrows(self,rows):
-        out_rows = []
-        for row in rows:
-            out_rows.append(['<div style="width:100px;"><input type="checkbox" name="delete" value="{}">'.format(row.id)+
-                '<a href="javascript:delete_items({});" class="ml-1">'.format(row.id)+
-                '<i class="feather icon-x-circle" data-toggle="tooltip" title="刪除{}{}"></a></i>'.format(self.title,row.name)+
-                '<a href="/captain/update/User/{}" class="ml-1">'.format(row.id)+
-                '<i class="feather icon-edit" data-toggle="tooltip" title="編輯{}{}"></a></i></div>'.format(self.title,row.name),
-                row.name,
-                row.email,'有效' if row.active else '失效',row.source, str(row.roles) if row.roles else "無"])
+    def _list_rows(self,row):
         return {
-            "fields":['名稱','郵箱','有效','來源','權限'],
-            "rows":out_rows
-            }
-            
+                'title_field':row.name,
+                'fields_value':[
+                    row.name,
+                    row.email,
+                    '有效' if row.active else '失效',
+                    row.source, 
+                    #str(row.roles) if row.roles else "無"
+                    "\n".join(f'<div class="badge badge-dark">{i}</div>' for i in row.roles)
+                    ]
+                }
+    def _list_fields(self):
+        return ['名稱','郵箱','有效','來源','權限']
+                    
     def get_search_filters(self,search):
         filters = []
         if search:
@@ -103,13 +104,16 @@ class RepoUser(BaseRepo):
             db_user.email = user.email
             db_user.active = True if user.active=="1" else False
             db_user.source = user.source
-            
+            db_user.updated = datetime.datetime.now()
+            db_user.updated_by = current_user.email
             if user.roles:
                 roles = session.query(Roles).filter(Roles.id.in_(user.roles)).all()
                 db_user.roles =roles
             else:
                 db_user.roles.clear()
             if not id:
+                db_user.created_by = current_user.email
+                db_user.updated_by = current_user.email
                 session.add(db_user)
             session.commit()
 

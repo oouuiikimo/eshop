@@ -24,8 +24,6 @@ class BlogArticle(Base):
                     unique=False,
                     nullable=False,
                     default=datetime.datetime.now())
-    author = Column(String(80),
-                    nullable=False)
     created_by = Column(String(80),
                     nullable=False)
     updated_by = Column(String(80),

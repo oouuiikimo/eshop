@@ -14,18 +14,18 @@ def run_my_program(func):
         result = func(session)
     return result    
     
-def create():
+def create(model):
 
     db = DB_SESSION(SQLALCHEMY_DATABASE_URI)
 
-    ArticleBase.metadata.create_all(db.engine) 
+    model.metadata.create_all(db.engine) 
     #meta.drop_all(db.engine)
     #User.drop(db.engine)
     #User.create(db.engine)
     
-def drop():
+def drop(model):
     db = DB_SESSION(SQLALCHEMY_DATABASE_URI)
-    ArticleBase.metadata.drop_all(db.engine) 
+    model.metadata.drop_all(db.engine) 
     
 def set_user(session):        
     tom = session.query(User).filter_by(email="tom@your-tom.com").first()
@@ -36,6 +36,8 @@ def user_add(session):
     admin =Roles(role='Admin')
 
     tom = User(name='tom',email='tom@your-tom.com',active=True,source='google')
+    tom.created_by = 'tom@your-tom.com'
+    tom.updated_by = 'tom@your-tom.com'
     tom.set_password('')
     session.add(admin)
     session.add(Account)
@@ -78,14 +80,14 @@ def add_productAttribute(session):
 
     
 if __name__ == "__main__":
-    drop()
-    create()
-    #user_add()
+    drop(BlogArticle)
+    create(BlogArticle)
+    #func = user_add
     #user = db_session.query(User).filter(User.name=='tom').first()
     #func = add_productAttribute
     #func = query_productAttribute
     #func = update_user_roles
     #result = run_my_program(func)
-    #print(run_my_program(set_user))
+    #print(run_my_program(func))
     #drop()
     

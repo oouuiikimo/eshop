@@ -1,4 +1,8 @@
+
 ----- 2020.08
+2020/08/11 Tue:增加captain list sort 功能; 新增 blogarticle 功能; 實作tag input
+2020/08/10 Mon:修改所有表格一律有create,update,author; 修改captain list_row; 修正blogCategory 目錄樹 錯誤
+---
 2020/08/07 Fri:db_article 更改, 
 2020/08/06 Thu:-前台頁面補充:blog,products,cart...
                -研究最新SEO:

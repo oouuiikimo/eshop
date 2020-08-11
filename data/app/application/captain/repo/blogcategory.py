@@ -1,7 +1,7 @@
 from flask import current_app as app
 from flask_login import current_user
 from .baserepo import BaseRepo
-from ...models.db_article import BlogCategory
+from ...models.db_article import BlogCategory,BlogArticle
 from ...models.db_user import User
 from .form_blogcategory import SearchForm,UpdateForm
 from sqlalchemy import exc
@@ -25,7 +25,7 @@ class RepoBlogCategory(BaseRepo):
                
     def form_mapper(self,db_data):
         
-        form_data = {"name":db_data.name,"is_leaf":'1' if db_data.is_leaf else '0',"parent":db_data.parent,'id':db_data.id}
+        form_data = {"name":db_data.name,"is_leaf":'1' if db_data.is_leaf else '0',"parent":str(db_data.parent_id),'id':db_data.id}
 
         return self.Struct(**form_data)
         
@@ -45,39 +45,39 @@ class RepoBlogCategory(BaseRepo):
 
         return form
 
-    def get_listrows(self,rows):
-        out_rows = []
-        with app.db_session.session_scope() as session:
-            for row in rows:
-                created_by = session.query(User).filter_by(email=row.created_by).first()
-                updated_by = session.query(User).filter_by(email=row.updated_by).first()
-                if created_by: #更換為姓名
-                    row.created_by = created_by.name
-                if updated_by: #更換為姓名
-                    row.updated_by = updated_by.name
-                    
-                out_rows.append(['<div style="width:100px;"><input type="checkbox" name="delete" value="{}">'.format(row.id)+
-                    '<a href="javascript:delete_items({});" class="ml-1">'.format(row.id)+
-                    '<i class="feather icon-x-circle" data-toggle="tooltip" title="刪除-{}-{}"></a></i>'.format(self.title,row.name)+
-                    '<a href="/captain/update/BlogCategory/{}" class="ml-1">'.format(row.id)+
-                    '<i class="feather icon-edit" data-toggle="tooltip" title="編輯-{}-{}"></a></i></div>'.format(self.title,row.name),
-                    row.name,'是' if row.is_leaf else '否',row.parent if row.parent else '無',
-                    row.created_by,row.created.strftime("%Y/%m/%d %H:%M"),row.updated_by,row.updated.strftime("%Y/%m/%d %H:%M")
-                    ])
+    def _list_rows(self,row):
+        #if row.id == 2:
+        #    raise Exception(str(row.parent.name))
         return {
-            "fields":['目錄名稱','最底層目錄','上層目錄','建立者','建立日期','更新者','更新日期'],
-            "rows":out_rows
-            }
-            
+                'title_field':row.name,
+                'fields_value':[
+                    row.name,'是' if row.is_leaf else '否',
+                    self.get_cat_path(row) if row.parent else '無',
+                    ]
+                }
+                
+    def _list_fields(self):
+        return ['目錄名稱','最底層目錄','上層目錄']
+
+    def _get_all_child_id(self,id):
+        with app.db_session.session_scope() as session:
+            child = [i.id for i in session.execute(self._child_tree_sql(),{"id":id})]
+            #所有下層
+            return child
+                
     def get_search_filters(self,search):
         filters = []
+
+        
         if search:
             if 'name' in search and search['name']: 
-                filters.append(BlogCategory.name.like('%{}%'.format(search['name'])) )   
+                filters.append(BlogCategory.name.like(f'%{search["name"]}%') )   
             if 'is_leaf' in search and search['is_leaf']: 
                 filters.append(BlogCategory.is_leaf==search['is_leaf'])    
             if 'parent' in search and search['parent']: 
-                filters.append(BlogCategory.parent==search['parent'])                  
+                #raise Exception(str(_get_all_child_id(int(search['parent']))))
+                filters.append(BlogCategory.id.in_(self._get_all_child_id(int(search['parent']))))   
+                #todo: 要把該類以下所有的類別id,全列出來才對              
 
         return filters
   
@@ -105,7 +105,7 @@ class RepoBlogCategory(BaseRepo):
                 db_item.name = item.name
                 db_item.is_leaf = True if item.is_leaf=='1' else False
                 if item.parent:
-                    parent = session.query(BlogCategory).filter_by(id==item.parent).first()
+                    parent = session.query(BlogCategory).filter(BlogCategory.id==int(item.parent)).first()
                     db_item.parent = parent
                 else:
                     db_item.parent = None
@@ -126,14 +126,33 @@ class RepoBlogCategory(BaseRepo):
             #raise Exception('刪除失敗!!')
 
     def delete(self, items):
+    
+        def validate_has_child(session,item):
+            if not self._get_all_child_id(item.id):
+                return False
+            return True
+            
+        def validate_has_blog(session,item):
+            if not item.is_leaf:
+                return False
+            #todo:建立blog repo 後要添加以下程式,檢查是否有文章在此目錄底下
+            blog = session.query(BlogArticle).filter(BlogArticle.id_category==item.id).first()
+            if not blog:
+                return False
+            return True
         try:
-            """檢查:是否有網站引用,不能刪除"""
+            """檢查:是否有網站引用,不能刪除,有下層目錄亦不能刪除"""
             #return str(type(items))
             with app.db_session.session_scope() as session: 
                 for item in items:
+                    
                     _del = session.query(BlogCategory).filter(BlogCategory.id==item).first()
                     if _del:
-                        session.delete(_del)
+                        if not validate_has_child(session,_del) and not validate_has_blog(session,_del):
+                            #session.delete(_del)
+                            pass
+                        else:
+                            return "刪除失敗,無法刪除, 尚有文章或下層目錄"
                 
         except exc.SQLAlchemyError as e:
             """ 捕獲錯誤, 否則無法回傳
@@ -152,6 +171,24 @@ class RepoBlogCategory(BaseRepo):
         #result = BlogCategory.query.filter(BlogCategory.id.in_([i.parent_id for i in has_child])).count()
         return has_child #.with_entities(func.count(BlogCategory.id)).scalar()
     
+    def _child_tree_sql(self):
+        return text(
+        """
+        WITH RECURSIVE category_path (id, path) AS
+        (
+          SELECT id, name as path
+            FROM blog_category
+            WHERE parent_id ==:id /*IS NULL or ==2*/
+            
+          UNION ALL
+          SELECT c.id,  cp.path|| ' > '|| c.name as path
+            FROM category_path AS cp JOIN blog_category AS c
+              ON cp.id = c.parent_id
+        )
+        SELECT * FROM category_path
+        ORDER BY path;
+        """)
+        
     def get_tree(self,id=None):
         """更新或新增表單用,顯示上層目錄供歸屬:
             .不能列出參考列的下層,只能列上層, is_leaf=True, 不然會形成迴圏, 
@@ -175,12 +212,12 @@ class RepoBlogCategory(BaseRepo):
         """)
         with app.db_session.session_scope() as session:
             if id:
-                child = [i.id for i in session.execute(statement,{"id":id})]
+                child = [i.id for i in session.execute(self._child_tree_sql(),{"id":id})]
                 child.append(id) #自己以及下層, 都不能出現
-                return [(i.id,i.name) for i in session.query(BlogCategory).filter(BlogCategory.id.notin_(child),BlogCategory.is_leaf==False).all()]
+                return [(str(i.id),self.get_cat_path(i)) for i in session.query(BlogCategory).filter(BlogCategory.id.notin_(child),BlogCategory.is_leaf==False).all()]
             else:
                 #is_leaf 不能出現
-                return [(i.id,i.name) for i in session.query(BlogCategory).filter(BlogCategory.is_leaf == False ).all()]
+                return [(str(i.id),self.get_cat_path(i)) for i in session.query(BlogCategory).filter(BlogCategory.is_leaf == False ).all()]
         
         #return func
 
@@ -190,7 +227,7 @@ class RepoBlogCategory(BaseRepo):
         #has_child = db.session.query(BlogCategory.parent_id).distinct()
         #return BlogCategory.query.filter(BlogCategory.id.in_([i.parent_id for i in has_child])).all()
         with app.db_session.session_scope() as session:
-            return [(i.id,i.name) for i in session.query(BlogCategory).filter(BlogCategory.is_leaf == False).all()]
+            return [(str(i.id),self.get_cat_path(i)) for i in session.query(BlogCategory).filter(BlogCategory.is_leaf == False).all()]
 
     def get_tree_for_article(self):
         """文章表單用:不列出含有下層目錄的母層, 只列子層-> is_leaf is True
@@ -200,9 +237,13 @@ class RepoBlogCategory(BaseRepo):
         #has_child = db.session.query(BlogCategory.parent_id).filter(BlogCategory.parent_id.isnot(None)).distinct()
         #return BlogCategory.query.filter(BlogCategory.id.notin_(has_child)).all()
         with app.db_session.session_scope() as session:
-            return [(i.id,i.name) for i in session.query(BlogCategory).filter(BlogCategory.is_leaf == True).all()]
+            return [(str(i.id),i.name) for i in session.query(BlogCategory).filter(BlogCategory.is_leaf == True).all()]
         
     def __repr__(self):
+        return self.title
+    
+    def get_cat_path(self,item_cat):
+        #return only one cat tree
         statement = text(
         """
         WITH RECURSIVE category_path (id, path) AS
@@ -219,8 +260,8 @@ class RepoBlogCategory(BaseRepo):
         where id == :id;
         """)
         with app.db_session.session_scope() as session:
-            if self.parent:
-                tree = session.execute(statement,{"id":self.id}).first()
+            if item_cat.parent:
+                tree = session.execute(statement,{"id":item_cat.id}).first()
                 return tree.path
 
-        return self.name
+        return item_cat.name

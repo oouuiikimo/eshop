@@ -1,5 +1,6 @@
 from sqlalchemy.orm import validates,load_only,relationship,backref
-from sqlalchemy import Integer,ForeignKey,String,DateTime,Table,Column,Boolean,Text
+from sqlalchemy import (Integer,ForeignKey,String,DateTime,Table,
+    BLOB,Column,Boolean,Text)
 import datetime,re
 
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -47,6 +48,14 @@ class User(Base):
                         index=False,
                         unique=False,
                         default=datetime.datetime.now())
+    updated = Column(DateTime,
+                        index=False,
+                        unique=False,
+                        default=datetime.datetime.now())    
+    created_by = Column(String(80),
+                    nullable=False)
+    updated_by = Column(String(80),
+                    nullable=False)                        
     password = Column(String(200),
                          primary_key=False,
                          unique=False,
@@ -57,7 +66,7 @@ class User(Base):
     social_id = Column(String(50),
                         unique=True)
     active = Column(Boolean)                     
-    photo = Column(String(200),
+    photo = Column(BLOB(200),
                     index=False,
                     unique=False,
                     nullable=True)

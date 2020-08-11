@@ -1,4 +1,4 @@
-from wtforms import SelectMultipleField,SelectField,widgets
+from wtforms import SelectMultipleField,SelectField,widgets,StringField
 
 
 class MultiCheckboxField(SelectMultipleField):
@@ -9,3 +9,5 @@ class MultiCheckboxField(SelectMultipleField):
 class SelectCheckboxField(SelectField):
     widget = widgets.ListWidget(prefix_label=False)
     option_widget = widgets.CheckboxInput()
+
+ 

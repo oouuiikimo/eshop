@@ -47,26 +47,32 @@ class RepoSiteArticle(BaseRepo):
 
         return form
 
+    def _list_rows(self,row):
+        return {
+                'title_field':row.title,
+                'fields_value':[
+                    row.title,row.link_text
+                    ]
+                }
+                
+    def _list_fields(self):
+        return ['文章標題','英文連結']
+        
     def get_listrows(self,rows):
         out_rows = []
         with app.db_session.session_scope() as session:
-            for row in rows:
-                created_by = session.query(User).filter_by(email=row.created_by).first()
-                updated_by = session.query(User).filter_by(email=row.updated_by).first()
-                if created_by: #更換為姓名
-                    row.created_by = created_by.name
-                if updated_by: #更換為姓名
-                    row.updated_by = updated_by.name
-                    
+            for row in rows:                    
                 out_rows.append(['<div style="width:100px;"><input type="checkbox" name="delete" value="{}">'.format(row.id)+
                     '<a href="javascript:delete_items({});" class="ml-1">'.format(row.id)+
                     '<i class="feather icon-x-circle" data-toggle="tooltip" title="刪除-{}-{}"></a></i>'.format(self.title,row.title)+
                     '<a href="/captain/update/SiteArticle/{}" class="ml-1">'.format(row.id)+
                     '<i class="feather icon-edit" data-toggle="tooltip" title="編輯-{}-{}"></a></i></div>'.format(self.title,row.title),
-                    row.title,row.link_text,row.created_by,row.created.strftime("%Y/%m/%d %H:%M"),row.updated_by,row.updated.strftime("%Y/%m/%d %H:%M")
+                    row.title,row.link_text,
+                    '{}.{}'.format(row.created.strftime("%Y/%m/%d %H:%M"),row.created_by),
+                    '{}.{}'.format(row.updated.strftime("%Y/%m/%d %H:%M"),row.updated_by),
                     ])
         return {
-            "fields":['文章標題','英文連結','建立者','建立日期','更新者','更新日期'],
+            "fields":['文章標題','英文連結','建立','更新'],
             "rows":out_rows
             }
             
@@ -97,7 +103,7 @@ class RepoSiteArticle(BaseRepo):
             return "_".join(link.split())
         
         try:
-            with self.session as session:
+            with app.db_session.session_scope() as session:
                 if id and id is not None:
                     db_item = session.query(SiteArticle).get(id)
                 else:

@@ -7,7 +7,8 @@ from flask_mail import Mail,  Message
 from flask_sqlalchemy import SQLAlchemy
 from flask_principal import Principal, Permission, RoleNeed, UserNeed, Identity, AnonymousIdentity, identity_changed, \
     identity_loaded, Denial
-from .models.database import DB_SESSION    
+from .models.database import DB_SESSION  
+from store_config import store_config  
 # Globally accessible libraries
 
 #db = SQLAlchemy()
@@ -16,9 +17,9 @@ def create_app():
     """Initialize the core application."""
     app = Flask(__name__, instance_relative_config=False)
     app.config.from_object('config.Config')
-    
+    app.store_config = store_config()
     # Initialize Plugins
-    
+    #store_config.from_object(store_config.py)
     login_manager.init_app(app) #need secretkey
     #db = SQLAlchemy()
     #db.init_app(app)
@@ -27,7 +28,7 @@ def create_app():
     mail = Mail(app)
     cache = Cache(config=app.config['CACHE'])
     cache.init_app(app)
-    app.db_session = DB_SESSION(app.config['SQLALCHEMY_DATABASE_URI'])
+    app.db_session = DB_SESSION(app.store_config.SQLALCHEMY.DATABASE_URI)
     
     with app.app_context():
         """ Include our Routes 

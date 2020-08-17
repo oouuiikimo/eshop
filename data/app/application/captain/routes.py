@@ -47,15 +47,15 @@ def list(repo_name):
             (i.data is not "" and i.data is not None)
             }} 
         session['sort']=sort
-        #return redirect(session['lastURL']) #jsonify(session['search'])
+        return redirect(session['lastURL']) #jsonify(session['search'])
     #return jsonify(session['search'])    
-    if session['search'] and repo_name in session['search'] and session['search'][repo_name]:
+    if 'search' in session and session['search'] and repo_name in session['search'] and session['search'][repo_name]:
         search=session['search'][repo_name]
     else:
         search=None
         
     #復原searchForm內容
-    if session['search'] and repo_name in session['search'] and session['search'][repo_name]:
+    if  'search' in session and session['search'] and repo_name in session['search'] and session['search'][repo_name]:
         #session['search']= None
         #return jsonify(session['search'])
         for i in session['search'][repo_name]:
@@ -66,7 +66,7 @@ def list(repo_name):
     page,data,count,pagination = repo.get_list(page=page,per_page=per_page,search=search,sort=sort)
     data_to_template = {'page':page,'per_page':per_page,'data':data,'count':count,'pagination':pagination,
         'search_form':searchForm,'repo_name':repo_name,'repo_title':repo.title,'repo_desc':repo.description,
-        "active_menu":repo.active_menu,'sort':sort}
+        "active_menu":repo.active_menu,'sort':sort,"store_config":current_app.store_config.INFO}
     return render_template('/captain/list.html',**data_to_template)
     
 @captain.route('/update/<repo_name>/', defaults={'id': None}, methods=['GET','POST'])    
@@ -89,7 +89,7 @@ def update(repo_name,id):
             return redirect(url_for('captain.list',repo_name=repo_name))
 
     data_to_template = {'form':form,'item':item,'update_type':'{}.{}'.format(repo.title,'新增' if not id else '編輯'),
-        "active_menu":repo.active_menu}
+        "active_menu":repo.active_menu,"store_config":current_app.store_config.INFO}
     return render_template('/captain/update.html',**data_to_template)
     
 @captain.route('/delete/<repo_name>', methods=['POST'])
@@ -113,7 +113,7 @@ def delete(repo_name):
 @captain.route('/account-setting', methods=['GET'])
 @login_required
 def account_setting():  
-    data_to_template = {"active_menu":"sub_account_setting"}
+    data_to_template = {"active_menu":"sub_account_setting","store_config":current_app.store_config.INFO}
     return render_template('/captain/account_setting.html',**data_to_template)
     
 def _repo(name):

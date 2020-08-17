@@ -20,7 +20,7 @@ class DB_SESSION():
     @contextmanager
     def session_scope(self):
         """Provide a transactional scope around a series of operations."""
-        Session = sessionmaker(bind=self.engine)
+        Session = sessionmaker(bind=self.engine, autoflush=False)
         self.session = Session()
         try:
             yield self.session

@@ -36,11 +36,7 @@ class BaseRepo(object):
             if (page-1)*per_page > q_count:
                 page = math.ceil(q_count / per_page)
             return page,q_count,q.limit(per_page).offset((page-1)*per_page).all()    
-            
-        def trans_author():
-        
-            pass
-            
+                       
         def author_to_dict(rows):
             _dict = {}
             for i in rows:

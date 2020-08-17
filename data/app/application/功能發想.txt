@@ -4,4 +4,75 @@
 
 - 後台:
     - 新增 update_advanced ,有些更新項目欄位多, 較複雜時, 可參考 account_setting多tab 來編輯
-    - 文章欄位, 應考量 搜尋排名的meta 資訊
+    - 
+
+-商店設置:讀取python config 不用寫入資料庫, 因為只有一筆
+  -基本資訊:店名|住址|電話|簡介|聯繫方式|social media|代表圖|favicon|幣別||
+  -功能類:商品陳列每頁數量|類別顯示商品數|開啟商品留言|未登入留言|留言通知|Vouchers(兌換卷)||
+  -含稅:稅率應該要全館一致!
+  -會員:會員預設群組|Max Login Attempts|Account Terms|New Account Alert Mail
+  -Checkout:Checkout Terms|Order Status|||  
+  
+- 產品類別:
+  -主類別為一對一; 若有其它類別需求, 則統一在other_category裡設定多對多關聯
+  -other_category:為樹狀目錄, 最底層可以設定商品歸屬,
+   -- 例: 品牌,促銷辦法,優惠商品,新品上市...等等,
+   
+- 產品   
+  -屬性必須在設定產品時就固定, 若己新增sku 就不能再改屬性  
+  -屬性可以設定:名稱,代表圖, 若有圖片就秀圖片, 否則秀名稱
+  -產品欄位
+        基本:id,name,description,
+        顯示:active,image_small,image_medium,image_large(一張主動作成三張)
+        類別:id_category,
+        
+
+    -送貨方式:需送, 不需送
+
+
+
+    
+        relationship: attribute,product_category
+  -product.attribute = [ 
+    {'name':'尺寸','variants':[
+                            {'sku_name':'L','name':'大','photo':'/pic/big.jpg'},
+                            {'sku_name':'M''name':'中','photo':'/pic/middle.jpg'},
+                            {'sku_name':'S''name':'小','photo':'/pic/small.jpg'}
+                            ]
+     'name':'顏色','variants':[
+                            {'sku_name':'white','name':'白'},
+                            {'sku_name':'blue','name':'藍','photo':''},
+                            {'sku_name':'red','name':'紅','photo':''}
+                            ] 
+  ]
+  -attribute_variant = id|id_attribute|name|sku_name|photo 
+  
+  -sku_master: id|id_product|amount|price,成本價,訂價,售價,會員價,促銷價,組合價
+  -新增sku時, 必須依產品屬性設定, 一一輸入型式規格, 及數量
+  -sku 編號應依一定規格自動產生: 產品名-屬性1-屬性2...
+  -sku , 依id_product 可搜尋產品總數量
+  -sku_detail:
+    id |id_sku|id_variant
+    1  |5     |3         
+    2  |5     |4         
+    
+  - 選擇商品時, 
+   -- 若無attributes 表示不需查sku details, 直接設定數量及金額, sku號碼為 master本身
+
+   -- 若有attributes 頁面先依product的attributes顯示所有的規格, 包括attribute內的所有 variants
+  - 一一判斷每個attribute的所有variants查看 sku_master 中, id_product是本產品時, 查其details  
+  
+  ===其它表格
+  
+  -行銷類:會員點數:設定購買後, 會員會累積的點數*數量
+  -相關產品:顯示相關產品, 每個商品都可以設定
+  -合購價:合購以下商品, 有折扣(扣本商品,至多一次)
+
+
+  -數量價格:若超過一定數量, 可再享折扣
+
+  -滿額購:需在結帳時呈現, 不在商品範圍內
+  -滿額送:需在結帳時呈現, 不在商品範圍內  
+  ===
+  共有表格: product,product_attributes,attribute_variants,sku_master,sku_details
+  

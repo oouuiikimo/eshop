@@ -11,11 +11,11 @@ from wtforms.validators import (DataRequired,
 from wtforms_sqlalchemy.fields import QuerySelectField,QuerySelectMultipleField
 from ..models.user import User,Roles,getRoles,user_roles
 from ..models.product import ProductAttribute,ArticleCategory,Article
-from .. import db
 from ..share.helpers import Pagination
 from sqlalchemy import func,exc
 import datetime,re
-
+from flask_sqlalchemy import SQLAlchemy
+db = SQLAlchemy()
 """
  fix Flask WTForms and WTForms-SQLAlchemy QuerySelectField produce too many values to unpack 
 """

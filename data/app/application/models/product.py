@@ -1,10 +1,10 @@
-from ..share.models import db
 from sqlalchemy.orm import validates,load_only,relationship,backref
-from sqlalchemy import or_
 import datetime,re
 from flask import json,g
 from flask_login import current_user
-from sqlalchemy import func,exc
+from sqlalchemy import func,exc,or_
+from flask_sqlalchemy import SQLAlchemy
+db = SQLAlchemy()
 
 class ProductAttribute(db.Model):
     id = db.Column(db.Integer, primary_key = True)

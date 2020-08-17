@@ -3,7 +3,7 @@ from flask import Blueprint, render_template, request,redirect, flash, session, 
 from flask_login import login_required,logout_user, current_user, login_user
 from flask import current_app as app
 from .forms import LoginForm, SignupForm
-from .. import db,login_manager
+from .. import login_manager
 #from ..models.user import User
 from ..models.db_user import User
 from .user_login import UserLogin

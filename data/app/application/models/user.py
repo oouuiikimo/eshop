@@ -1,10 +1,10 @@
 from flask_login import UserMixin
-from ..share.models import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.orm import validates,load_only,relationship
 import datetime,re
 from wtforms.validators import ValidationError
-
+from flask_sqlalchemy import SQLAlchemy
+db = SQLAlchemy()
 user_roles = db.Table('user_roles',
     db.Column('id', db.Integer, primary_key=True),
     db.Column('user_id', db.Integer, db.ForeignKey('user.id')),

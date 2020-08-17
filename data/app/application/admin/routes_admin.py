@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template,current_app,json,request,redirect, flash, session, url_for,g,jsonify
 from flask_login import login_required,current_user
 from sqlalchemy.orm import load_only,joinedload,lazyload,outerjoin
-from .. import db,login_manager
+from .. import login_manager
 from ..models.user import User,Roles
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import CSRFProtect, FlaskForm

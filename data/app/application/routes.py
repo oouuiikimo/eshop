@@ -2,8 +2,6 @@
 from flask import request, render_template, make_response,current_app,redirect, flash, session, url_for,g
 from flask_login import current_user,login_required
 from datetime import datetime as dt
-from .share.models import db
-from .models.user import User
 from . import login_manager
 
 @current_app.route('/', methods=['GET'])

@@ -1,7 +1,6 @@
 from flask import Flask
 from flask_login import LoginManager
 from flask_wtf import CSRFProtect
-from .share.models import db
 from flask_caching import Cache 
 from flask_mail import Mail,  Message
 from flask_sqlalchemy import SQLAlchemy

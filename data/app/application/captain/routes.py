@@ -4,6 +4,7 @@ from flask_login import login_required,current_user
 from .. import login_manager
 from flask_wtf import CSRFProtect, FlaskForm
 from .menu import get_menu
+from ..store_config import store_config,set_config
 """
 from flask_principal import Principal, Permission, RoleNeed, UserNeed, Identity, AnonymousIdentity, identity_changed, \
     identity_loaded, Denial
@@ -66,7 +67,7 @@ def list(repo_name):
     page,data,count,pagination = repo.get_list(page=page,per_page=per_page,search=search,sort=sort)
     data_to_template = {'page':page,'per_page':per_page,'data':data,'count':count,'pagination':pagination,
         'search_form':searchForm,'repo_name':repo_name,'repo_title':repo.title,'repo_desc':repo.description,
-        "active_menu":repo.active_menu,'sort':sort,"store_config":current_app.store_config.INFO}
+        "active_menu":repo.active_menu,'sort':sort,"store":current_app.store_config}
     return render_template('/captain/list.html',**data_to_template)
     
 @captain.route('/update/<repo_name>/', defaults={'id': None}, methods=['GET','POST'])    
@@ -89,7 +90,7 @@ def update(repo_name,id):
             return redirect(url_for('captain.list',repo_name=repo_name))
 
     data_to_template = {'form':form,'item':item,'update_type':'{}.{}'.format(repo.title,'新增' if not id else '編輯'),
-        "active_menu":repo.active_menu,"store_config":current_app.store_config.INFO}
+        "active_menu":repo.active_menu,"store":current_app.store_config}
     return render_template('/captain/update.html',**data_to_template)
     
 @captain.route('/delete/<repo_name>', methods=['POST'])
@@ -110,11 +111,23 @@ def delete(repo_name):
         return jsonify({"error":'有錯誤 :{}'.format(error)})
     return jsonify({"success":'己刪除記錄 :{}'.format(remove_items),"redirect":lastURL}) 
     
-@captain.route('/account-setting', methods=['GET'])
+@captain.route('/account_setting', methods=['GET'])
 @login_required
 def account_setting():  
-    data_to_template = {"active_menu":"sub_account_setting","store_config":current_app.store_config.INFO}
+    data_to_template = {"active_menu":"sub_account_setting","store":current_app.store_config}
     return render_template('/captain/account_setting.html',**data_to_template)
+
+@captain.route('/store_setting', methods=['GET'])
+@login_required
+def store_setting():  
+    #set info
+    #set_config()
+    #reload info
+    store = current_app.store_config#store_config(False)
+    
+    data_to_template = {"active_menu":"sub_store_setting","store":current_app.store_config}
+    return render_template('/captain/store_setting.html',**data_to_template)
+    
     
 def _repo(name):
     import importlib

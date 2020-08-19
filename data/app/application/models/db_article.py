@@ -5,7 +5,6 @@ from sqlalchemy.sql import text
 from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 
-
 class BlogArticle(Base):
     __tablename__ = 'blog_article'
     id = Column(Integer, primary_key = True)

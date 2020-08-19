@@ -1,5 +1,9 @@
 
 ----- 2020.08
+2020/08/18 Tue:商店設置轉換json,預設一個基礎json檔
+               -產品及類別資料表設計,測試
+               -evernote 整理
+               -Satchless應該要看一下, 是否可以應用
 2020/08/17 Mon:-cython 將modules改成c,可保護程式碼, 加快執行速度
                -商品資料結構及管理介面研究
                -設定Store config -> namedtuple

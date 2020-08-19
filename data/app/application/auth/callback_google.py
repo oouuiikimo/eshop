@@ -4,9 +4,12 @@ import requests,os
 from flask import url_for,json
 
 # Configuration
-GOOGLE_CLIENT_ID = app.config['GOOGLE_CLIENT_ID']
-GOOGLE_CLIENT_SECRET = app.config['GOOGLE_CLIENT_SECRET']
-GOOGLE_DISCOVERY_URL = app.config['GOOGLE_DISCOVERY_URL']
+#GOOGLE_CLIENT_ID = app.config['GOOGLE_CLIENT_ID']
+#GOOGLE_CLIENT_SECRET = app.config['GOOGLE_CLIENT_SECRET']
+#GOOGLE_DISCOVERY_URL = app.config['GOOGLE_DISCOVERY_URL']
+GOOGLE_CLIENT_ID = app.store_config.GOOGLE_CLIENT_ID
+GOOGLE_CLIENT_SECRET = app.store_config.GOOGLE_CLIENT_SECRET
+GOOGLE_DISCOVERY_URL = app.store_config.GOOGLE_DISCOVERY_URL
 #add environment variable OAUTHLIB_INSECURE_TRANSPORT for debug only
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 client = WebApplicationClient(GOOGLE_CLIENT_ID)

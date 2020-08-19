@@ -1,29 +1,28 @@
 from database import DB_SESSION
 from db_user import User,Roles,user_roles,Base as UserBase
-from db_product import ProductAttribute,ProductType,Product,Base as ProductBase
+from db_product import (SubProductCategory,ProductCategory,
+    Product,product_subcategory,
+    #ProductAttribute,ProductType,
+    Product,Base as ProductBase)
 from db_article import BlogCategory,ProductArticle,SiteArticle,BlogArticle,Base as ArticleBase
 
 #SQLALCHEMY_DATABASE_URI = 'sqlite:////home/user/data/app/application/models/site.db'
 SQLALCHEMY_DATABASE_URI = 'sqlite:////home/user/data/app/application/site1.db'
 
-def run_my_program(func):
-    result = None
-    
+def run_my_program(func,*arg):
+    #用統一的session 去跑測試的 func,回傳func結果
     db = DB_SESSION(SQLALCHEMY_DATABASE_URI)
     with db.session_scope() as session:
-        result = func(session)
-    return result    
+        return func(session,*arg)
+    return None    
     
 def create(model):
-
+    #可單獨建立群組表格, 依import mudule 的 Base
     db = DB_SESSION(SQLALCHEMY_DATABASE_URI)
-
     model.metadata.create_all(db.engine) 
-    #meta.drop_all(db.engine)
-    #User.drop(db.engine)
-    #User.create(db.engine)
     
 def drop(model):
+    #可單獨刪除群組表格, 依import mudule 的 Base
     db = DB_SESSION(SQLALCHEMY_DATABASE_URI)
     model.metadata.drop_all(db.engine) 
     
@@ -80,14 +79,15 @@ def add_productAttribute(session):
 
     
 if __name__ == "__main__":
-    drop(BlogArticle)
-    create(BlogArticle)
+    from test_product import product_add
+    #drop(ProductBase)
+    #create(ProductBase)
     #func = user_add
     #user = db_session.query(User).filter(User.name=='tom').first()
-    #func = add_productAttribute
+    func = product_add
     #func = query_productAttribute
     #func = update_user_roles
-    #result = run_my_program(func)
+    print(run_my_program(func))
     #print(run_my_program(func))
     #drop()
     

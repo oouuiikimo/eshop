@@ -1,6 +1,6 @@
 from flask import current_app as app
 from .baserepo import BaseRepo
-from ...models.db_product import ProductAttribute
+#from ...models.db_product import ProductAttribute
    
 class CartList(BaseRepo):
 

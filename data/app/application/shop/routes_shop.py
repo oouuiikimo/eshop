@@ -15,7 +15,13 @@ shop = Blueprint('shop', __name__,
                      static_folder='assets')
                      
 repo_path = 'application.shop.repo'
-                     
+                   
+@shop.route('/test', methods=['GET','POST'])
+@login_required
+def test():   
+    data_to_template = {}
+    return render_template('/shop/test.html', **data_to_template)
+    
 @shop.route('/', methods=['GET','POST'])
 @login_required
 def home():   

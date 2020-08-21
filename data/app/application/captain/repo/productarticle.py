@@ -1,7 +1,7 @@
 from flask import current_app as app
 from flask_login import current_user
 from .baserepo import BaseRepo
-from ...models.db_article import ProductArticle,BlogArticle
+from ...models.db_product import ProductArticle
 from ...models.db_user import User
 from .form_productarticle import SearchForm,UpdateForm
 from sqlalchemy import exc
@@ -116,7 +116,7 @@ class RepoProductArticle(BaseRepo):
             if not item.is_leaf:
                 return False
             #todo:建立blog repo 後要添加以下程式,檢查是否有文章在此目錄底下
-            blog = session.query(BlogArticle).filter(BlogArticle.id_category==item.id).first()
+            blog = session.query(Product).filter(Product.id_category==item.id).first()
             if not blog:
                 return False
             return True

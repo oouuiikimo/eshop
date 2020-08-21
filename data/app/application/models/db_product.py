@@ -1,5 +1,6 @@
 from sqlalchemy.orm import validates,load_only,relationship,backref
-from sqlalchemy import Integer,ForeignKey,String,DateTime,Column,Boolean,Text,JSON,Table
+from sqlalchemy import (Integer,ForeignKey,String,DateTime,
+    Column,Boolean,Text,JSON,Table,BLOB)
 import datetime
 from sqlalchemy.sql import text
 from sqlalchemy.ext.declarative import declarative_base
@@ -51,8 +52,8 @@ class SubProductCategory(Base):
     __tablename__ = "sub_product_category"
     id = Column(Integer, primary_key = True)
     name = Column(String(50),
-                         unique=True,
-                         nullable=False)
+             unique=True,
+             nullable=False)
     is_leaf = Column(Boolean,nullable=False,default=False)
     order = Column(Integer)
     active = Column(Boolean,default=False)
@@ -80,7 +81,7 @@ class SubProductCategory(Base):
                 backref=backref('parent', remote_side=[id]))
     products = relationship('Product', secondary=product_subcategory, backref='SubProductCategory')
     def __repr__(self):
-        return str(self.role)
+        return str(self.name)
     
 class Product(Base):
     __tablename__ = 'product'
@@ -88,6 +89,22 @@ class Product(Base):
     name = Column(String(100),
                          unique=True,
                          nullable=False)
+    description = Column(String(300))
+    price = Column(Integer)
+    discount_percent = Column(Integer,default=0)
+    discount_amount = Column(Integer,default=0)
+    attribute = Column(JSON)
+    image = Column(BLOB)
+    small_image = Column(BLOB) #異動時由後台自動生成
+    medium_image = Column(BLOB) #異動時由後台自動生成
+    html_content_1 = Column(Text)
+    html_content_2 = Column(Text)
+    html_content_3 = Column(Text)
+    images_1 = Column(BLOB) #除代表圖外, 另可再秀5張圖, 應該夠...
+    images_2 = Column(BLOB)
+    images_3 = Column(BLOB)
+    images_4 = Column(BLOB)
+    images_5 = Column(BLOB)
     order = Column(Integer)
     active = Column(Boolean,default=False)
     created = Column(DateTime,
@@ -126,16 +143,17 @@ class Product(Base):
     package_product 組合商品(建其它專用表格)
     related 相關商品(建其它專用表格)
     
-    """            
+    """  
+"""    
 class ProductAttribute_M(Base):
-    """
+    #""#"
     商品屬性主表:
         -關聯商品多對一,關聯明細表一對多
         -關聯sku明細表一對多, 
-    """
+    ""#"
     __tablename__ = 'product_attribute_master'
     id = Column(Integer, primary_key = True)
-    name = Column(String(50)
+    name = Column(String(50),
          nullable=False) 
     show_image = Column(Boolean,default=False)
     order = Column(Integer)
@@ -157,11 +175,11 @@ class ProductAttribute_M(Base):
     product = relationship("Product", backref = "product_attribute_master")
 
 class ProductAttribute_D(Base):
-    """
+    #""#"
     商品屬性明細表:
         -關聯明細表一對多
         -關聯sku明細表一對多, 
-    """
+    #""#"
     __tablename__ = 'product_attribute_details'
     id = Column(Integer, primary_key = True)
     name = Column(String(50),
@@ -170,17 +188,24 @@ class ProductAttribute_D(Base):
          nullable=True)       
     attribute_id = Column(Integer, ForeignKey('product_attribute_master.id'))
     attribute = relationship("ProductAttribute_M", backref = "product_attribute_details") 
-    
-class ProductSku_M(Base):
+"""    
+
+class ProductSku(Base):
     """ 商品sku主表:
         -關聯商品多對一,關聯明細表一對多
         -主要設定數量, 價位差異,sku 號碼(最好自動產生),
     """
     __tablename__ = 'product_sku_master'
     id = Column(Integer, primary_key = True)
-    name = Column(String(50)
-         nullable=False) 
-    quantity = Column(Integer,nullable=False)
+    sku = Column(String(50), #從sku辨別屬性值
+        unique=True,
+        nullable=False)
+    name = Column(String(50),
+        nullable=False) 
+    quantity_lot = Column(Integer,nullable=False)
+    quantity_sold = Column(Integer,nullable=False)
+    lot_number = Column(String(50),
+        nullable=True)
     created = Column(DateTime,
                     index=False,
                     unique=False,
@@ -198,11 +223,12 @@ class ProductSku_M(Base):
     product_id = Column(Integer, ForeignKey('product.id'))
     product = relationship("Product", backref = "product_sku_master")
 
+"""
 class ProductSku_D(Base):
-    """ 商品sku明細表:
+    ""#" 商品sku明細表:
         -關聯ProductAttribute_M多對一,關聯ProductAttribute_D多對一
         
-    """
+    ""#"
     __tablename__ = 'product_sku_details'
     id = Column(Integer, primary_key = True)
     name = Column(String(50),
@@ -222,9 +248,27 @@ class ProductType(Base):
     name = Column(String(50),
                          unique=True,
                          nullable=False)
-    attributes = Column(JSON) 
-    
-    
+"""
+                        
+class ProductArticle(Base):
+    __tablename__ = 'product_article'
+    id = Column(Integer, primary_key = True)
+    title = Column(String(60),unique=True)
+    content = Column(Text)
+    created = Column(DateTime,
+                    index=False,
+                    unique=False,
+                    default=datetime.datetime.now(),
+                    nullable=False)
+    updated = Column(DateTime,
+                    index=False,
+                    unique=False,
+                    nullable=False,
+                    default=datetime.datetime.now())
+    created_by = Column(String(80),
+                    nullable=False)
+    updated_by = Column(String(80),
+                    nullable=False)    
     
 """
 ProductCategory

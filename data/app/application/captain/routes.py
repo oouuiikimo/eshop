@@ -120,14 +120,18 @@ def account_setting():
 @captain.route('/store_setting', methods=['GET'])
 @login_required
 def store_setting():  
-    #set info
-    #set_config()
-    #reload info
     store = current_app.store_config#store_config(False)
     
     data_to_template = {"active_menu":"sub_store_setting","store":current_app.store_config}
     return render_template('/captain/store_setting.html',**data_to_template)
+
+@captain.route('/product_setting', methods=['GET'])
+@login_required
+def product_setting():  
+    store = current_app.store_config#store_config(False)
     
+    data_to_template = {"active_menu":"sub_product_setting","store":current_app.store_config}
+    return render_template('/captain/product_setting.html',**data_to_template)    
     
 def _repo(name):
     import importlib

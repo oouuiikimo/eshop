@@ -4,7 +4,7 @@ from db_product import (SubProductCategory,ProductCategory,
     Product,product_subcategory,
     #ProductAttribute,ProductType,
     Product,Base as ProductBase)
-from db_article import BlogCategory,ProductArticle,SiteArticle,BlogArticle,Base as ArticleBase
+from db_article import BlogCategory,SiteArticle,BlogArticle,Base as ArticleBase
 
 #SQLALCHEMY_DATABASE_URI = 'sqlite:////home/user/data/app/application/models/site.db'
 SQLALCHEMY_DATABASE_URI = 'sqlite:////home/user/data/app/application/site1.db'

@@ -51,28 +51,6 @@ class SiteArticle(Base):
                     nullable=False)
     updated_by = Column(String(80),
                     nullable=False) 
-                    
-class ProductArticle(Base):
-    __tablename__ = 'product_article'
-    id = Column(Integer, primary_key = True)
-    tag = Column(JSON) #搜尋用
-    title = Column(String(60),unique=True)
-    content = Column(Text)
-    created = Column(DateTime,
-                    index=False,
-                    unique=False,
-                    default=datetime.datetime.now(),
-                    nullable=False)
-    updated = Column(DateTime,
-                    index=False,
-                    unique=False,
-                    nullable=False,
-                    default=datetime.datetime.now())
-    created_by = Column(String(80),
-                    nullable=False)
-    updated_by = Column(String(80),
-                    nullable=False)
-
 
 class BlogCategory(Base):
     #todo: 有些function 要cache

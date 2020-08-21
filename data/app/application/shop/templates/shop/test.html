@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+<style>
+img {
+	  padding: 2px;
+cursor: pointer; 	  } 
+p span{
+	  margin:2px;
+	  padding: 5px;
+	  cursor: pointer; 
+	  } 
+p span.disabled {cursor: not-allowed;
+  opacity: 0.5;
+  }      
+span.a {	  background-color:#f0efcc;}
+span.b {	  background-color:#cbe6c8;}
+span.c {	  background-color:#e4c8e6;}
+img.active,span.active {border: 1px blue solid;}  
+</style>
+</head>
+<body>
+
+<h3>filter is <span id="filter"></span></h3>
+<h5 id="allowed"></h5>
+<p>
+  尺寸:
+ <!-- <a class="product-gallery-item active" href="#">
+  <img src="/shop/assets/images/products/single/centered/1-small.jpg" alt="product side">
+  </a>-->
+    <span id="尺寸-XL" class="a">XL</span>
+    <span id="尺寸-L" class="a">L</span>
+    <span id="尺寸-M" class="a">M</span>
+    <span id="尺寸-S" class="a">S</span>
+    <span id="尺寸-XS" class="a">XS</span>
+	
+</p>
+<p>
+顏色:
+<span id="顏色-白" class="b" >白</span>
+<span id="顏色-黃" class="b" >黃</span>
+<span id="顏色-藍" class="b" >藍</span>
+<span id="顏色-綠" class="b" >綠</span>
+<span id="顏色-紅" class="b" >紅</span>
+<span id="顏色-黑" class="b" >黑</span>
+</p>
+<p>
+男女:
+<span id="男女-男" class="c" >男</span>
+<span id="男女-女" class="c" >女</span>
+</p>
+
+<p>
+    <select id="quantity" name="quantity">
+        <option value=0>--請選擇數量--</option>
+    </select>
+</p>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+
+<script>
+var span_attributes = document.querySelectorAll('p span');
+//skus 經由jinja來呈現
+/*
+若無skus可選, 表示該商品只有單一sku,例
+skus = {quantity:10}
+
+var skus = [
+  {attributes:{尺寸: 'XL',顏色: '白',男女:'男'},quantity: 5},
+  {attributes:{尺寸: 'XL',顏色: '黃',男女:'男'},quantity: 6},
+  {attributes:{尺寸: 'XL',顏色: '黃',男女:'女'},quantity: 1},
+  {attributes:{尺寸: 'L',顏色: '藍',男女:'女'},quantity: 18},
+  {attributes:{尺寸: 'L',顏色: '白',男女:'男'},quantity: 7},
+  {attributes:{尺寸: 'L',顏色: '黃',男女:'男'},quantity: 9},
+  {attributes:{尺寸: 'S',顏色: '藍',男女:'女'},quantity: 2},
+  {attributes:{尺寸: 'S',顏色: '綠',男女:'男'},quantity: 3},
+  {attributes:{尺寸: 'S',顏色: '白',男女:'女'},quantity: 12},
+  {attributes:{尺寸: 'S',顏色: '白',男女:'女'},quantity: 16},
+  {attributes:{尺寸: 'XS',顏色: '紅',男女:'男'},quantity: 13}
+];
+*/
+skus = {quantity:10}
+//經jinja呈現,若無則為空 null
+var filter = {"尺寸":null,"顏色":null,"男女":null}
+new_allowed = []
+window.onload = function() {
+   //console.log("window loaded")
+  if (skus.length>1)
+    {refresh_attributes(skus)}
+    
+  /*  
+  span_attributes.forEach(function (item, idx) {
+      if(!item.classList.contains("disabled")) {
+        item.addEventListener('click', btn_click,false)
+        }
+    })*/
+};
+
+function btn_click(evt) {
+    e = evt.currentTarget
+    //console.log(e.id.split('-'))
+    arr_id = e.id.split('-')
+    
+    if (e.classList.contains("active")) {
+        e.classList.remove("active");
+        filter[arr_id[0]]=null
+    }    
+    else {
+        e.classList.add("active");
+        filter[arr_id[0]]=arr_id[1]
+    }
+    
+    document.getElementById("filter").innerHTML= JSON.stringify(filter)
+    refresh_attributes(skus)
+    //console.log(e.innerHTML)
+}
+
+function order_select() {
+    //是否filter都己選擇了?
+    _sel_qty = document.getElementById("quantity")
+    _sel_qty.length = 0;
+    is_all_select = true
+    Object.keys(filter).forEach(function (item,idx) {if (!filter[item]) is_all_select=false})
+   
+    if (is_all_select) { 
+        var i;
+        var new_option = new Option('--請選擇數量--',0)
+        _sel_qty.options.add(new_option);
+        for (i = 0; i < new_allowed[0].quantity; i++) {
+          var new_option = new Option(i+1,i+1);
+            _sel_qty.options.add(new_option);
+        }
+    }
+}
+
+function refresh_attributes() {
+    
+    //重設new_allowed=所有項目
+    new_allowed = JSON.parse(JSON.stringify(skus))
+    //清空可選擇的按鈕
+    key_allowed = []
+    //依filter 內的鍵(即有被按選擇的鍵),
+    Object.keys(filter).forEach(function (item,idx) {
+        //去比對skus裡,有那些可選擇的商品,會有重複的, 沒有就不把它放進new_allowed
+        if (filter[item]) {
+            new_allowed= new_allowed.filter(_new => _new.attributes[item]==filter[item])
+        }    
+
+    })
+    //use map and set to remove duplicates,刪除重複的,用來稍後處理按鈕的狀態
+    Object.keys(filter).forEach(function (item,idx) {
+        _allowed = Array.from(new Set(Object.values(new_allowed).map(_v => item+'-'+_v.attributes[item])));
+        key_allowed = key_allowed.concat(_allowed);
+    })
+    
+    //更新可選商品清單
+    document.getElementById("allowed").innerHTML = JSON.stringify(new_allowed)
+    
+    //更新按鈕可選擇狀態
+    span_attributes.forEach(function (item, idx) {
+        if(!key_allowed.includes(item.id)) {
+            item.classList.add("disabled")
+            item.removeEventListener("click", btn_click,false);
+            }
+        else {
+            item.classList.remove("disabled")
+            item.addEventListener("click", btn_click,false);
+            }
+    })
+    
+    order_select()
+}
+
+
+
+</script>
+</body>
+</html>

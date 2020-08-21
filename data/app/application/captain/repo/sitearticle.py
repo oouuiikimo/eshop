@@ -134,7 +134,7 @@ class RepoSiteArticle(BaseRepo):
         try:
             """檢查:是否有網站引用,不能刪除"""
             #return str(type(items))
-            with self.session as session: 
+            with app.db_session.session_scope() as session:
                 for item in items:
                     _del = session.query(SiteArticle).filter(SiteArticle.id==item).first()
                     if _del:

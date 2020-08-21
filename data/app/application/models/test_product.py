@@ -35,6 +35,14 @@ def sub_product_category_add(session):
     p.sub_categorys.append(spc1)
     session.add(p)
 
+def reset():
+    drop(ProductBase)
+    create(ProductBase)
+    
 if __name__ == "__main__":
+    reset()
+    """
     func = sub_product_category_add #set_product_category #product_category_add #product_add
     print(run_my_program(func))
+    """
+    

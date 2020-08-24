@@ -1,6 +1,12 @@
 
 ----- 2020.08
-2020/08/21 Fri:完成產品屬性選項, 前端設計,選擇後, 篩選可選購項目
+2020/08/24 Mon:將attribute 選擇前端js,搬到實際頁面做調整
+               -product table調整, 增加content_link_1~3[json array],若有link,則優先於html
+               -所以仍需要sitearticle
+               -建立表格:customer,product...等
+---
+2020/08/21 Fri:完成產品屬性選項, 前端javascript設計,選擇後, 篩選可選購項目
+               - 後台list 考慮改為 app/email畫面
 2020/08/20 Thu:產品屬性選項, 前端構思
 2020/08/19 Wed:產品及類別資料表設計,測試
 2020/08/18 Tue:商店設置轉換json,預設一個基礎json檔

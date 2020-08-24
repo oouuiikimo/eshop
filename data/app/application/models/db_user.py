@@ -4,8 +4,7 @@ from sqlalchemy import (Integer,ForeignKey,String,DateTime,Table,
 import datetime,re
 
 from werkzeug.security import generate_password_hash, check_password_hash
-from sqlalchemy.ext.declarative import declarative_base
-Base = declarative_base()
+from .db_base import Base
 
 
 user_roles = Table('user_roles', Base.metadata,

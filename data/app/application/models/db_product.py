@@ -3,8 +3,7 @@ from sqlalchemy import (Integer,ForeignKey,String,DateTime,
     Column,Boolean,Text,JSON,Table,BLOB)
 import datetime
 from sqlalchemy.sql import text
-from sqlalchemy.ext.declarative import declarative_base
-Base = declarative_base()
+from .db_base import Base
 
 product_subcategory = Table('product_subcategory', Base.metadata,
     Column('id',Integer, primary_key=True),
@@ -94,12 +93,43 @@ class Product(Base):
     discount_percent = Column(Integer,default=0)
     discount_amount = Column(Integer,default=0)
     attribute = Column(JSON)
+    #attribute : 
+    """
+        [
+                {'name':'Size',
+                 'variants':[
+                            {'text':'XL','image':''},
+                            {'text':'L','image':''},
+                            {'text':'M','image':''},
+                            {'text':'S','image':''},
+                            {'text':'XS','image':''}
+                            ]},
+                {'name':'Color',
+                 'variants':[
+                            {'text':'白','image':''},
+                            {'text':'藍','image':''},
+                            {'text':'黃','image':''},
+                            {'text':'綠','image':''},
+                            {'text':'紅','image':''},
+                            {'text':'黑','image':''}
+                            ]},   
+                 {'name':'Gender',
+                 'variants':[
+                            {'text':'男','image':''},
+                            {'text':'女','image':''},            
+        ]       
+    """        
+    lot_maintain=1 #庫存管理default是,否:不計算庫存量, 一律只顯示"有庫存"
+    quantity_limit=0 #限購量d否,是:cart中, 同一商品數量, 無論訂購多少, 都顯示這個限量,並加註此商品有限購量
     image = Column(BLOB)
     small_image = Column(BLOB) #異動時由後台自動生成
     medium_image = Column(BLOB) #異動時由後台自動生成
     html_content_1 = Column(Text)
     html_content_2 = Column(Text)
     html_content_3 = Column(Text)
+    link_content_1 = Column(JSON)
+    link_content_2 = Column(JSON)
+    link_content_3 = Column(JSON)    
     images_1 = Column(BLOB) #除代表圖外, 另可再秀5張圖, 應該夠...
     images_2 = Column(BLOB)
     images_3 = Column(BLOB)
@@ -125,25 +155,6 @@ class Product(Base):
     category = relationship("ProductCategory", backref="product")
     sub_categorys = relationship('SubProductCategory', secondary=product_subcategory, backref='Product')
     
-    """                         
-    title (副標)
-    other_information 
-    description (商品內容)(有專門另一個功能存文章, 在此只存其連結)
-    id_images -> db.LargeBinary (有專門另一個功能存圖檔, 在此只存其連結)
-        -設定大小限制
-        -(一對多, 關聯另一表格 product_images,需先存檔product , 才能到另一關聯表格上傳檔案)
-        - 
-        -images blob 
-        儲存: https://pynative.com/python-sqlite-blob-insert-and-retrieve-digital-data/
-        讀取: https://stackoverflow.com/questions/11017466/flask-to-return-image-stored-in-database
-    active
-    id_type (一對一, 且product type刪除需檢查是否使用中,建立variant時, 會參考到這個id 並取 productType中記錄的 attributes 設定)
-    categories (db.array(db.string))(關聯另一表格)
-
-    package_product 組合商品(建其它專用表格)
-    related 相關商品(建其它專用表格)
-    
-    """  
 """    
 class ProductAttribute_M(Base):
     #""#"
@@ -195,17 +206,15 @@ class ProductSku(Base):
         -關聯商品多對一,關聯明細表一對多
         -主要設定數量, 價位差異,sku 號碼(最好自動產生),
     """
-    __tablename__ = 'product_sku_master'
+    __tablename__ = 'product_sku'
     id = Column(Integer, primary_key = True)
     sku = Column(String(50), #從sku辨別屬性值
         unique=True,
         nullable=False)
-    name = Column(String(50),
-        nullable=False) 
-    quantity_lot = Column(Integer,nullable=False)
-    quantity_sold = Column(Integer,nullable=False)
-    lot_number = Column(String(50),
-        nullable=True)
+    sku_details = Column(JSON)    
+    quantity_lot = Column(Integer,nullable=False,default=0)
+    quantity_sold = Column(Integer,nullable=False,default=0)
+    price_add = Column(Integer,nullable=False,default=0)
     created = Column(DateTime,
                     index=False,
                     unique=False,
@@ -221,7 +230,7 @@ class ProductSku(Base):
     updated_by = Column(String(80),
                     nullable=False)    
     product_id = Column(Integer, ForeignKey('product.id'))
-    product = relationship("Product", backref = "product_sku_master")
+    product = relationship("Product", backref = "product_sku")
 
 """
 class ProductSku_D(Base):
@@ -269,25 +278,32 @@ class ProductArticle(Base):
                     nullable=False)
     updated_by = Column(String(80),
                     nullable=False)    
-    
-"""
-ProductCategory
-"""
-    
-"""    
-#class ProductVariant(db.Model):
-    #sku 應用在此, 包裝或組合,規格..等等的唯一型號
-    #todo:如何處理不同的組合, 規格呈現及資料儲存方式
-    id
-    sku
-    product_id
-    detail_id
-    quanty
-    price_add_type rate|amount
-    price_add_value +-(?)
+                    
+class ProductReview(Base):
+    __tablename__ = 'product_review'
+    id = Column(Integer, primary_key = True)
+    review = Column(String(300)) #限300字內
+    stars = Column(Integer) #0~10,每一點為半顆星
+    created = Column(DateTime,
+                    index=False,
+                    unique=False,
+                    default=datetime.datetime.now(),
+                    nullable=False)
+    """ 不提供修改
+    updated = Column(DateTime,
+                    index=False,
+                    unique=False,
+                    nullable=False,
+                    default=datetime.datetime.now())
 
-class ProductVariantDetail
-"""
-        
+    updated_by = Column(String(80),
+                    nullable=False)    
+    """
+    active = Column(Boolean,default=True) #後台可設定不顯示
+    customer_id = Column(Integer, ForeignKey('customer.id'))
+    customer = relationship("Customer", backref = "product_review")     
+    product_id = Column(Integer, ForeignKey('product.id'))
+    product = relationship("Product", backref = "product_review")                    
+            
 if __name__ == "__main__":
     print('test')

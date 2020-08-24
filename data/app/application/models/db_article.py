@@ -2,8 +2,7 @@ from sqlalchemy.orm import validates,load_only,relationship,backref
 from sqlalchemy import Integer,ForeignKey,String,DateTime,Column,Boolean,Text,JSON
 import datetime
 from sqlalchemy.sql import text
-from sqlalchemy.ext.declarative import declarative_base
-Base = declarative_base()
+from .db_base import Base
 
 class BlogArticle(Base):
     __tablename__ = 'blog_article'

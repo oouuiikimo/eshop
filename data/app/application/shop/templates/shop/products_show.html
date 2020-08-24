@@ -3,6 +3,29 @@
     <link rel="stylesheet" href="/shop/assets/css/plugins/owl-carousel/owl.carousel.css">
     <link rel="stylesheet" href="/shop/assets/css/plugins/magnific-popup/magnific-popup.css">
     <link rel="stylesheet" href="/shop/assets/css/plugins/nouislider/nouislider.css">
+    <style>
+    .product-nav-thumbs >.textonly {display:flex; justify-content: center;background-color:#f5f3ed;}
+
+a.attribute:not([href]):not([tabindex]) {
+    color:  #c96;
+    
+}
+a.attribute:not([href]):not([tabindex]):hover {
+    color:  #c96;
+    cursor: pointer;
+}
+a.disabled:not([href]):not([tabindex]):hover {
+    color:  #c2c1be;
+}
+a.disabled:not([href]):not([tabindex]) {
+    color: #c2c1be;
+}
+  a.disabled {
+  pointer-events: none;
+  cursor: default;
+  color:  #c2c1be;
+}
+    </style>
 {%endblock%}
 {%block content%}
 <!-- put content inner html here -->
@@ -13,7 +36,7 @@
                                 <div class="product-gallery product-gallery-vertical">
                                     <div class="row">
                                         <figure class="product-main-image">
-                                            <img id="product-zoom" src="/shop/assets/images/products/single/1.jpg" data-zoom-image="/shop/assets/images/products/single/1-big.jpg" alt="product image">
+                                            <img id="product-zoom" src="./shop/assets/images/products/single/1.jpg" data-zoom-image="/shop/assets/images/products/single/1-big.jpg" alt="product image">
 
                                             <a href="#" id="btn-product-gallery" class="btn-product-gallery">
                                                 <i class="icon-arrows"></i>
@@ -22,19 +45,19 @@
 
                                         <div id="product-zoom-gallery" class="product-image-gallery">
                                             <a class="product-gallery-item active" href="#" data-image="/shop/assets/images/products/single/1.jpg" data-zoom-image="/shop/assets/images/products/single/1-big.jpg">
-                                                <img src="/shop/assets/images/products/single/1-small.jpg" alt="product side">
+                                                <img src="./shop/assets/images/products/single/1-small.jpg" alt="product side">
                                             </a>
 
                                             <a class="product-gallery-item" href="#" data-image="/shop/assets/images/products/single/2.jpg" data-zoom-image="/shop/assets/images/products/single/2-big.jpg">
-                                                <img src="/shop/assets/images/products/single/2-small.jpg" alt="product cross">
+                                                <img src="./shop/assets/images/products/single/2-small.jpg" alt="product cross">
                                             </a>
 
                                             <a class="product-gallery-item" href="#" data-image="/shop/assets/images/products/single/3.jpg" data-zoom-image="/shop/assets/images/products/single/3-big.jpg">
-                                                <img src="/shop/assets/images/products/single/3-small.jpg" alt="product with model">
+                                                <img src="./shop/assets/images/products/single/3-small.jpg" alt="product with model">
                                             </a>
 
                                             <a class="product-gallery-item" href="#" data-image="/shop/assets/images/products/single/4.jpg" data-zoom-image="/shop/assets/images/products/single/4-big.jpg">
-                                                <img src="/shop/assets/images/products/single/4-small.jpg" alt="product back">
+                                                <img src="./shop/assets/images/products/single/4-small.jpg" alt="product back">
                                             </a>
                                         </div><!-- End .product-image-gallery -->
                                     </div><!-- End .row -->
@@ -59,20 +82,36 @@
                                     <div class="product-content">
                                         <p>Sed egestas, ante et vulputate volutpat, eros pede semper est, vitae luctus metus libero eu augue. Morbi purus libero, faucibus adipiscing. Sed lectus. </p>
                                     </div><!-- End .product-content -->
-
                                     <div class="details-filter-row details-row-size">
-                                        <label>Color:</label>
-
+                                        <label>Size:</label>
                                         <div class="product-nav product-nav-thumbs">
-                                            <a href="#" class="active">
-                                                <img src="/shop/assets/images/products/single/1-thumb.jpg" alt="product desc">
-                                            </a>
-                                            <a href="#">
-                                                <img src="/shop/assets/images/products/single/2-thumb.jpg" alt="product desc">
-                                            </a>
+                                            <a id="尺寸-XL" class="attribute textonly">XL</a>
+                                            <a id="尺寸-L" class="attribute textonly">L</a>
+                                            <a id="尺寸-M" class="attribute textonly">M</a>
+                                            <a id="尺寸-S" class="attribute textonly">S</a>
+                                            <a id="尺寸-XS" class="attribute textonly">XS</a>
                                         </div><!-- End .product-nav -->
                                     </div><!-- End .details-filter-row -->
+                                    <div class="details-filter-row details-row-size">
+                                        <label>Color:</label>
+                                        <div class="product-nav product-nav-thumbs">
+                                            <a id="顏色-白" class="attribute textonly">白</a>
+                                            <a id="顏色-黃" class="attribute textonly">黃</a>
+                                            <a id="顏色-藍" class="attribute textonly">藍</a>
+                                            <a id="顏色-綠" class="attribute textonly">綠</a>
+                                            <a id="顏色-紅" class="attribute textonly">紅</a>
+                                            <a id="顏色-黑" class="attribute textonly">黑</a>
+                                        </div><!-- End .product-nav -->
+                                    </div><!-- End .details-filter-row -->
+                                    <div class="details-filter-row details-row-size">
+                                        <label>gender:</label>
 
+                                        <div class="product-nav product-nav-thumbs">
+                                            <a id="男女-男" class="attribute textonly ">男</a>
+                                            <a id="男女-女" class="attribute textonly">女</a>
+                                        </div><!-- End .product-nav -->
+                                    </div><!-- End .details-filter-row -->                                    
+                                    <!--
                                     <div class="details-filter-row details-row-size">
                                         <label for="size">Size:</label>
                                         <div class="select-custom">
@@ -83,7 +122,7 @@
                                                 <option value="l">Large</option>
                                                 <option value="xl">Extra Large</option>
                                             </select>
-                                        </div><!-- End .select-custom -->
+                                        </div><! -- End .select-custom - ->
 
                                         <a href="#" class="size-guide"><i class="icon-th-list"></i>size guide</a>
                                     </div><!-- End .details-filter-row -->
@@ -471,4 +510,125 @@
 {%block js%} 
     <script src="/shop/assets/js/jquery.magnific-popup.min.js"></script>
     <script src="/shop/assets/js/jquery.elevateZoom.min.js"></script>
+    <script>
+    
+var span_attributes = document.querySelectorAll('a.attribute');
+//alert(span_attributes[0].innerHTML)
+//skus 經由jinja來呈現
+
+//若無skus可選, 表示該商品只有單一sku,例
+//skus = {quantity:10}
+
+var skus = [
+  {attributes:{尺寸: 'XL',顏色: '白',男女:'男'},quantity: 5},
+  {attributes:{尺寸: 'XL',顏色: '黃',男女:'男'},quantity: 6},
+  {attributes:{尺寸: 'XL',顏色: '黃',男女:'女'},quantity: 1},
+  {attributes:{尺寸: 'L',顏色: '藍',男女:'女'},quantity: 18},
+  {attributes:{尺寸: 'L',顏色: '白',男女:'男'},quantity: 7},
+  {attributes:{尺寸: 'L',顏色: '黃',男女:'男'},quantity: 9},
+  {attributes:{尺寸: 'S',顏色: '藍',男女:'女'},quantity: 2},
+  {attributes:{尺寸: 'S',顏色: '綠',男女:'男'},quantity: 3},
+  {attributes:{尺寸: 'S',顏色: '白',男女:'女'},quantity: 12},
+  {attributes:{尺寸: 'S',顏色: '白',男女:'女'},quantity: 16},
+  {attributes:{尺寸: 'XS',顏色: '紅',男女:'男'},quantity: 13}
+];
+
+//skus = {sku:'product-sku',quantity:10}
+//經jinja呈現,若無則為空 null
+var filter = {"尺寸":null,"顏色":null,"男女":null}
+new_allowed = []
+window.onload = function() {
+   //console.log("window loaded")
+  if (skus.length>1)
+    {refresh_attributes(skus)}
+    
+  /*  
+  span_attributes.forEach(function (item, idx) {
+      if(!item.classList.contains("disabled")) {
+        item.addEventListener('click', btn_click,false)
+        }
+    })*/
+};
+
+function btn_click(evt) {
+    e = evt.currentTarget
+    //console.log(e.id.split('-'))
+    
+    arr_id = e.id.split('-')
+    
+    if (e.classList.contains("active")) {
+        e.classList.remove("active");
+        filter[arr_id[0]]=null
+    }    
+    else {
+        e.classList.add("active");
+        filter[arr_id[0]]=arr_id[1]
+    }
+    
+    console.log('filter:'+JSON.stringify(filter))
+    refresh_attributes(skus)
+    //console.log(e.innerHTML)
+}
+
+function order_select() {
+    //是否filter都己選擇了?
+    _sel_qty = document.getElementById("qty")
+    _sel_qty.setAttribute('max', 0);
+    //_sel_qty.length = 0;
+    is_all_select = true
+    Object.keys(filter).forEach(function (item,idx) {if (!filter[item]) is_all_select=false})
+   
+    if (is_all_select) { 
+        _sel_qty.setAttribute('max', new_allowed[0].quantity);
+        //var i;
+        //var new_option = new Option('--請選擇數量--',0)
+        //_sel_qty.options.add(new_option);
+        //for (i = 0; i < new_allowed[0].quantity; i++) {
+        //  var new_option = new Option(i+1,i+1);
+        //    _sel_qty.options.add(new_option);
+        //}
+    }
+}
+
+function refresh_attributes() {
+    //alert('fff')
+    //重設new_allowed=所有項目
+    new_allowed = JSON.parse(JSON.stringify(skus))
+    //清空可選擇的按鈕
+    key_allowed = []
+    //依filter 內的鍵(即有被按選擇的鍵),
+    Object.keys(filter).forEach(function (item,idx) {
+        //去比對skus裡,有那些可選擇的商品,會有重複的, 沒有就不把它放進new_allowed
+        if (filter[item]) {
+            new_allowed= new_allowed.filter(_new => _new.attributes[item]==filter[item])
+        }    
+
+    })
+    //use map and set to remove duplicates,刪除重複的,用來稍後處理按鈕的狀態
+    Object.keys(filter).forEach(function (item,idx) {
+        _allowed = Array.from(new Set(Object.values(new_allowed).map(_v => item+'-'+_v.attributes[item])));
+        key_allowed = key_allowed.concat(_allowed);
+    })
+    
+    //更新可選商品清單
+    console.log('allowed:'+ JSON.stringify(new_allowed))
+    
+    //更新按鈕可選擇狀態
+    span_attributes.forEach(function (item, idx) { 
+        if(!key_allowed.includes(item.id)) {
+            item.classList.add("disabled")
+            item.removeEventListener("click", btn_click,false);
+            }
+        else {//console.log(item)
+            item.classList.remove("disabled")
+            item.addEventListener("click", btn_click,false);
+            }
+    })
+    
+    order_select()
+}
+
+
+
+</script>
 {%endblock%}            

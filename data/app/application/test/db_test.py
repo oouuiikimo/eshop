@@ -1,10 +1,7 @@
-from database import DB_SESSION
-from db_user import User,Roles,user_roles,Base as UserBase
-from db_product import (SubProductCategory,ProductCategory,
-    Product,product_subcategory,
-    #ProductAttribute,ProductType,
-    Product,Base as ProductBase)
-from db_article import BlogCategory,SiteArticle,BlogArticle,Base as ArticleBase
+import sys
+sys.path.append("..")
+from models.database import DB_SESSION
+
 
 #SQLALCHEMY_DATABASE_URI = 'sqlite:////home/user/data/app/application/models/site.db'
 SQLALCHEMY_DATABASE_URI = 'sqlite:////home/user/data/app/application/site1.db'

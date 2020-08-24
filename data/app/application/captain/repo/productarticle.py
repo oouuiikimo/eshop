@@ -2,6 +2,7 @@ from flask import current_app as app
 from flask_login import current_user
 from .baserepo import BaseRepo
 from ...models.db_product import ProductArticle
+from ...models.db_customer import Customer
 from ...models.db_user import User
 from .form_productarticle import SearchForm,UpdateForm
 from sqlalchemy import exc

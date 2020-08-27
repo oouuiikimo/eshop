@@ -65,7 +65,7 @@ class User(Base):
     social_id = Column(String(50),
                         unique=True)
     active = Column(Boolean)                     
-    photo = Column(BLOB(200),
+    photo = Column(BLOB,
                     index=False,
                     unique=False,
                     nullable=True)

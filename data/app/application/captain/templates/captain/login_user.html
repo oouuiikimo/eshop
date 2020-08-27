@@ -3,7 +3,7 @@
                 <a class="dropdown-toggle nav-link dropdown-user-link" href="#" data-toggle="dropdown">
                   <div class="avatar avatar-online">
                   {%if current_user.photo-%}
-                  <img src="/captain/statics/images/portrait/small/{{current_user.email}}.jpg" alt="avatar">
+                  <img src="/captain/get_photo/{{current_user.id}}" alt="avatar">
                   {%else-%}
                   <img src="/captain/statics/images/portrait/small/default-user.png" alt="avatar">
                   {%endif-%}

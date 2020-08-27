@@ -1,5 +1,12 @@
 
 ----- 2020.08
+2020/08/27 Thu:-多表格關聯一表格方法研究, 可以解決圖片,文章被多個表格引用的問題
+2020/08/26 Wed:-實作存圖檔上傳到sqlite blob,並讀取顯示圖片
+               -思考圖片存檔專門功能介面, 取代filemanager
+               -javascrpt 檢查上傳圖檔格式
+2020/08/25 Tue:-後台:商品主目錄
+               -後台:商品雜目錄
+               -後台商品作業功能問題思考
 2020/08/24 Mon:將attribute 選擇前端js,搬到實際頁面做調整
                -product table調整, 增加content_link_1~3[json array],若有link,則優先於html
                -所以仍需要sitearticle

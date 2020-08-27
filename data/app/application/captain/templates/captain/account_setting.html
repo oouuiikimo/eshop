@@ -102,15 +102,16 @@
                                 aria-labelledby="account-pill-general" aria-expanded="true">
                                 <div class="media">
                                     <a href="javascript: void(0);">
-                                        <img id="account_photo" src="/captain/statics/images/portrait/small/{{current_user.email}}.jpg"
-                                            class="rounded mr-75" alt="profile image" height="64" width="64">
+                                        <!--<img id="account_photo" src="/captain/statics/images/portrait/small/{{current_user.email}}.jpg"-->
+                                        <img id="account_photo" src="/captain/get_photo/{{current_user.id}}"
+                                            class="rounded mr-75" alt="profile image" height="64" width="64" style="object-fit: cover;">
                                     </a>
                                     <div class="media-body mt-75">
                                         <div class="col-12 px-0 d-flex flex-sm-row flex-column justify-content-start">
                                             <label class="btn btn-sm btn-secondary ml-50 mb-50 mb-sm-0 cursor-pointer"
                                                 for="account-upload">上傳頭像</label>
                                             <input type="file" id="account-upload" hidden accept=".jpg, .jpeg, .png">
-                                            <button class="btn btn-sm btn-primary ml-50">變更頭像</button>
+                                            <button id="set_account_photo" class="btn btn-sm btn-primary ml-50">變更頭像</button>
                                         </div>
                                         <p class="text-muted ml-75 mt-50"><small>Allowed JPG, GIF or PNG. Max
                                                 size of
@@ -474,19 +475,78 @@ var csrf_token = "{{csrf_token()}}";
 $(window).on("load", function(){
   // Handler when all assets (including images) are loaded
   const fileSelector = document.getElementById('account-upload');
+  document.getElementById('set_account_photo').addEventListener('click', (event) => {
+    set_account_photo()
+  });
   fileSelector.addEventListener('change', (event) => {
     const file = event.target.files[0];
-    resize_image_preview(file)
+    check_file_type(file,resize_image_preview)
+    //resize_image_preview(file)
   });
 });
 
+function get_file_type(header) {
+    let type = null
+    
+    switch (header) {
+        case "89504e47":
+            type = "image/png";
+            break;
+        case "47494638":
+            type = "image/gif";
+            break;
+        case "ffd8ffe0":
+        case "ffd8ffe1":
+        case "ffd8ffe2":
+        case "ffd8ffe3":
+        case "ffd8ffe8":
+            type = "image/jpeg";
+            break;
+        default:
+            //console.log('default:')
+            type = "unknown"; // Or you can use the blob.type as fallback
+            break;
+    }
+    //console.log(type)
+    return type
+}
+var file_type = "OK"
+function check_file_type(file,callback) {
+    
+    if (file) {
+        var filerdr = new FileReader();
+        filerdr.onloadend = function() {
+        //check file type
+		  
+          var arr = (new Uint8Array(filerdr.result));
+          
+          var header = "";
+          for(var i = 0; i < arr.length; i++) {
+             header += arr[i].toString(16);
+          }
+          //console.log(header)
+          _type = get_file_type(header)
+		  if (_type != 'unknown')
+			callback(file)  
+		  else
+			alert('not allowed')
+          // Check the file signature against known types
+
+        };
+        filerdr.readAsArrayBuffer(file.slice(0,4))
+    }
+    //return file_type
+}
+
 function resize_image_preview(file) { //image preview after select image
   if (file) {
+        
     var filerdr = new FileReader();
+    console.log(file_type)
 
     filerdr.onload = function(e) {
       var img = new Image();
-
+      
       img.onload = function() {
         var canvas = document.createElement('canvas');
         var ctx = canvas.getContext('2d');
@@ -505,8 +565,32 @@ function resize_image_preview(file) { //image preview after select image
       img.src = e.target.result;
     }
     filerdr.readAsDataURL(file);
+
   }
 }
-              
+
+function set_account_photo() {
+    //alert(document.getElementById('account_photo').src)
+  
+    var formData = new FormData();
+    
+    formData.append('csrf_token',csrf_token);
+    var base64_img = document.getElementById('account_photo').src.split(',')[1];
+    formData.append('photo',base64_img)
+    ajax("/captain/account_setting", "POST",formData)
+    .then(function(result) {
+      data = JSON.parse(result)
+      //alert(data['success']);
+	  fire_alert('success','圖片變更作業成功',data['success'],2000) 
+	   return data['image']
+     
+        })
+
+    .catch((error) => {
+      fire_alert('danger','圖片變更作業失敗',error,2000)
+    })    
+    ;
+
+}
 </script>
 {%endblock%}

@@ -88,6 +88,8 @@ animation: fadeIn ease 1s;
 0% {opacity:0;}
 100% {opacity:1;}
 }
+
+.avatar img {object-fit: cover;width:32px;height:32px;}
     </style>
     {%block css %} {%endblock%}
     <!-- END: Custom CSS-->
@@ -339,6 +341,42 @@ animation: fadeIn ease 1s;
 	  });
 	}
 
+
+    // 返回promise,執行ajax呼叫
+    function ajax(url, method, data) {
+      return new Promise(function(resolve, reject) {
+        
+        var request = new XMLHttpRequest();
+        
+        request.addEventListener("load", transferComplete);
+        request.addEventListener("error", transferFailed);
+        request.addEventListener("abort", transferCanceled);
+
+        request.onerror = function() {
+          reject(new Error("Network Error"));
+        };
+        
+        function transferComplete(evt) {
+            data = JSON.parse(this.response)
+            if (data['success']) {resolve(this.response);}
+            else {reject(new Error(data['error']));}
+
+          //console.log("The transfer is complete."+this.response);
+        }
+
+        function transferFailed(evt) {
+          console.log("An error occurred while transferring the file.");
+          reject(new Error("Network Error"));
+        }
+
+        function transferCanceled(evt) {
+          console.log("The transfer has been canceled by the user.");
+        }
+        
+        request.open(method, url, true);
+        request.send(data);
+      });
+    }
 	</script>
 	
     <!-- END: Custom JS-->

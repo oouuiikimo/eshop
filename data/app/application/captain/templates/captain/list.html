@@ -275,41 +275,7 @@ function delete_items(item=null) {
 
 }
 
-// 返回promise,執行ajax呼叫
-function ajax(url, method, data) {
-  return new Promise(function(resolve, reject) {
-    
-    var request = new XMLHttpRequest();
-    
-    request.addEventListener("load", transferComplete);
-    request.addEventListener("error", transferFailed);
-    request.addEventListener("abort", transferCanceled);
 
-    request.onerror = function() {
-      reject(new Error("Network Error"));
-    };
-    
-    function transferComplete(evt) {
-        data = JSON.parse(this.response)
-        if (data['success']) {resolve(this.response);}
-        else {reject(new Error(data['error']));}
-
-      //console.log("The transfer is complete."+this.response);
-    }
-
-    function transferFailed(evt) {
-      console.log("An error occurred while transferring the file.");
-      reject(new Error("Network Error"));
-    }
-
-    function transferCanceled(evt) {
-      console.log("The transfer has been canceled by the user.");
-    }
-    
-    request.open(method, url, true);
-    request.send(data);
-  });
-}
 
 
 </script>

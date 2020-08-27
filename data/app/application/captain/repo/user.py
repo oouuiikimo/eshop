@@ -147,11 +147,34 @@ class RepoUser(BaseRepo):
         return None  
     
     #custom function -----
+    
     def get_roles(self):
         #choice = [('','選擇')]
         with app.db_session.session_scope() as session: 
             choice= [(str(g.id), g.role) for g in session.query(Roles).all()]
         return choice    
-
     
+    def get_photo(self,id):
+        with app.db_session.session_scope() as session: 
+            db_user = session.query(User).get(id)
+            return db_user.photo
+                    
+                    
+    def update_photo(self,id,base64_photo):
+        import base64    
+        import sqlite3
+        try:
+
+            with app.db_session.session_scope() as session: 
+                db_user = session.query(User).get(id)
+                db_user.photo = sqlite3.Binary(base64_photo)
+                
+        except exc.SQLAlchemyError as e:
+            """ 捕獲錯誤, 否則無法回傳
+            """
+            if 'orig' in e.__dict__:
+                return str(e.__dict__['orig'])
+            #raise e
+            return '刪除失敗!!'
+        return None          
     

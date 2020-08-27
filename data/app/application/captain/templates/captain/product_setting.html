@@ -111,7 +111,7 @@
                                             <label class="btn btn-sm btn-secondary ml-50 mb-50 mb-sm-0 cursor-pointer"
                                                 for="account-upload">上傳頭像</label>
                                             <input type="file" id="account-upload" hidden accept=".jpg, .jpeg, .png">
-                                            <button class="btn btn-sm btn-primary ml-50">變更頭像</button>
+                                            <button id="set_account_photo" class="btn btn-sm btn-primary ml-50">變更頭像</button>
                                         </div>
                                         <p class="text-muted ml-75 mt-50"><small>Allowed JPG, GIF or PNG. Max
                                                 size of
@@ -476,6 +476,9 @@ var csrf_token = "{{csrf_token()}}";
 $(window).on("load", function(){
   // Handler when all assets (including images) are loaded
   const fileSelector = document.getElementById('account-upload');
+  document.getElementById('set_account_photo').addEventListener('click', (event) => {
+    set_account_photo()
+  });
   fileSelector.addEventListener('change', (event) => {
     const file = event.target.files[0];
     resize_image_preview(file)
@@ -510,5 +513,10 @@ function resize_image_preview(file) { //image preview after select image
   }
 }
               
+function set_account_photo() {
+    alert(document.getElementById('account_photo').src)
+}
+
+
 </script>
 {%endblock%}

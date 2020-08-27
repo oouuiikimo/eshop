@@ -1,5 +1,5 @@
 from flask import (Blueprint, render_template,current_app,json,request,redirect,
-    flash, session, url_for,g,jsonify)
+    flash, session, url_for,g,jsonify,send_file,make_response)
 from flask_login import login_required,current_user
 from .. import login_manager
 from flask_wtf import CSRFProtect, FlaskForm
@@ -111,16 +111,39 @@ def delete(repo_name):
         return jsonify({"error":'有錯誤 :{}'.format(error)})
     return jsonify({"success":'己刪除記錄 :{}'.format(remove_items),"redirect":lastURL}) 
     
-@captain.route('/account_setting', methods=['GET'])
+@captain.route('/account_setting', methods=['GET','POST'])
 @login_required
 def account_setting():  
     data_to_template = {"active_menu":"sub_account_setting","store":current_app.store_config}
+    if request.method == 'POST':
+        import base64
+        repo = _repo('User')() 
+        binary_photo = base64.b64decode(request.form.get('photo'))
+        repo.update_photo(current_user.id,binary_photo)
+        #with open('test_1.jpg','wb') as _file:
+        #    _file.write(base64.b64decode(request.form.get('photo')))
+        return jsonify({"success":"OK"})    
+        
     return render_template('/captain/account_setting.html',**data_to_template)
 
+@captain.route('/get_photo/<id>', methods=['GET'])
+@login_required
+def get_photo(id): 
+    
+    repo = _repo('User')() 
+    _photo = repo.get_photo(id)
+    #with open('test_2.jpg', 'wb') as file:
+    #    file.write(_photo)
+    response = make_response(_photo)
+    response.headers.set('Content-Type', 'image/png')
+
+    return response
+
+    
 @captain.route('/store_setting', methods=['GET'])
 @login_required
 def store_setting():  
-    store = current_app.store_config#store_config(False)
+    store = current_app.store_config #store_config(False)
     
     data_to_template = {"active_menu":"sub_store_setting","store":current_app.store_config}
     return render_template('/captain/store_setting.html',**data_to_template)
@@ -128,10 +151,10 @@ def store_setting():
 @captain.route('/product_setting', methods=['GET'])
 @login_required
 def product_setting():  
-    store = current_app.store_config#store_config(False)
+    store = current_app.store_config #store_config(False)
     
     data_to_template = {"active_menu":"sub_product_setting","store":current_app.store_config}
-    return render_template('/captain/product_setting.html',**data_to_template)    
+    return render_template('/captain/product_setting.html',**data_to_template)
     
 def _repo(name):
     import importlib

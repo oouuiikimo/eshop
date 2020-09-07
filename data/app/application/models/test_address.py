@@ -43,19 +43,19 @@ class Base(object):
 
     id = Column(Integer, primary_key=True)
 
-address_address_association = Table('address_address_association', Base.metadata,
+address_parent_association = Table('address_parent_association', Base.metadata,
     Column('id',Integer, primary_key=True),
     Column('address_id', Integer, ForeignKey('address.id')),
-    Column('address_association_id', Integer, ForeignKey('address_association.id'))
+    Column('parent_association_id', Integer, ForeignKey('parent_association.id'))
     )
     
-class AddressAssociation(Base):
+class ParentAssociation(Base):
     """Associates a collection of Address objects
     with a particular parent.
 
     """
 
-    __tablename__ = "address_association"
+    __tablename__ = "parent_association"
 
     discriminator = Column(String)
     """Refers to the type of parent."""
@@ -71,11 +71,11 @@ class Address(Base):
 
     """
 
-    #association_id = Column(Integer, ForeignKey("address_association.id"))
+    #association_id = Column(Integer, ForeignKey("parent_association.id"))
     street = Column(String)
     city = Column(String)
     zip = Column(String)
-    association = relationship("AddressAssociation",secondary=address_address_association, backref="addresses")
+    association = relationship("ParentAssociation",secondary=address_parent_association, backref="addresses")
 
     parent = association_proxy("association", "parent")
 
@@ -90,22 +90,22 @@ class Address(Base):
 
 class HasAddresses(object):
     """HasAddresses mixin, creates a relationship to
-    the address_association table for each parent.
+    the parent_association table for each parent.
 
     """
 
     @declared_attr
-    def address_association_id(cls):
-        return Column(Integer, ForeignKey("address_association.id"))
+    def parent_association_id(cls):
+        return Column(Integer, ForeignKey("parent_association.id"))
 
     @declared_attr
-    def address_association(cls):
+    def parent_association(cls):
         name = cls.__name__
         discriminator = name.lower()
 
         assoc_cls = type(
-            "%sAddressAssociation" % name,
-            (AddressAssociation,),
+            "%sParentAssociation" % name,
+            (ParentAssociation,),
             dict(
                 __tablename__=None,
                 __mapper_args__={"polymorphic_identity": discriminator},
@@ -113,7 +113,7 @@ class HasAddresses(object):
         )
 
         cls.addresses = association_proxy(
-            "address_association",
+            "parent_association",
             "addresses",
             creator=lambda addresses: assoc_cls(addresses=addresses),
         )
@@ -131,6 +131,7 @@ class Supplier(HasAddresses, Base):
 
 def init_db():
     engine = create_engine("sqlite:///address.db", echo=False)
+    Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
 
     session = Session(engine)
@@ -161,21 +162,39 @@ def init_db():
     )
 
     session.commit()
-    
+    """
     for customer in session.query(Customer):
         for address in customer.addresses:
             print(address)
             print(address.parent)
-    
+    """
+def add_address():
+    engine = create_engine("sqlite:///address.db", echo=False)
+    session = Session(engine)
+    session.add(
+                Customer(
+                    name="customer 2",
+                    addresses=[
+                        session.query(Address).get(1)])
+    )
+    session.commit()
+
+def query_test():
+
+    engine = create_engine("sqlite:///address.db", echo=False)
+    session = Session(engine)
     for add in session.query(Address):
         print(f'{add.id}-{add.street}')
         for item in add.parent:
             for p in item:
-                print('-----'+p.name)
+                #print(dir(p))
+                print('-----'+p.name+','+str(p.id)+','+p.parent_association.discriminator)
         for item in add.association:
-            print(item)
+            pass
+            #print(p.parent_association) #dir(p))
         
                 
 if __name__ == "__main__":
-    init_db()
+    add_address()
+    query_test()
             

@@ -17,7 +17,7 @@ font-size: 16px;
 	font-family: "微軟正黑體", "Microsoft JhengHei", "Segoe UI Semibold", "Segoe UI";
 	/*font-size: 15px;*/
 }
-	
+/*	
 .btn {
   border: none;
   color: white;
@@ -26,6 +26,7 @@ font-size: 16px;
   margin-right:10px;
   cursor: pointer;
 }
+*/
 
 /*下底線紅色*/
 .under_line-red {
@@ -42,11 +43,6 @@ a,a:hover,.page-link,.page-link:hover {
 .page-item.active .page-link {
     background-color: #e56c69;
     border-color: #e56c69;
-}
-
-/* Darker background on mouse-over */
-.btn:hover {
-  background-color: RoyalBlue;
 }
 
 .horizontal-menu .navbar-light ul#main-menu-navigation>li.active>a {

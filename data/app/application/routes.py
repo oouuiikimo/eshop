@@ -26,3 +26,4 @@ def before_request():
 @login_manager.unauthorized_handler
 def unauthorized_callback(): 
     return redirect('/auth/login?next=' + request.path)    
+    

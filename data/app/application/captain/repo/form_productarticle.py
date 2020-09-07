@@ -16,13 +16,10 @@ class UpdateForm(FlaskForm):
         render_kw={'class':'form-control','placeholder':'文章標題60字內,用以辨識文章,須唯一'})     
     content =  TextAreaField('文章內容', [],
         render_kw={'class':'form-control editor','placeholder':'請輸入文章內容....', 'rows': 20})
-    tag = StringField('標簽', [],
-        render_kw={'class':'form-control','data-role':"tagsinput"})
+
         
 class SearchForm(FlaskForm):
     
     """Contact form."""
     title = StringField('文章標題', 
-        render_kw={'class':'form-control'})
-    tag = StringField('標簽', [],
         render_kw={'class':'form-control'})

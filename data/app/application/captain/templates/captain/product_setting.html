@@ -1,12 +1,6 @@
 {% extends "/captain/layout.html" %}
 {%block css%} 
-<link rel="stylesheet" type="text/css" href="/captain/statics/vendors/css/forms/selects/select2.min.css">
-<link rel="stylesheet" type="text/css" href="/captain/statics/vendors/css/pickers/pickadate/pickadate.css">
-<link rel="stylesheet" type="text/css" href="/captain/statics/vendors/css/forms/toggle/switchery.min.css">
-    <link rel="stylesheet" type="text/css" href="/captain/statics/vendors/css/tables/datatable/datatables.min.css">
-    <link rel="stylesheet" type="text/css" href="/captain/statics/css/pages/page-users.min.css">
-    <link rel="stylesheet" type="text/css" href="/captain/statics/css/plugins/forms/validation/form-validation.css">
-    <link rel="stylesheet" type="text/css" href="/captain/statics/css/plugins/pickers/daterange/daterange.min.css">
+<link rel="stylesheet" type="text/css" href="/captain/statics/css/core/colors/palette-callout.min.css">
     <style>
 
 	</style>
@@ -42,432 +36,235 @@
             </div>-->
           </div>
         </div>
-        <div class="content-body"><!-- account setting page start -->
-<section id="page-account-settings">
-    <div class="row">
-        <!-- left menu section -->
-        <div class="col-md-3 mb-2 mb-md-0">
-            <ul class="nav nav-pills flex-column mt-md-0 mt-1">
-                <li class="nav-item">
-                    <a class="nav-link d-flex active" id="account-pill-general" data-toggle="pill"
-                        href="#account-vertical-general" aria-expanded="true">
-                        <i class="feather icon-globe"></i>
-                        基本設置
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link d-flex" id="account-pill-password" data-toggle="pill" href="#account-vertical-password"
-                        aria-expanded="false">
-                        <i class="feather icon-lock"></i>
-                        更改密碼
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link d-flex" id="account-pill-info" data-toggle="pill" href="#account-vertical-info"
-                        aria-expanded="false">
-                        <i class="feather icon-info"></i>
-                        權限
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link d-flex" id="account-pill-social" data-toggle="pill" href="#account-vertical-social"
-                        aria-expanded="false">
-                        <i class="feather icon-camera"></i>
-                        帳號來源
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link d-flex" id="account-pill-connections" data-toggle="pill"
-                        href="#account-vertical-connections" aria-expanded="false">
-                        <i class="feather icon-feather"></i>
-                        Connections
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link d-flex" id="account-pill-notifications" data-toggle="pill"
-                        href="#account-vertical-notifications" aria-expanded="false">
-                        <i class="feather icon-message-circle"></i>
-                        通知設定
-                    </a>
-                </li>
-            </ul>
-        </div>
-        <!-- right content section -->
-        <div class="col-md-9">
-            <div class="card">
-                <div class="card-content">
-                    <div class="card-body">
-                        <div class="tab-content">
-                            <!-- start pane -->
-                            <div role="tabpanel" class="tab-pane active" id="account-vertical-general"
-                                aria-labelledby="account-pill-general" aria-expanded="true">
-                                <div class="media">
-                                    <a href="javascript: void(0);">
-                                        <img id="account_photo" src="/captain/statics/images/portrait/small/{{current_user.email}}.jpg"
-                                            class="rounded mr-75" alt="profile image" height="64" width="64">
-                                    </a>
-                                    <div class="media-body mt-75">
-                                        <div class="col-12 px-0 d-flex flex-sm-row flex-column justify-content-start">
-                                            <label class="btn btn-sm btn-secondary ml-50 mb-50 mb-sm-0 cursor-pointer"
-                                                for="account-upload">上傳頭像</label>
-                                            <input type="file" id="account-upload" hidden accept=".jpg, .jpeg, .png">
-                                            <button id="set_account_photo" class="btn btn-sm btn-primary ml-50">變更頭像</button>
-                                        </div>
-                                        <p class="text-muted ml-75 mt-50"><small>Allowed JPG, GIF or PNG. Max
-                                                size of
-                                                800kB</small></p>
-                                    </div>
-                                </div>
-                                <hr>
-                                <form novalidate>
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="form-group">
-                                                <div class="controls">
-                                                    <label for="account-name">名稱</label>
-                                                    <input type="text" class="form-control" id="account-name"
-                                                        placeholder="Name" value="{{current_user.name}}" required
-                                                        data-validation-required-message="This name field is required">
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-12">
-                                            <div class="form-group">
-                                                <div class="controls">
-                                                    <label for="account-e-mail">E-mail</label>
-                                                    <input type="email" class="form-control" id="account-e-mail" disabled
-                                                        placeholder="Email" value="{{current_user.email}}" required
-                                                        data-validation-required-message="This email field is required">
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-12">
-                                            <div class="alert alert-warning alert-dismissible mb-2" role="alert">
-                                                <button type="button" class="close" data-dismiss="alert"
-                                                    aria-label="Close">
-                                                    <span aria-hidden="true">×</span>
-                                                </button>
-                                                <p class="mb-0">
-                                                    Your email is not confirmed. Please check your inbox.
-                                                </p>
-                                                <a href="javascript: void(0);">Resend confirmation</a>
-                                            </div>
-                                        </div>
-                                        <div class="col-12 d-flex flex-sm-row flex-column justify-content-end">
-                                            <button type="submit" class="btn btn-primary mr-sm-1 mb-1 mb-sm-0">
-                                                儲存</button>
-                                            <button type="reset" class="btn btn-light">取消</button>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                            <!-- end pane -->
-                            <div class="tab-pane fade " id="account-vertical-password" role="tabpanel"
-                                aria-labelledby="account-pill-password" aria-expanded="false">
-                                <form novalidate>
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="form-group">
-                                                <div class="controls">
-                                                    <label for="account-old-password">Old Password</label>
-                                                    <input type="password" class="form-control"
-                                                        id="account-old-password" required placeholder="Old Password"
-                                                        data-validation-required-message="This old password field is required">
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-12">
-                                            <div class="form-group">
-                                                <div class="controls">
-                                                    <label for="account-new-password">New Password</label>
-                                                    <input type="password" name="password" id="account-new-password"
-                                                        class="form-control" placeholder="New Password" required
-                                                        data-validation-required-message="The password field is required"
-                                                        minlength="6">
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-12">
-                                            <div class="form-group">
-                                                <div class="controls">
-                                                    <label for="account-retype-new-password">Retype New
-                                                        Password</label>
-                                                    <input type="password" name="con-password" class="form-control"
-                                                        required id="account-retype-new-password"
-                                                        data-validation-match-match="password"
-                                                        placeholder="New Password"
-                                                        data-validation-required-message="The Confirm password field is required"
-                                                        minlength="6">
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-12 d-flex flex-sm-row flex-column justify-content-end">
-                                            <button type="submit" class="btn btn-primary mr-sm-1 mb-1 mb-sm-0">Save
-                                                changes</button>
-                                            <button type="reset" class="btn btn-light">Cancel</button>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                            <div class="tab-pane fade" id="account-vertical-info" role="tabpanel"
-                                aria-labelledby="account-pill-info" aria-expanded="false">
-                                <form novalidate>
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="form-group">
-                                                <label for="accountTextarea">Bio</label>
-                                                <textarea class="form-control" id="accountTextarea" rows="3"
-                                                    placeholder="Your Bio data here..."></textarea>
-                                            </div>
-                                        </div>
-                                        <div class="col-12">
-                                            <div class="form-group">
-                                                <div class="controls">
-                                                    <label for="account-birth-date">Birth date</label>
-                                                    <input type="text" class="form-control birthdate-picker" required
-                                                        placeholder="Birth date" id="account-birth-date"
-                                                        data-validation-required-message="This birthdate field is required">
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-12">
-                                            <div class="form-group">
-                                                <label for="accountSelect">Country</label>
-                                                <select class="form-control" id="accountSelect">
-                                                    <option>USA</option>
-                                                    <option>India</option>
-                                                    <option>Canada</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="col-12">
-                                            <div class="form-group">
-                                                <label for="languageselect2">Languages</label>
-                                                <select class="form-control" id="languageselect2" multiple="multiple">
-                                                    <option value="English" selected>English</option>
-                                                    <option value="Spanish">Spanish</option>
-                                                    <option value="French">French</option>
-                                                    <option value="Russian">Russian</option>
-                                                    <option value="German">German</option>
-                                                    <option value="Arabic" selected>Arabic</option>
-                                                    <option value="Sanskrit">Sanskrit</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="col-12">
-                                            <div class="form-group">
-                                                <div class="controls">
-                                                    <label for="account-phone">Phone</label>
-                                                    <input type="text" class="form-control" id="account-phone" required
-                                                        placeholder="Phone number" value="(+656) 254 2568"
-                                                        data-validation-required-message="This phone number field is required">
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-12">
-                                            <div class="form-group">
-                                                <label for="account-website">Website</label>
-                                                <input type="text" class="form-control" id="account-website"
-                                                    placeholder="Website address">
-                                            </div>
-                                        </div>
-                                        <div class="col-12">
-                                            <div class="form-group">
-                                                <label for="musicselect2">Favourite Music</label>
-                                                <select class="form-control" id="musicselect2" multiple="multiple">
-                                                    <option value="Rock">Rock</option>
-                                                    <option value="Jazz" selected>Jazz</option>
-                                                    <option value="Disco">Disco</option>
-                                                    <option value="Pop">Pop</option>
-                                                    <option value="Techno">Techno</option>
-                                                    <option value="Folk" selected>Folk</option>
-                                                    <option value="Hip hop">Hip hop</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="col-12">
-                                            <div class="form-group">
-                                                <label for="moviesselect2">Favourite movies</label>
-                                                <select class="form-control" id="moviesselect2" multiple="multiple">
-                                                    <option value="The Dark Knight" selected>The Dark Knight
-                                                    </option>
-                                                    <option value="Harry Potter" selected>Harry Potter</option>
-                                                    <option value="Airplane!">Airplane!</option>
-                                                    <option value="Perl Harbour">Perl Harbour</option>
-                                                    <option value="Spider Man">Spider Man</option>
-                                                    <option value="Iron Man" selected>Iron Man</option>
-                                                    <option value="Avatar">Avatar</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="col-12 d-flex flex-sm-row flex-column justify-content-end">
-                                            <button type="submit" class="btn btn-primary mr-sm-1 mb-1 mb-sm-0">Save
-                                                changes</button>
-                                            <button type="reset" class="btn btn-light">Cancel</button>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                            <div class="tab-pane fade " id="account-vertical-social" role="tabpanel"
-                                aria-labelledby="account-pill-social" aria-expanded="false">
-                                <form>
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <div class="form-group">
-                                                <label for="account-twitter">Twitter</label>
-                                                <input type="text" id="account-twitter" class="form-control"
-                                                    placeholder="Add link" value="https://www.twitter.com">
-                                            </div>
-                                        </div>
-                                        <div class="col-12">
-                                            <div class="form-group">
-                                                <label for="account-facebook">Facebook</label>
-                                                <input type="text" id="account-facebook" class="form-control"
-                                                    placeholder="Add link">
-                                            </div>
-                                        </div>
-                                        <div class="col-12">
-                                            <div class="form-group">
-                                                <label for="account-google">Google+</label>
-                                                <input type="text" id="account-google" class="form-control"
-                                                    placeholder="Add link">
-                                            </div>
-                                        </div>
-                                        <div class="col-12">
-                                            <div class="form-group">
-                                                <label for="account-linkedin">LinkedIn</label>
-                                                <input type="text" id="account-linkedin" class="form-control"
-                                                    placeholder="Add link" value="https://www.linkedin.com">
-                                            </div>
-                                        </div>
-                                        <div class="col-12">
-                                            <div class="form-group">
-                                                <label for="account-instagram">Instagram</label>
-                                                <input type="text" id="account-instagram" class="form-control"
-                                                    placeholder="Add link">
-                                            </div>
-                                        </div>
-                                        <div class="col-12">
-                                            <div class="form-group">
-                                                <label for="account-quora">Quora</label>
-                                                <input type="text" id="account-quora" class="form-control"
-                                                    placeholder="Add link">
-                                            </div>
-                                        </div>
-                                        <div class="col-12 d-flex flex-sm-row flex-column justify-content-end">
-                                            <button type="submit" class="btn btn-primary mr-sm-1 mb-1 mb-sm-0">Save
-                                                changes</button>
-                                            <button type="reset" class="btn btn-light">Cancel</button>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                            <div class="tab-pane fade" id="account-vertical-connections" role="tabpanel"
-                                aria-labelledby="account-pill-connections" aria-expanded="false">
-                                <div class="row">
-                                    <div class="col-12 mb-3">
-                                        <a href="javascript: void(0);" class="btn btn-info">Connect to
-                                            <strong>Twitter</strong></a>
-                                    </div>
-                                    <div class="col-12 mb-3">
-                                        <button class=" btn btn-sm btn-secondary float-right">edit</button>
-                                        <h6>You are connected to facebook.</h6>
-                                        <span>Johndoe@gmail.com</span>
-                                    </div>
-                                    <div class="col-12 mb-3">
-                                        <a href="javascript: void(0);" class="btn btn-danger">Connect to
-                                            <strong>Google</strong>
-                                        </a>
-                                    </div>
-                                    <div class="col-12 mb-2">
-                                        <button class=" btn btn-sm btn-secondary float-right">edit</button>
-                                        <h6>You are connected to Instagram.</h6>
-                                        <span>Johndoe@gmail.com</span>
-                                    </div>
-                                    <div class="col-12 d-flex flex-sm-row flex-column justify-content-end">
-                                        <button type="submit" class="btn btn-primary mr-sm-1 mb-1 mb-sm-0">Save
-                                            changes</button>
-                                        <button type="reset" class="btn btn-light">Cancel</button>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="tab-pane fade" id="account-vertical-notifications" role="tabpanel"
-                                aria-labelledby="account-pill-notifications" aria-expanded="false">
-                                <div class="row">
-                                    <h6 class="ml-1 mb-2">Activity</h6>
-                                    <div class="col-12">
-                                        <div class="form-group">
-                                            <input type="checkbox" class="switchery" data-size="sm" checked
-                                                id="accountSwitch1">
-                                            <label class="ml-50" for="accountSwitch1">Email me when someone
-                                                comments</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-12">
-                                        <div class="form-group">
-                                            <input type="checkbox" class="switchery" data-size="sm" checked
-                                                id="accountSwitch2">
-                                            <label for="accountSwitch2" class="ml-50">Email me when someone answers
-                                                on</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-12">
-                                        <div class="form-group">
-                                            <input type="checkbox" class="switchery" data-size="sm" id="accountSwitch3">
-                                            <label for="accountSwitch3" class="ml-50">Email me hen someone follows
-                                                me</label>
-                                        </div>
-                                    </div>
-                                    <h6 class="ml-1 my-2">Application</h6>
-                                    <div class="col-12">
-                                        <div class="form-group">
-                                            <input type="checkbox" class="switchery" data-size="sm" checked
-                                                id="accountSwitch4">
-                                            <label for="accountSwitch4" class="ml-50">News and announcements</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-12">
-                                        <div class="form-group">
-                                            <input type="checkbox" class="switchery" data-size="sm" id="accountSwitch5">
-                                            <label for="accountSwitch5" class="ml-50">Weekly product updates</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-12">
-                                        <div class="form-group">
-                                            <input type="checkbox" class="switchery" data-size="sm" checked
-                                                id="accountSwitch6">
-                                            <label for="accountSwitch6" class="ml-50">Weekly blog digest</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-12 d-flex flex-sm-row flex-column justify-content-end">
-                                        <button type="submit" class="btn btn-primary mr-sm-1 mb-1 mb-sm-0">Save
-                                            changes</button>
-                                        <button type="reset" class="btn btn-light">Cancel</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-<!-- account setting page end -->
-        </div>
-      </div>
-    </div>
+        <div class="content-body">
+		<!-- account setting page start -->
+			<div class="card-content">
+				<div class="card">
+				<div class="card-body" style="min-height:400px;">                   
+					<ul class="nav nav-tabs nav-topline" role="tablist">
+						<li class="nav-item">
+							<a class="nav-link" id="baseinfo-tab" data-toggle="tab" href="#basic" aria-controls="basic" role="tab" aria-selected="true">基本資料</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link active" id="attribute-tab" data-toggle="tab" href="#attribute" aria-controls="attribute" role="tab" aria-selected="false">屬性</a>
+						</li>
+						<li class="nav-item dropdown">
+							<a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" aria-haspopup="true">
+							分類
+							</a>
+							<div class="dropdown-menu">
+								<a class="dropdown-item" id="category-tab" href="#category" data-toggle="tab" aria-controls="category" role="tab" aria-selected="true">主分類</a>
+								<a class="dropdown-item" id="subcategory-tab" href="#subcategory" data-toggle="tab" aria-controls="subcategory" role="tab" aria-selected="true">雜項分類</a>
+							</div>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" id="price-tab" data-toggle="tab" href="#price" aria-controls="price" role="tab" aria-selected="false">價格</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" id="image-tab" data-toggle="tab" href="#image" aria-controls="image" role="tab" aria-selected="false">圖片</a>
+						</li>						
+						<li class="nav-item dropdown">
+							<a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" aria-haspopup="true">
+							文章
+							</a>
+							<div class="dropdown-menu">
+								<a class="dropdown-item" id="htmlcontent-tab" href="#htmlcontent" data-toggle="tab" aria-controls="htmlcontent" role="tab" aria-selected="true">內容描述</a>
+								<a class="dropdown-item" id="htmlspec-tab" href="#htmlspec" data-toggle="tab" aria-controls="htmlspec" role="tab" aria-selected="true">規格描述</a>
+								<a class="dropdown-item" id="htmlinfo-tab" href="#htmlinfo" data-toggle="tab" aria-controls="htmlinfo" role="tab" aria-selected="true">其它資訊</a>
+								<a class="dropdown-item" id="htmlreturn-tab" href="#htmlreturn" data-toggle="tab" aria-controls="htmlreturn" role="tab" aria-selected="true">送貨退貨說明</a>
+							</div>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" id="active-tab" data-toggle="tab" href="#active" aria-controls="active" role="tab" aria-selected="false">上架</a>
+						</li>
+					</ul>
+					<div class="tab-content px-1 pt-1 border-grey border-lighten-2 border-0-top">
+						<div class="tab-pane" id="basic" aria-labelledby="basic" role="tabpanel">
+							<form class="form">
+							<div class="form-body">
+								<h4 class="form-section"><i class="fa fa-eye"></i>主型號及名稱</h4>
+								<div class="row">
+									<div class="col-md-6">
+										<div class="form-group">
+											<label for="sku">主型號必須唯一, 不能含空格(SKU)</label>
+											<input type="text" id="sku" class="form-control border-primary" placeholder="sku" name="sku">
+										</div>
+									</div>
+									<div class="col-md-6">
+										<div class="form-group">
+											<label for="name">商品名唯一</label>
+											<input type="text" id="name" class="form-control border-primary" placeholder="Name" name="name">
+										</div>
+									</div>
+								</div>
 
+								<h4 class="form-section"><i class="feather icon-mail"></i> 商品副標題</h4>
+
+								<div class="form-group">
+									<label for="description">商品副標題會顯示在搜尋頁說明欄, 字數勿超過100字</label>
+									<textarea id="description" rows="5" class="form-control border-primary" name="description" placeholder="商品副標題"></textarea>
+								</div>
+
+							</div>
+
+							<div class="form-actions right">
+								<button type="reset" class="btn btn-warning mr-1">
+									<i class="feather icon-x"></i> Cancel
+								</button>
+								<button type="submit" class="btn btn-primary">
+									<i class="fa fa-check-square-o"></i> Save
+								</button>
+							</div>
+						</form>
+						</div>
+						<div class="tab-pane active in" id="attribute" aria-labelledby="attribute-tab" role="tabpanel">
+                        <form class="form">
+							<div class="form-body">
+							<h4 class="form-section"><i class="fa fa-eye"></i>屬性設定項 <a href="#"><i class="fa fa-plus-circle"></i></a></h4>
+                            <div class="container">
+
+                            <div class="row col-12">
+                            <div class="collapse w-100" id="collapseExample">
+
+				<div class="card-content collapse show">
+					<div class="card-body">
+
+                        <fieldset>
+                            <div class="input-group">
+								<input type="text" id="attribute_name" class="form-control" placeholder="屬性名稱" name="attribute_name">
+                                <input type="hidden" id="attribute_index" name="attribute_index">
+								<div class="input-group-append">
+								<button type="button" class="btn btn-success" onclick="javascript:submit_attribute();">
+									<i class="fa fa-check"></i> Save
+								</button>
+								<button type="reset" class="btn btn-danger" onclick="javascript:cancel_attribute();">
+									<i class="fa fa-times"></i> Cancel
+								</button>
+								</div>
+							</div>
+                        </fieldset>
+
+					</div>
+				</div>
+
+                            </div>
+                <table class="table table-striped">
+                      <thead>
+                        <tr>
+                          <th scope="col">#</th>
+                          <th scope="col">屬性</th>
+                          <th scope="col">屬性值</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <th scope="row">1</th>
+                          <td><span class="cursor-pointer text-danger" onclick="javascript:toggleopen(this.getAttribute('index'),this.innerHTML);" index=0 >尺寸</span>
+                          </td>
+                          <td>
+                            <div class="row p-1">
+                                <div class="w-10 mr-1 border-danger" style="height:100%;padding:3px;">
+                                    <img class="align-middle cursor-pointer" id="currentPhoto" style="width:60px;" 
+                                    src="SomeImage.jpg" onerror="this.onerror=null; this.src='/captain/statics/images/carousel/10.jpg'" 
+                                    alt="" onclick="alert('OK');">
+                                    <span class="cursor-pointer">XL</span>
+                                </div>
+                                <div class="w-10 mr-1 border-danger" style="height:100%;padding:3px;">
+                                    <img class="align-middle cursor-pointer" id="currentPhoto" style="width:60px;" 
+                                    src="SomeImage.jpg" onerror="this.onerror=null; this.src='/captain/statics/images/carousel/10.jpg'" 
+                                    alt="" onclick="alert('OK');">
+                                    <span>L</span>
+                                </div>
+                                <div class="w-10 mr-1 border-danger" style="height:100%;padding:3px;">
+                                    <img class="align-middle cursor-pointer" id="currentPhoto" style="width:60px;" 
+                                    src="SomeImage.jpg" onerror="this.onerror=null; this.src='/captain/statics/images/carousel/10.jpg'" 
+                                    alt="" onclick="alert('OK');">
+                                    <span>M</span>
+                                </div>
+                                <div class="w-10 mr-1 border-danger" style="height:100%;padding:3px;">
+                                    <img class="align-middle cursor-pointer" id="currentPhoto" style="width:60px;" 
+                                    src="SomeImage.jpg" onerror="this.onerror=null; this.src='/captain/statics/images/carousel/10.jpg'" 
+                                    alt="" onclick="alert('OK');">
+                                    <span>S</span>
+                                </div>
+                                <div class="w-10 mr-1 border-danger" style="height:100%;padding:3px;">
+                                    <img class="align-middle cursor-pointer" id="currentPhoto" style="width:60px;" 
+                                    src="SomeImage.jpg" onerror="this.onerror=null; this.src='/captain/statics/images/carousel/10.jpg'" 
+                                    alt="" onclick="alert('OK');">
+                                    <span>XS</span>
+                                </div>
+                                <div class="w-10 mr-1 border-danger" style="height:100%;padding:3px;">
+                                    <img class="align-middle cursor-pointer" id="currentPhoto" style="width:60px;" 
+                                    src="SomeImage.jpg" onerror="this.onerror=null; this.src='/captain/statics/images/carousel/10.jpg'" 
+                                    alt="" onclick="alert('OK');">
+                                    <span>XXS</span>
+                                </div>
+
+                            </div>
+                    </td>
+                        </tr>
+                        <tr>
+                          <th scope="row">2</th>
+                          <td><a href="#" onclick="javascript:toggleopen(this.getAttribute('index'),this.innerHTML);" index=1>顏色</a></td>
+                          <td>Thornton</td>
+                        </tr>
+                        <tr>
+                          <th scope="row">3</th>
+                          <td>Larry</td>
+                          <td>the Bird</td>
+                        </tr>
+                      </tbody>
+                    </table>
+               
+                            </div>
+                            </div>
+                           </div>
+                        </form>
+						</div>
+						<div class="tab-pane" id="category" aria-labelledby="category-tab" role="tabpanel">
+							<p>category tab</p>
+						</div>
+						<div class="tab-pane" id="subcategory" aria-labelledby="subcategory-tab" role="tabpanel">
+							<p>subcategory tab</p>
+						</div>
+						<div class="tab-pane" id="price" aria-labelledby="price-tab" role="tabpanel">
+							<p>price tab</p>
+						</div>
+						<div class="tab-pane" id="image" aria-labelledby="image-tab" role="tabpanel">
+							<p>image tab</p>
+						</div>
+						<div class="tab-pane" id="htmlcontent" aria-labelledby="htmlcontent-tab" role="tabpanel">
+							<p>htmlcontent tab</p>
+						</div>
+						<div class="tab-pane" id="htmlspec" aria-labelledby="htmlspec-tab" role="tabpanel">
+							<p>htmlspec tab</p>
+						</div>
+						<div class="tab-pane" id="htmlinfo" aria-labelledby="htmlinfo-tab" role="tabpanel">
+							<p>htmlinfo tab</p>
+						</div>
+						<div class="tab-pane" id="htmlreturn" aria-labelledby="htmlreturn-tab" role="tabpanel">
+							<p>htmlreturn tab</p>
+						</div>
+						<div class="tab-pane" id="active" aria-labelledby="active-tab" role="tabpanel">
+							<p>active tab</p>
+						</div>                        
+                        
+                    </div>
+				</div>
+				</div>
+			</div>
+				
+		</div>
+
+
+		<!-- account setting page end -->
+        </div>
+
+    </div>
 
 {% endblock %}    
 {%block js%} 
-    
-    <script src="/captain/statics/vendors/js/forms/select/select2.full.min.js"></script>
-    <script src="/captain/statics/vendors/js/forms/validation/jqBootstrapValidation.js"></script>
-    <script src="/captain/statics/vendors/js/pickers/pickadate/picker.js"></script>
-    <script src="/captain/statics/vendors/js/pickers/pickadate/picker.date.js"></script>
-    <script src="/captain/statics/vendors/js/forms/toggle/switchery.min.js"></script>
-    <script src="/captain/statics/js/scripts/pages/account-setting.min.js"></script>
+
 <script>
 
 var csrf_token = "{{csrf_token()}}";
@@ -475,48 +272,52 @@ var csrf_token = "{{csrf_token()}}";
 
 $(window).on("load", function(){
   // Handler when all assets (including images) are loaded
-  const fileSelector = document.getElementById('account-upload');
-  document.getElementById('set_account_photo').addEventListener('click', (event) => {
-    set_account_photo()
-  });
-  fileSelector.addEventListener('change', (event) => {
-    const file = event.target.files[0];
-    resize_image_preview(file)
-  });
+    //e = $('.collapse') //document.getElementById('collapseExample');
+    //$('#collapseExample').collapse('show').collapse('hide')
+
+
 });
 
-function resize_image_preview(file) { //image preview after select image
-  if (file) {
-    var filerdr = new FileReader();
 
-    filerdr.onload = function(e) {
-      var img = new Image();
+const delay = (dl) => new Promise(r => {
+    setTimeout(r, dl)
+})
 
-      img.onload = function() {
-        var canvas = document.createElement('canvas');
-        var ctx = canvas.getContext('2d');
-        canvas.width = 250;
-        canvas.height = canvas.width * (img.height / img.width);
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-        // SEND THIS DATA TO WHEREVER YOU NEED IT
-		let account_photo = document.getElementById('account_photo');
-		account_photo.src =  canvas.toDataURL('image/png');
-        //var data = canvas.toDataURL('image/png');
-
-        $('#imgprvw').attr('src', img.src);
-        //$('#imgprvw').attr('src', data);//converted image in variable 'data'
-      }
-      img.src = e.target.result;
-    }
-    filerdr.readAsDataURL(file);
-  }
-}
-              
-function set_account_photo() {
-    alert(document.getElementById('account_photo').src)
+function callback(_index,_name) {
+    let name = document.getElementById('attribute_name')
+    let index = document.getElementById('attribute_index')
+    name.value=_name
+    index.value=_index
 }
 
+function toggleopen(index,name) {
+    let e = document.getElementById('collapseExample')
+    if (document.getElementById('attribute_index').value == index) 
+        return null //不要重開自己
+    
+    if (e.classList.contains('show')) 
+        {hide_open(callback(index,name))}
+    else
+        {hide_open(callback(index,name));
+        $('#collapseExample').collapse('show')}
+}
 
+const hide_open = (async function(cb) {
+    $('#collapseExample').collapse('hide')
+    await delay(500)
+    
+    $('#collapseExample').collapse('show')
+    await delay(500)
+    cb
+})
+
+function cancel_attribute() {
+    $('#collapseExample').collapse('hide')
+}  
+function submit_attribute() {
+    let name = document.getElementById('attribute_name')
+    let index = document.getElementById('attribute_index')
+    alert(name.value+':'+index.value)
+} 
 </script>
 {%endblock%}

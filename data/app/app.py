@@ -28,6 +28,7 @@ GOOGLE_DISCOVERY_URL = (
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
 app = Flask(__name__)
+app.register_error_handler(404, page_not_found)
 app.config.update(dict(
   PREFERRED_URL_SCHEME = 'https'
 ))
@@ -43,7 +44,9 @@ login_manager.init_app(app)
 def unauthorized():
     return "You must be logged in to access this content.", 403
     
-
+@app.errorhandler(404)
+def page_not_found(error):
+   return render_template('404.html', title = '404'), 404
 
 # OAuth2 client setup
 client = WebApplicationClient(GOOGLE_CLIENT_ID)

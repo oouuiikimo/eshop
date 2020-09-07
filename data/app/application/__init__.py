@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask,render_template
 from flask_login import LoginManager
 from flask_wtf import CSRFProtect
 from flask_caching import Cache 
@@ -49,4 +49,9 @@ def create_app():
         app.register_blueprint(routes_captain.captain)
         app.register_blueprint(fileBluePrint)
         app.register_blueprint(routes_shop.shop)
+        app.register_error_handler(404, page_not_found)
         return app 
+        
+
+def page_not_found(error):
+   return render_template('404.html', title = '404'), 404

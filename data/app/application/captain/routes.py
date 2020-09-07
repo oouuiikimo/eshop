@@ -25,6 +25,11 @@ repo_path = 'application.captain.repo'
 def home():   
     return redirect(url_for('captain.list',repo_name='User'))
 
+@captain.route('/test', methods=['GET','POST'])
+@login_required
+def test():   
+    return render_template('/captain/test_btn_group.html')
+    
 @captain.route('/list/<repo_name>', methods=['GET','POST'])
 @login_required
 def list(repo_name):
@@ -70,17 +75,24 @@ def list(repo_name):
         "active_menu":repo.active_menu,'sort':sort,"store":current_app.store_config}
     return render_template('/captain/list.html',**data_to_template)
     
-@captain.route('/update/<repo_name>/', defaults={'id': None}, methods=['GET','POST'])    
-@captain.route('/update/<repo_name>/<id>', methods=['GET','POST'])
+@captain.route('/update/<repo_request>/', defaults={'id': None}, methods=['GET','POST'])    
+@captain.route('/update/<repo_request>/<id>', methods=['GET','POST'])
 @login_required
-def update(repo_name,id):
+def update(repo_request,id):
+    repo_split = repo_request.split("_")
+    #處理複雜的次操作, 同一更新頁, 可有不同的次更新, 像是商品更新
+    repo_name = repo_split[0]
     repo = _repo(repo_name)()  
-    form,item = repo.update_form(id)  
+    if len(repo_split) >=2:
+        repo.repo_sub = repo_split[1]
+    
+    form,item = repo.update_form(id)  #可以返回依 repo_sub 值有不同的update_form
+    details = repo.details
     #return str(form.validate())  
     if request.method == 'POST' and form.validate():
         #return "OK"
         form.populate_obj(obj=item)
-        error = repo.update(item,id)
+        error = repo.update(item,id) #可以返回依 repo_sub 值有不同的update
         if error:
             flash(error)
             #raise ValidationError(error)
@@ -90,7 +102,10 @@ def update(repo_name,id):
             return redirect(url_for('captain.list',repo_name=repo_name))
 
     data_to_template = {'form':form,'item':item,'update_type':'{}.{}'.format(repo.title,'新增' if not id else '編輯'),
-        "active_menu":repo.active_menu,"store":current_app.store_config}
+        "active_menu":repo.active_menu,"store":current_app.store_config,
+        "sub_menu":repo.update_sub_form,"repo_name":repo_name,"details":details}
+    if repo.repo_sub:
+        return render_template('/captain/sub_update.html',**data_to_template)
     return render_template('/captain/update.html',**data_to_template)
     
 @captain.route('/delete/<repo_name>', methods=['POST'])
@@ -156,6 +171,14 @@ def product_setting():
     data_to_template = {"active_menu":"sub_product_setting","store":current_app.store_config}
     return render_template('/captain/product_setting.html',**data_to_template)
     
+@captain.route('/image', methods=['GET'])
+@login_required
+def image():  
+    store = current_app.store_config #store_config(False)
+    
+    data_to_template = {"active_menu":"image_manager","store":current_app.store_config}
+    return render_template('/captain/image.html',**data_to_template)
+       
 def _repo(name):
     import importlib
     

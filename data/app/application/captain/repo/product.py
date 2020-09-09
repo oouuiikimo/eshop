@@ -1,12 +1,11 @@
 from flask import abort,current_app as app
 from flask_login import current_user
 from .baserepo import BaseRepo
-from ...models.db_product import Product
+from ...models.db_product import *
 from ...models.db_customer import Customer
 from ...models.db_user import User
-from .form_product import (Update_basic_Form,Update_attribute_Form,Update_category_Form,
-    Update_price_Form,Update_image_Form,Update_article_Form,Update_active_Form,SearchForm)
-from sqlalchemy import exc
+from .form_product import *
+from sqlalchemy import exc,func
 import datetime
 
 class RepoProduct(BaseRepo):
@@ -21,8 +20,8 @@ class RepoProduct(BaseRepo):
         """
         if self.repo_sub is None:
             self.repo_sub = 'basic'
-        self.update_sub_form = {'basic':("基本資訊",Update_basic_Form),'attribute':("屬性資訊",Update_attribute_Form),
-            'category':("目錄歸屬",Update_category_Form),'price':("價格資訊",Update_price_Form),'image':("圖片",Update_image_Form),
+        self.update_sub_form = {'basic':("基本資訊",Update_basic_Form),'category':("目錄",Update_category_Form),
+            'variant':("屬性",Update_variant_Form),'sku':("庫存",Update_sku_Form),'image':("圖片",Update_image_Form),
             'article':("文章",Update_article_Form),'active':("上架",Update_active_Form)}
         #異動tables
         #Base.metadata.create_all(app.db_session.engine)
@@ -35,7 +34,8 @@ class RepoProduct(BaseRepo):
         
     def form_mapper(self,db_data):
         
-        form_data = {"name":db_data.name}
+        form_data = {"name":db_data.name,"sku":db_data.sku,"description":db_data.description,
+            "order":db_data.order}
         return self.Struct(**form_data)
         
     def update_form(self,id=None):
@@ -43,14 +43,13 @@ class RepoProduct(BaseRepo):
         db_item = self.find(id)
 
         try:    
-            form = self.update_sub_form[self.repo_sub][1]() #UpdateForm(obj=db_item)
+            form = self.update_sub_form[self.repo_sub][1](obj=db_item) #UpdateForm(obj=db_item)
         except KeyError as e:
             abort(404)
-        self.title = f'{self.title}-{self.update_sub_form[self.repo_sub][0]}'    
+        self.title = f'{self.title}-[{db_item.name}]'    #多餘 -{self.update_sub_form[self.repo_sub][0]}
         #if form has any select choices to fill...
         #example:form.roles.choices = self.get_roles()
-        if self.repo_sub == 'attribute':
-            self.details = self.details_attribute(id)
+        
         return form,db_item
         
     def search_form(self):
@@ -62,14 +61,14 @@ class RepoProduct(BaseRepo):
 
     def _list_rows(self,row):
         return {
-                'title_field':row.title,
+                'title_field':row.name, #編輯icon tooltips name
                 'fields_value':[
-                    row.title
+                    row.name,row.sku
                     ]
                 }
                 
     def _list_fields(self):
-        return ['文章標題']
+        return ['商品名稱','型號']
                    
     def get_search_filters(self,search):
         filters = []
@@ -102,9 +101,12 @@ class RepoProduct(BaseRepo):
                     db_item = session.query(Product).get(id)
                 else:
                     db_item = Product()
-                    
-                db_item.title = item.title
-                db_item.content = item.content
+                #--- 區分sub處
+                db_item.name = item.name
+                db_item.sku = item.sku
+                db_item.description = item.description
+                db_item.order = item.order
+                #---
                 db_item.updated = datetime.datetime.now()
                 db_item.updated_by = current_user.email
             
@@ -123,26 +125,32 @@ class RepoProduct(BaseRepo):
 
     def delete(self, items):
     
-        def validate_product_used(session,item):
-            if not item.is_leaf:
-                return False
-            #todo:建立blog repo 後要添加以下程式,檢查是否有文章在此目錄底下
-            blog = session.query(Product).filter(Product.id_category==item.id).first()
-            if not blog:
+        def validate_del(session,item):
+            #todo:檢查sku,session.query(func.count(User.id)).scalar() 
+            sku_count = session.query(func.count(ProductSku.id)).filter(ProductSku.id_product==item.id).scalar() 
+            #raise Exception('skus:'+str(skus))
+            if sku_count>=1:
                 return False
             return True
+            
+        def after_del(session,item):
+            #刪除images,variants
+            pass
+            
         try:
             """檢查:是否有商品頁引用,不能刪除"""
             #return str(type(items))
-            with self.session as session: 
+            with app.db_session.session_scope() as session:
                 for item in items:
                     _del = session.query(Product).filter(Product.id==item).first()
                     if _del:
-                        if not validate_product_used(session,_del):
+                        if validate_del(session,_del):
                             #session.delete(_del)
-                            pass
+                            
+                            after_del(session,_del)
+                            
                         else:
-                            return "刪除失敗,無法刪除, 尚有文章或下層目錄"                        
+                            return "刪除失敗,尚有庫存商品"                        
                 
         except exc.SQLAlchemyError as e:
             """ 捕獲錯誤, 否則無法回傳
@@ -154,25 +162,22 @@ class RepoProduct(BaseRepo):
         return None  
     
     #custom function -----
-
-    def details_attribute(self,id=None):
-        
-        return {"fields":["屬性","屬性值","屬性圖片"],
-                "data":[
-                    ["尺寸","XL",""],
-                    ["尺寸","L",""],
-                    ["尺寸","M",""],
-                    ["尺寸","S",""],
-                    ["尺寸","XS",""],
-                    ["顏色","黃",""],
-                    ["顏色","白",""],
-                    ["顏色","黑",""],
-                    ["顏色","藍",""],
-                    ["顏色","綠",""],
-                    ["顏色","紅",""],
-                    ["男女","男",""],
-                    ["男女","女",""]
-                ]}
-
+    def _list_details(self,row):
+        return {
+                'title_field':row.variant, #編輯icon tooltips name
+                'fields_value':[
+                    row.variant
+                    ]
+                }
+    def get_details(self,id):
+        if self.repo_sub == "variant":
+            variants = []
+            with app.db_session.session_scope() as session:
+                product = session.query(Product).filter(Product.id==id).first()
+                #variants = [v for v in product.variants]
+                variants = self.get_details_list(id,product.variants)
+                #raise Exception(self.get_details_list(product.variants)) 
+            return {'fields':['屬性'],
+                        'data':variants}  
     
     

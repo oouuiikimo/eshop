@@ -53,7 +53,8 @@ def list(repo_name):
             (i.data is not "" and i.data is not None)
             }} 
         session['sort']=sort
-        return redirect(session['lastURL']) #jsonify(session['search'])
+        lastURL = session['lastURL'].pop()
+        return redirect(lastURL) #jsonify(session['search'])
     #return jsonify(session['search'])    
     if 'search' in session and session['search'] and repo_name in session['search'] and session['search'][repo_name]:
         search=session['search'][repo_name]
@@ -67,7 +68,7 @@ def list(repo_name):
         for i in session['search'][repo_name]:
             searchForm[i].data = session['search'][repo_name][i]
     #記住上一頁的位址及頁碼,供post,update取消鍵返回之用
-    session['lastURL'] = '/captain/list/{}?page={}&per_page={}'.format(repo_name,int(page),int(per_page))
+    session['lastURL'] = ['/captain/list/{}?page={}&per_page={}'.format(repo_name,int(page),int(per_page))]
     #準備資料集
     page,data,count,pagination = repo.get_list(page=page,per_page=per_page,search=search,sort=sort)
     data_to_template = {'page':page,'per_page':per_page,'data':data,'count':count,'pagination':pagination,
@@ -75,20 +76,21 @@ def list(repo_name):
         "active_menu":repo.active_menu,'sort':sort,"store":current_app.store_config}
     return render_template('/captain/list.html',**data_to_template)
     
-@captain.route('/update/<repo_request>/', defaults={'id': None}, methods=['GET','POST'])    
+#new repo item. if has repo_sub then show default sub form    
+@captain.route('/update/<repo_request>', defaults={'id': None}, methods=['GET','POST'])    
+#if has repo_sub then show default sub form
 @captain.route('/update/<repo_request>/<id>', methods=['GET','POST'])
 @login_required
 def update(repo_request,id):
-    repo_split = repo_request.split("_")
-    #處理複雜的次操作, 同一更新頁, 可有不同的次更新, 像是商品更新
-    repo_name = repo_split[0]
+    repo_name = repo_request
     repo = _repo(repo_name)()  
-    if len(repo_split) >=2:
-        repo.repo_sub = repo_split[1]
+    #處理複雜的次操作,轉到update_sub
     
-    form,item = repo.update_form(id)  #可以返回依 repo_sub 值有不同的update_form
-    details = repo.details
-    #return str(form.validate())  
+    if repo.repo_sub:
+        return redirect(url_for('captain.update_sub',repo_request=repo_request,id=id,repo_sub=repo.repo_sub))
+    
+    form,item = repo.update_form(id)  
+    #return str(item) #form.validate())  
     if request.method == 'POST' and form.validate():
         #return "OK"
         form.populate_obj(obj=item)
@@ -98,15 +100,40 @@ def update(repo_request,id):
             #raise ValidationError(error)
         else:    
             if 'lastURL' in session and session['lastURL'] is not None:
-                return redirect(session['lastURL'])
+                return redirect(session['lastURL'].pop())
             return redirect(url_for('captain.list',repo_name=repo_name))
 
     data_to_template = {'form':form,'item':item,'update_type':'{}.{}'.format(repo.title,'新增' if not id else '編輯'),
-        "active_menu":repo.active_menu,"store":current_app.store_config,
-        "sub_menu":repo.update_sub_form,"repo_name":repo_name,"details":details}
-    if repo.repo_sub:
-        return render_template('/captain/sub_update.html',**data_to_template)
+        "active_menu":repo.active_menu,"store":current_app.store_config}
+
     return render_template('/captain/update.html',**data_to_template)
+    
+#show details list or form for update
+@captain.route('/update/<repo_request>/<id>/<repo_sub>',defaults={'detail_id':None}, methods=['GET','POST'])
+#edit details item form
+@captain.route('/update/<repo_request>/<id>/<repo_sub>/<detail_id>', methods=['GET','POST'])
+@login_required
+def update_sub(repo_request,id,repo_sub,detail_id):
+    repo_name = repo_request#repo_split[0]
+    repo = _repo(repo_name)() 
+    repo.repo_sub = repo_sub    
+    
+    details = repo.get_details(id)
+    form = []
+    #show form only when no details or has detail_id
+    if not details or detail_id :
+        form,item = repo.update_form(id)
+        details = [] #don't show list when edit form
+        if detail_id:
+            #push lastURL
+            session['lastURL'].append(f'/captain/update/{repo_request}/{id}/{repo_sub}')
+            #return jsonify(session['lastURL'])
+    
+    data_to_template = {'form':form,'update_type':'{}.{}'.format(repo.title,'新增' if not id else '編輯'),
+        "active_menu":repo.active_menu,"store":current_app.store_config,
+        "sub_menu":repo.update_sub_form,"details":details,
+        "repo_name":repo_name,"repo_sub":repo.repo_sub,"id":id}
+    return render_template('/captain/sub_update.html',**data_to_template)
     
 @captain.route('/delete/<repo_name>', methods=['POST'])
 @login_required
@@ -116,8 +143,8 @@ def delete(repo_name):
     if remove_items is None or len(remove_items)==0:
         return jsonify({"error":'有錯誤 :{}'.format("沒有可刪除的項目!")})
     lastURL = ""
-    if "lastURL" in session:
-        lastURL = session['lastURL']
+    if "lastURL" in session and len(session['lastURL']):
+        lastURL = session['lastURL'][-1]
         
     error = repo.delete(remove_items)
     

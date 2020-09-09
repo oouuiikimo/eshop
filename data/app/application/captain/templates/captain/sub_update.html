@@ -47,9 +47,16 @@
 						<div class="card-header">
 							<h4 class="card-title" id="horz-layout-icons"><span class="under_line-red">{{update_type}}</span>
                             {%if sub_menu-%}
-                                <span class="ml-1">
+                                <span class="m-1 block">
                                 {%for menu in sub_menu-%}
-                                <a href="/captain/update/{{repo_name}}_{{menu}}">{{sub_menu[menu][0]}}</a> | 
+                                {%if menu == repo_sub-%}
+                                <span class="font-weight-bold font-italic">{{sub_menu[menu][0]}}</span>  
+                                {%else-%}
+                                <a href="/captain/update/{{repo_name}}/{{id}}/{{menu}}">{{sub_menu[menu][0]}}</a>  
+                                {%endif-%}
+                                {% if not loop.last -%}
+                                |
+                                {% endif -%}
                                 <!--<a href="#">基本資訊</a> | <a href="#">屬性</a> | <a href="#">圖片</a> | <a href="#">文章</a> | <a href="#">價格</a> | <a href="#">上架</a>-->
                                 {%endfor%}</span>{%endif%}
 							</h4>
@@ -57,11 +64,8 @@
 						</div>
 						<div class="card-content collpase show">
 							<div class="card-body">
-								<div class="card-text">
-									<p></p>
-								</div>
+                                {%if form-%}
 								<form class="form form-horizontal striped-rows" method="post" action="" >
-							<div class="form-body">
 										{% for field in form%}<!--id:{{field.id}}-->
 										{%if field.type != 'CSRFTokenField' and field.type != 'HiddenField'-%}
 										{%if field.type != 'RadioField' and field.type != 'MultiCheckboxField' 
@@ -128,25 +132,53 @@
 										</button>
 									</div>
 								
-                            </div></form>
-                            <div><!--details-->
-                            {%if details-%}
-                            <table>
-                                <tr>
-                                    {%for f in details.fields-%}
-                                    <th>{{f}}</th>
-                                    {%endfor-%}
-                                </tr>
-                                {%for row in details.data-%}
-                                <tr>
-                                    {%for cell in row-%}
-                                    <td>{{cell}}</td>
-                                    {%endfor-%}
-                                </tr>    
-                                    {%endfor-%}
-                            </table>
-                            {%endif-%}
-                            </div>
+                                </form>
+                                {%endif-%}
+                                <div><!--details-->
+                                {%if details-%}
+                                <div class="card-header">
+                                    <ul class="list-inline mb-0">
+                                        <li class="align-middle mr-1">
+                                        <h4 class="card-title"><span class="under_line-red">{{sub_menu[repo_sub][0]}}.列表</span></h4>
+                                        </li>
+                                        <li class="align-middle">
+                                            <div class="input-group-append">
+                                              <button type="button" class="btn btn-icon btn-danger" onclick="javascript:delete_items();"
+                                              data-toggle="tooltip" title="刪除"><i class="feather icon-minus"></i></button>
+                                            </div>
+                                        </li>
+                                        <li class="align-middle">
+                                            <div class="input-group-append">
+                                              <button type="button" class="btn btn-icon btn-success" onclick="javascript:location.href='/captain/update/{{repo_name}}/{{id}}/{{repo_sub}}/0'"
+                                              data-toggle="tooltip" title="新增"><i class="feather icon-plus"></i></button>
+                                            </div>
+                                        </li>
+                                    </ul>   
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th><input id="check_toggle" type="checkbox" value="" onclick="javascript:toggle_check();"> &nbsp;編輯功能</th>
+                                                {%for f in details.fields-%}
+                                                <th>{{f}}</th>
+                                                {%endfor-%}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {%for row in details.data-%}
+                                                <tr>
+                                                {%for val in row-%}
+                                                <td scope="row">{{val|safe}}</td>
+                                                {%endfor-%}
+                                                </tr>
+                                            {%endfor-%}
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                {%endif-%}
+                                </div>
 							</div>
 						</div>
 					</div>
@@ -187,7 +219,8 @@
     });    
     
     function cancel() {
-        window.location.href = '{{session["lastURL"]|safe}}';
+        //console.log({{session["lastURL"]|length}})
+        window.location.href = '{{session["lastURL"][(session["lastURL"]|length)-1]|safe}}';
     }
     
     function init_ckeditor(ckeditor) {

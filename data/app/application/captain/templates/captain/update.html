@@ -51,11 +51,8 @@
 						</div>
 						<div class="card-content collpase show">
 							<div class="card-body">
-								<div class="card-text">
-									<p></p>
-								</div>
+
 								<form class="form form-horizontal striped-rows" method="post" action="" >
-							<div class="form-body">
 										{% for field in form%}<!--id:{{field.id}}-->
 										{%if field.type != 'CSRFTokenField' and field.type != 'HiddenField'-%}
 										{%if field.type != 'RadioField' and field.type != 'MultiCheckboxField' 
@@ -122,15 +119,13 @@
 										</button>
 									</div>
 								</form>
-                            </div>
+
 							</div>
 						</div>
 					</div>
 				</div>
 			</div>
-
-
-            </section>
+        </section>
         <!-- users list ends -->
 
         </div>
@@ -163,7 +158,7 @@
     });    
     
     function cancel() {
-        window.location.href = '{{session["lastURL"]|safe}}';
+        window.location.href = '{{session["lastURL"][products|length]|safe}}';
     }
     
     function init_ckeditor(ckeditor) {

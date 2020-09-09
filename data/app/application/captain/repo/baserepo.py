@@ -88,8 +88,20 @@ class BaseRepo(object):
 
         return page,out_rows,count,get_pagination(count,page,per_page)
 
-
-        
+    def get_details_list(self,parent_id,rows):
+        out_rows = []
+            
+        for row in rows:
+            _list_rows = self._list_details(row)
+            out_rows.append([f'<div style="width:80px;"><input type="checkbox" name="delete" value="{row.id}">'+
+                f'<a href="javascript:delete_items({row.id});" class="ml-1">'+
+                f"<i class=\"feather icon-x-circle\" data-toggle=\"tooltip\" title=\"刪除{self.title}{_list_rows['title_field']}\"></a></i>"+
+                f'<a href="/captain/update/{self.__class__.__name__.replace("Repo","")}/{parent_id}/{self.repo_sub}/{row.id}" class="ml-1">'+
+                f"<i class=\"feather icon-edit\" data-toggle=\"tooltip\" title=\"編輯{self.title}{_list_rows['title_field']}\"></a></i></div>"]
+                + _list_rows['fields_value']
+            )
+        return out_rows
+            
     class Struct:
         def __init__(self, **entries):
             self.__dict__.update(entries)

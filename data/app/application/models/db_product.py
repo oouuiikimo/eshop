@@ -128,11 +128,11 @@ class Product(Base):
     updated_by = Column(String(80),
                     nullable=False)
     id_category = Column(Integer, ForeignKey('product_category.id'))
-    category = relationship("ProductCategory", backref="product")
+    category = relationship("ProductCategory", backref="Product")
     sub_categorys = relationship('SubProductCategory', secondary=product_subcategory, backref='Product')
-    images = relationship("ProductImage", backref="product")
-    articles = relationship("ProductArticleMaster", backref="product")
-    skus = relationship("ProductSku", backref = "product")
+    images = relationship("ProductImage", backref="Product")
+    articles = relationship("ProductArticleMaster", backref="Product")
+    skus = relationship("ProductSku", backref = "Product")
     variants = relationship('Variant', secondary=product_variant, backref='Product')
     def __repr__(self):
         return f'{self.id},{self.name}'

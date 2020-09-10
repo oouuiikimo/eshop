@@ -28,8 +28,8 @@ class Update_variant_Form(FlaskForm):
         render_kw={'class':'form-control','placeholder':'屬性名稱100字內'})    
 
 class Update_category_Form(FlaskForm):
-    category = SelectCheckboxField('主分類', 
-        choices = [('1', 'admin'),('2', 'customer')],
+    category = SelectField('主目錄', 
+        choices = [('', '-請選擇目錄-')],
         render_kw={'class':'form-control'})
         
 class Update_sku_Form(FlaskForm):

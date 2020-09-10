@@ -30,6 +30,8 @@
 .bootstrap-tagsinput {
     width:100%;
 }
+
+
 	</style>
 {%endblock%}
 {% block content %}
@@ -73,7 +75,7 @@
 										<div class="form-group row">
 											<label class="col-md-3 label-control" for="{{field.id}}">{{ field.label.text }}</label>
 											<div class="col-md-9">
-											{{ field }}
+											{{ field }} <!--{{field.data}}-->
                                         <ul class="errmessages d-none" id='err_{{field.id}}'>
                                         
                                         </ul>
@@ -143,16 +145,17 @@
                                         </li>
                                         <li class="align-middle">
                                             <div class="input-group-append">
-                                              <button type="button" class="btn btn-icon btn-danger" onclick="javascript:delete_items();"
+                                              <button type="button" class="btn btn-icon btn-sm btn-danger" onclick="javascript:delete_items(this);"
                                               data-toggle="tooltip" title="刪除"><i class="feather icon-minus"></i></button>
                                             </div>
                                         </li>
                                         <li class="align-middle">
                                             <div class="input-group-append">
-                                              <button type="button" class="btn btn-icon btn-success" onclick="javascript:location.href='/captain/update/{{repo_name}}/{{id}}/{{repo_sub}}/0'"
+                                              <button type="button" class="btn btn-icon btn-sm btn-success" onclick="javascript:location.href='/captain/update/{{repo_name}}/{{id}}/{{repo_sub}}/0'"
                                               data-toggle="tooltip" title="新增"><i class="feather icon-plus"></i></button>
                                             </div>
                                         </li>
+
                                     </ul>   
                                 </div>
                                 <div class="table-responsive">
@@ -169,7 +172,8 @@
                                             {%for row in details.data-%}
                                                 <tr>
                                                 {%for val in row-%}
-                                                <td scope="row">{{val|safe}}</td>
+                                                <td scope="row">{{val|safe}}
+                                                </td>
                                                 {%endfor-%}
                                                 </tr>
                                             {%endfor-%}
@@ -201,7 +205,8 @@
 	<script src="/captain/statics/js/bootstrap-tagsinput.min.js"></script>
     <script src="/captain/statics/js/ckeditor.js?v=3"></script>
 <script>
-    
+    var csrf_token = "{{csrf_token()}}";
+
     $(window).on("load", function(){
       // Handler when all assets (including images) are loaded
       var ckeditor = document.querySelectorAll(".editor");
@@ -215,7 +220,7 @@
         //console.log('{{message}}')    
         fire_alert(type='danger','更新失敗','{{message}}',true)
     {% endfor %}
-      
+    
     });    
     
     function cancel() {
@@ -270,8 +275,65 @@
         console.log(error)
 
    }
-   
 
+function toggle_check() {
+	var x = document.querySelectorAll("input[type=checkbox][name=delete]");
+	var me = document.getElementById("check_toggle")
+	if (me.checked == true){
+		for (i=0;i<x.length;i++) {
+			x[i].checked = true;
+			}
+	  } else {
+			for (i=0;i<x.length;i++) {
+				x[i].checked = false;
+			}
+	  }
+	}
+   
+function delete_items(e,item=null) {
+    console.log(e.className)
+    var x = document.querySelectorAll("input[type=checkbox][name=delete]:checked");
+    //al.lpert(x.length);
+    var delete_items = []
+    if (item)
+        delete_items.push(item)
+    else
+        x.forEach(element => delete_items.push(element.value));
+        
+    if (delete_items.length ==0) return null
+    //spinner
+    e.innerHTML='<i class="fa fa-circle-o-notch fa-spin fa-fw"></i>';
+    /*
+    <i class="fa fa-repeat spinner"></i>
+    <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>
+    */
+    var formData = new FormData();
+    formData.append('id', JSON.stringify(delete_items));
+    formData.append('csrf_token',csrf_token);
+    ajax("/captain/delete/{{repo_name}}/{{id}}/{{repo_sub}}", "POST",formData)
+    .then(function(result) {
+      data = JSON.parse(result)
+      //alert(data['success']);
+	  
+      toastr.success('刪除作業成功')
+	   return data['redirect']
+      
+        })
+    .then(function(result) {
+      //gotopage(1);
+	  
+	  	var timeoutID = window.setTimeout((function(result) {
+		//window.location = result
+        window.location.reload();
+		//alert('result:'+result)
+		}),1000,result);
+        })
+    .catch((error) => {
+      toastr.error('刪除作業失敗:'+error)
+    })    
+    ;
+
+}
    
 </script>          
 {%endblock%}

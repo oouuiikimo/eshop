@@ -1,7 +1,7 @@
 from flask import current_app as app
 from flask_login import current_user
 from .baserepo import BaseRepo
-from ...models.db_product import ProductCategory
+from ...models.db_product import ProductCategory,Product
 from ...models.db_user import User
 from ...models.db_customer import Customer
 from .form_productcategory import SearchForm,UpdateForm
@@ -16,17 +16,20 @@ class RepoProductCategory(BaseRepo):
         self.model = ProductCategory
         self.active_menu = "sub_list_productcategory"
         self.description = """
-        說明: 網站內文章列表, 請注意, 若有文章刪除, 前台連結將無法顯示文章內容, 更新亦同。
+        說明: 商品主目錄列表, 若要刪除目錄, 須先清空目錄下的商品。
         """
         #異動tables
         #Base.metadata.create_all(app.db_session.engine)
         #異動data
         #self.init_db()
+    
         
+    def __repr__(self):
+        return self.title    
                
     def form_mapper(self,db_data):
         
-        form_data = {"name":db_data.name,"is_leaf":'1' if db_data.is_leaf else '0',"parent":str(db_data.parent_id),'id':db_data.id}
+        form_data = {"name":db_data.name,"is_leaf":'1' if db_data.is_leaf else '0',"parent":str(db_data.id_parent),'id':db_data.id}
 
         return self.Struct(**form_data)
         
@@ -52,8 +55,8 @@ class RepoProductCategory(BaseRepo):
         return {
                 'title_field':row.name,
                 'fields_value':[
-                    row.name,'是' if row.is_leaf else '否',
-                    self.get_cat_path(row) if row.parent else '無',
+                    f'{self.get_cat_path(row)}' if row.parent else row.name,
+                    '是' if row.is_leaf else '否'
                     ]
                 }
                 
@@ -129,16 +132,17 @@ class RepoProductCategory(BaseRepo):
     def delete(self, items):
     
         def validate_has_child(session,item):
-            if not self._get_all_child_id(item.id):
+            if self._get_all_child_id(item.id):
                 return False
             return True
             
-        def validate_has_blog(session,item):
+        def validate_has_product(session,item):
             if not item.is_leaf:
-                return False
+                return True
             #todo:建立blog repo 後要添加以下程式,檢查是否有文章在此目錄底下
-            blog = session.query(BlogArticle).filter(BlogArticle.id_category==item.id).first()
-            if not blog:
+            #raise Exception(item.Product)
+            #product = session.query(Product).filter(Product.id_category==item.id).first()
+            if item.Product:
                 return False
             return True
         try:
@@ -149,11 +153,12 @@ class RepoProductCategory(BaseRepo):
                     
                     _del = session.query(ProductCategory).filter(ProductCategory.id==item).first()
                     if _del:
-                        if not validate_has_child(session,_del) and not validate_has_blog(session,_del):
-                            #session.delete(_del)
-                            pass
-                        else:
-                            return "刪除失敗,無法刪除, 尚有文章或下層目錄"
+                        if not validate_has_child(session,_del):
+                            return "刪除失敗,尚有底層目錄!"
+                            
+                        if not validate_has_product(session,_del):
+                            return "刪除失敗,此目錄尚有商品"
+                        #session.delete(_del)
                 
         except exc.SQLAlchemyError as e:
             """ 捕獲錯誤, 否則無法回傳
@@ -178,17 +183,17 @@ class RepoProductCategory(BaseRepo):
         WITH RECURSIVE category_path (id, path) AS
         (
           SELECT id, name as path
-            FROM blog_category
-            WHERE parent_id ==:id /*IS NULL or ==2*/
+            FROM {table}
+            WHERE id_parent ==:id /*IS NULL or ==2*/
             
           UNION ALL
           SELECT c.id,  cp.path|| ' > '|| c.name as path
-            FROM category_path AS cp JOIN blog_category AS c
-              ON cp.id = c.parent_id
+            FROM category_path AS cp JOIN {table} AS c
+              ON cp.id = c.id_parent
         )
         SELECT * FROM category_path
         ORDER BY path;
-        """)
+        """.format(table="product_category"))
         
     def get_tree(self,id=None):
         """更新或新增表單用,顯示上層目錄供歸屬:
@@ -200,17 +205,17 @@ class RepoProductCategory(BaseRepo):
         WITH RECURSIVE category_path (id, path) AS
         (
           SELECT id, name as path
-            FROM blog_category
-            WHERE parent_id ==:id /*IS NULL or ==2*/
+            FROM {table}
+            WHERE id_parent ==:id /*IS NULL or ==2*/
             
           UNION ALL
           SELECT c.id,  cp.path|| ' > '|| c.name as path
-            FROM category_path AS cp JOIN blog_category AS c
-              ON cp.id = c.parent_id
+            FROM category_path AS cp JOIN {table} AS c
+              ON cp.id = c.id_parent
         )
         SELECT * FROM category_path
         ORDER BY path;
-        """)
+        """.format(table="product_category"))
         with app.db_session.session_scope() as session:
             if id:
                 child = [i.id for i in session.execute(self._child_tree_sql(),{"id":id})]
@@ -230,7 +235,7 @@ class RepoProductCategory(BaseRepo):
         with app.db_session.session_scope() as session:
             return [(str(i.id),self.get_cat_path(i)) for i in session.query(ProductCategory).filter(ProductCategory.is_leaf == False).all()]
 
-    def get_tree_for_article(self):
+    def get_tree_for_form(self):
         """文章表單用:不列出含有下層目錄的母層, 只列子層-> is_leaf is True
         """
 
@@ -238,10 +243,8 @@ class RepoProductCategory(BaseRepo):
         #has_child = db.session.query(ProductCategory.parent_id).filter(ProductCategory.parent_id.isnot(None)).distinct()
         #return ProductCategory.query.filter(ProductCategory.id.notin_(has_child)).all()
         with app.db_session.session_scope() as session:
-            return [(str(i.id),i.name) for i in session.query(ProductCategory).filter(ProductCategory.is_leaf == True).all()]
-        
-    def __repr__(self):
-        return self.title
+            #return (str(i.id),i.name)
+            return [ i.__str__ for i in session.query(ProductCategory).filter(ProductCategory.is_leaf == True).all()]
     
     def get_cat_path(self,item_cat):
         #return only one cat tree
@@ -250,16 +253,16 @@ class RepoProductCategory(BaseRepo):
         WITH RECURSIVE category_path (id, path) AS
         (
           SELECT id, name as path
-            FROM blog_category
-            WHERE parent_id IS NULL
+            FROM {table}
+            WHERE id_parent IS NULL
           UNION ALL
-          SELECT c.id,  cp.path|| ' > '|| c.name as path
-            FROM category_path AS cp JOIN blog_category AS c
-              ON cp.id = c.parent_id
+          SELECT c.id,  cp.path|| '>'|| c.name as path
+            FROM category_path AS cp JOIN {table} AS c
+              ON cp.id = c.id_parent
         )
         SELECT * FROM category_path
         where id == :id;
-        """)
+        """.format(table="product_category"))
         with app.db_session.session_scope() as session:
             if item_cat.parent:
                 tree = session.execute(statement,{"id":item_cat.id}).first()

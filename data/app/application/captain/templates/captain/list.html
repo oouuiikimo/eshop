@@ -66,13 +66,13 @@
                     </li>
                     <li class="align-middle">
                         <div class="input-group-append">
-                          <button type="button" class="btn btn-icon btn-danger" onclick="javascript:delete_items();"
+                          <button type="button" class="btn btn-icon btn-sm btn-danger" onclick="javascript:delete_items(this);"
                           data-toggle="tooltip" title="刪除"><i class="feather icon-minus"></i></button>
                         </div>
                     </li>
                     <li class="align-middle">
                         <div class="input-group-append">
-                          <button type="button" class="btn btn-icon btn-success" onclick="javascript:location.href='/captain/update/{{repo_name}}'"
+                          <button type="button" class="btn btn-icon btn-sm btn-success" onclick="javascript:location.href='/captain/update/{{repo_name}}'"
                           data-toggle="tooltip" title="新增"><i class="feather icon-plus"></i></button>
                         </div>
                     </li>
@@ -181,7 +181,7 @@
 
 {% endblock %}    
 {%block js%} 
-    <script src="/captain/statics/vendors/js/tables/datatable/datatables.min.js"></script>
+
 <script>
 
 var csrf_token = "{{csrf_token()}}";
@@ -233,7 +233,7 @@ function toggle_check() {
 	  }
 	}
 
-function delete_items(item=null) {
+function delete_items(e,item=null) {
 
     var x = document.querySelectorAll("input[type=checkbox][name=delete]:checked");
     //al.lpert(x.length);
@@ -244,7 +244,7 @@ function delete_items(item=null) {
         x.forEach(element => delete_items.push(element.value));
         
     if (delete_items.length ==0) return null
-    
+    e.innerHTML='<i class="fa fa-circle-o-notch fa-spin fa-fw"></i>';
     var formData = new FormData();
     formData.append('id', JSON.stringify(delete_items));
     formData.append('csrf_token',csrf_token);
@@ -252,7 +252,7 @@ function delete_items(item=null) {
     .then(function(result) {
       data = JSON.parse(result)
       //alert(data['success']);
-	  fire_alert('success','刪除作業成功',data['success'],5000) 
+      toastr.success('刪除作業成功')
 	   return data['redirect']
 
       
@@ -269,7 +269,7 @@ function delete_items(item=null) {
       
         })
     .catch((error) => {
-      fire_alert('danger','刪除作業失敗',error,5000)
+      toastr.error('刪除作業失敗:'+error)
     })    
     ;
 

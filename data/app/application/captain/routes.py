@@ -120,7 +120,9 @@ def update_sub(repo_request,id,repo_sub,detail_id):
     
     details = repo.get_details(id)
     form = []
+    
     #show form only when no details or has detail_id
+    
     if not details or detail_id :
         form,item = repo.update_form(id)
         details = [] #don't show list when edit form
@@ -128,6 +130,18 @@ def update_sub(repo_request,id,repo_sub,detail_id):
             #push lastURL
             session['lastURL'].append(f'/captain/update/{repo_request}/{id}/{repo_sub}')
             #return jsonify(session['lastURL'])
+    
+        if request.method == 'POST' and form.validate():
+            #return "OK"
+            form.populate_obj(obj=item)
+            error = repo.update(item,id) #可以返回依 repo_sub 值有不同的update
+            if error:
+                flash(error)
+                #raise ValidationError(error)
+            else:    
+                if detail_id and 'lastURL' in session and session['lastURL'] is not None:
+                    return redirect(session['lastURL'].pop())
+                return redirect(url_for('captain.update_sub',repo_request=repo_request,id=id,repo_sub=repo_sub,detail_id=detail_id))
     
     data_to_template = {'form':form,'update_type':'{}.{}'.format(repo.title,'新增' if not id else '編輯'),
         "active_menu":repo.active_menu,"store":current_app.store_config,
@@ -147,6 +161,25 @@ def delete(repo_name):
         lastURL = session['lastURL'][-1]
         
     error = repo.delete(remove_items)
+    
+    if error:
+        #raise Exception(error)
+        return jsonify({"error":'有錯誤 :{}'.format(error)})
+    return jsonify({"success":'己刪除記錄 :{}'.format(remove_items),"redirect":lastURL}) 
+
+@captain.route('/delete/<repo_name>/<id>/<repo_sub>', methods=['POST'])
+@login_required
+def delete_sub(repo_name,id,repo_sub):
+    repo = _repo(repo_name)() 
+    repo.repo_sub = repo_sub
+    remove_items = json.loads(request.form.get('id'))
+    if remove_items is None or len(remove_items)==0:
+        return jsonify({"error":'有錯誤 :{}'.format("沒有可刪除的項目!")})
+    lastURL = ""
+    if "lastURL" in session and len(session['lastURL']):
+        lastURL = session['lastURL'][-1]
+    return jsonify({"success":"OK"})
+    #error = repo.delete(id,remove_items)
     
     if error:
         #raise Exception(error)

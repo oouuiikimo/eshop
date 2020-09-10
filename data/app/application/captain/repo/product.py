@@ -4,6 +4,7 @@ from .baserepo import BaseRepo
 from ...models.db_product import *
 from ...models.db_customer import Customer
 from ...models.db_user import User
+from .productcategory import RepoProductCategory
 from .form_product import *
 from sqlalchemy import exc,func
 import datetime
@@ -33,9 +34,16 @@ class RepoProduct(BaseRepo):
         return self.title
         
     def form_mapper(self,db_data):
-        
-        form_data = {"name":db_data.name,"sku":db_data.sku,"description":db_data.description,
-            "order":db_data.order}
+        form_data = {}
+        if self.repo_sub == 'basic':
+            form_data = {"name":db_data.name,"sku":db_data.sku,"description":db_data.description,
+                "order":db_data.order}
+        if self.repo_sub == 'category':
+            if db_data.category:
+                form_data = {"name":db_data.name,"category":db_data.category.id}
+            else:
+                form_data = {"category":""}
+      
         return self.Struct(**form_data)
         
     def update_form(self,id=None):
@@ -44,9 +52,13 @@ class RepoProduct(BaseRepo):
 
         try:    
             form = self.update_sub_form[self.repo_sub][1](obj=db_item) #UpdateForm(obj=db_item)
+            if self.repo_sub == 'category':
+                prductCategory = RepoProductCategory()
+                form.category.choices = form.category.choices + prductCategory.get_tree()
+            #raise Exception(db_item.category)    
         except KeyError as e:
             abort(404)
-        self.title = f'{self.title}-[{db_item.name}]'    #多餘 -{self.update_sub_form[self.repo_sub][0]}
+                        
         #if form has any select choices to fill...
         #example:form.roles.choices = self.get_roles()
         
@@ -92,6 +104,19 @@ class RepoProduct(BaseRepo):
 
     def update(self,item,id=None):
         #這裡區分 repo_sub 
+        
+        def update_basic(session,db_item,item):
+            db_item.name = item.name
+            db_item.sku = item.sku
+            db_item.description = item.description
+            db_item.order = item.order
+            
+        def update_category(session,db_item,item):
+            category = session.query(ProductCategory).filter(ProductCategory.id==item.category).first()
+            db_item.category = category
+            
+        _sub_update = {"basic":update_basic,"category":update_category}
+        
         def strip_link_text(link): #不能有空白
             return "_".join(link.split())
         
@@ -102,10 +127,9 @@ class RepoProduct(BaseRepo):
                 else:
                     db_item = Product()
                 #--- 區分sub處
-                db_item.name = item.name
-                db_item.sku = item.sku
-                db_item.description = item.description
-                db_item.order = item.order
+                
+                _sub_update[self.repo_sub](session,db_item,item)
+                #raise Exception(db_item.category.id)
                 #---
                 db_item.updated = datetime.datetime.now()
                 db_item.updated_by = current_user.email
@@ -170,6 +194,9 @@ class RepoProduct(BaseRepo):
                     ]
                 }
     def get_details(self,id):
+        with app.db_session.session_scope() as session:
+            product = session.query(Product).filter(Product.id==id).first()
+            self.title = f'{self.title}-[{product.name}]'    #多餘 -{self.update_sub_form[self.repo_sub][0]}  
         if self.repo_sub == "variant":
             variants = []
             with app.db_session.session_scope() as session:
@@ -179,5 +206,5 @@ class RepoProduct(BaseRepo):
                 #raise Exception(self.get_details_list(product.variants)) 
             return {'fields':['屬性'],
                         'data':variants}  
-    
+        
     

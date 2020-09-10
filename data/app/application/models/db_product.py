@@ -58,6 +58,11 @@ class ProductCategory(Base):
     child = relationship("ProductCategory",
                 backref=backref('parent', remote_side=[id]))
                 
+    def __repr__(self):
+        return (self.id,self.name)
+    def __str__(self):
+        return str(f'{self.id}:{self.name}')
+        
 class SubProductCategory(Base):
     #todo: 有些function 要cache
     
@@ -93,7 +98,9 @@ class SubProductCategory(Base):
                 backref=backref('parent', remote_side=[id]))
     products = relationship('Product', secondary=product_subcategory, backref='SubProductCategory')
     def __repr__(self):
-        return str(self.name)
+        return (self.id,self.name)
+    def __str__(self):
+        return str(f'{self.id}:{self.name}')
     
 class Product(Base):
     __tablename__ = 'product'
@@ -135,7 +142,9 @@ class Product(Base):
     skus = relationship("ProductSku", backref = "Product")
     variants = relationship('Variant', secondary=product_variant, backref='Product')
     def __repr__(self):
-        return f'{self.id},{self.name}'
+        return (self.id,self.name)
+    def __str__(self):
+        return str(f'{self.id}:{self.name}')
     
 class ProductImage(Base):
     __tablename__ = 'product_image'
@@ -150,8 +159,11 @@ class Variant(Base):
     variant= Column(String(20))
     
     products = relationship('Product', secondary=product_variant, backref='Variant')
+
     def __repr__(self):
-        return f'{self.id},{self.variant}'
+        return (self.id,self.variant)
+    def __str__(self):
+        return str(f'{self.id}:{self.variant}')        
     
 class ProductSku(Base):
     """ 商品sku主表:
@@ -168,8 +180,11 @@ class ProductSku(Base):
     price = Column(Integer,nullable=False,default=0)  
     id_product = Column(Integer, ForeignKey('product.id'))
     values = relationship('VariantValues', secondary=productsku_value, backref='ProductSku')
+
     def __repr__(self):
-        return f'{self.id},{self.sku}'
+        return (self.id,self.sku)
+    def __str__(self):
+        return str(f'{self.id}:{self.sku}')      
 
 class VariantValues(Base):
     __tablename__ = 'variant_values'
@@ -179,8 +194,11 @@ class VariantValues(Base):
     id_variant = Column(Integer, ForeignKey('variant.id'))
     variant = relationship("Variant", backref="VariantValues")
     sku = relationship('ProductSku', secondary=productsku_value, backref='VariantValues')
+
     def __repr__(self):
-        return f'{self.id},{self.value}'
+        return (self.id,self.value)
+    def __str__(self):
+        return str(f'{self.id}:{self.value}')   
     
 product_article_details = Table('product_article_details', Base.metadata,
     Column('id',Integer, primary_key=True),

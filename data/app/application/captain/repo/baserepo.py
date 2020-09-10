@@ -52,7 +52,7 @@ class BaseRepo(object):
             for row in rows:
                 _list_rows = self._list_rows(row)
                 out_rows.append([f'<div style="width:80px;"><input type="checkbox" name="delete" value="{row.id}">'+
-                    f'<a href="javascript:delete_items({row.id});" class="ml-1">'+
+                    f'<a href="javascript:delete_items(this,{row.id});" class="ml-1">'+
                     f"<i class=\"feather icon-x-circle\" data-toggle=\"tooltip\" title=\"刪除{self.title}{_list_rows['title_field']}\"></a></i>"+
                     f'<a href="/captain/update/{self.__class__.__name__.replace("Repo","")}/{row.id}" class="ml-1">'+
                     f"<i class=\"feather icon-edit\" data-toggle=\"tooltip\" title=\"編輯{self.title}{_list_rows['title_field']}\"></a></i></div>"]
@@ -94,7 +94,7 @@ class BaseRepo(object):
         for row in rows:
             _list_rows = self._list_details(row)
             out_rows.append([f'<div style="width:80px;"><input type="checkbox" name="delete" value="{row.id}">'+
-                f'<a href="javascript:delete_items({row.id});" class="ml-1">'+
+                f'<a href="javascript:void(0)" onclick="delete_items(this,{row.id});" class="ml-1">'+
                 f"<i class=\"feather icon-x-circle\" data-toggle=\"tooltip\" title=\"刪除{self.title}{_list_rows['title_field']}\"></a></i>"+
                 f'<a href="/captain/update/{self.__class__.__name__.replace("Repo","")}/{parent_id}/{self.repo_sub}/{row.id}" class="ml-1">'+
                 f"<i class=\"feather icon-edit\" data-toggle=\"tooltip\" title=\"編輯{self.title}{_list_rows['title_field']}\"></a></i></div>"]

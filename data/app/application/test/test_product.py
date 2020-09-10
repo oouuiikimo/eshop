@@ -138,6 +138,12 @@ def query_product_sku(session):
         print(sku)
         for value in sku.values:
             print(f'{value.variant}:{value}')
+
+def query_category_product(session):
+    p1 = session.query(Product).get(1)
+    c1 = session.query(ProductCategory).get(1)
+    p1.category = c1
+    session.add(p1)
     
 def reset():
     drop(SubProductCategory,ProductCategory,
@@ -156,7 +162,7 @@ if __name__ == "__main__":
     #create(ProductSku)
     
     #"""
-    funcs = [query_product_sku] #[query_product_variants,set_sku] #[add_variant,product_add,set_product_variants] 
+    funcs = [query_category_product] #[query_product_variants,set_sku] #[add_variant,product_add,set_product_variants] 
     for func in funcs:
         run_my_program(func)
     #"""

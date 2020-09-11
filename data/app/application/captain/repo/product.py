@@ -22,7 +22,8 @@ class RepoProduct(BaseRepo):
         if self.repo_sub is None:
             self.repo_sub = 'basic'
         self.update_sub_form = {'basic':("基本資訊",Update_basic_Form),'category':("目錄",Update_category_Form),
-            'variant':("屬性",Update_variant_Form),'sku':("庫存",Update_sku_Form),'image':("圖片",Update_image_Form),
+            'variant':("屬性",Update_variant_Form,self.variant_details),'sku':("庫存",Update_sku_Form,self.sku_details),
+            'image':("圖片",Update_image_Form),
             'article':("文章",Update_article_Form),'active':("上架",Update_active_Form)}
         #異動tables
         #Base.metadata.create_all(app.db_session.engine)
@@ -185,26 +186,53 @@ class RepoProduct(BaseRepo):
             return '刪除失敗!!'
         return None  
     
-    #custom function -----
-    def _list_details(self,row):
-        return {
-                'title_field':row.variant, #編輯icon tooltips name
-                'fields_value':[
-                    row.variant
-                    ]
-                }
-    def get_details(self,id):
+    def set_title(self,id):
         with app.db_session.session_scope() as session:
-            product = session.query(Product).filter(Product.id==id).first()
-            self.title = f'{self.title}-[{product.name}]'    #多餘 -{self.update_sub_form[self.repo_sub][0]}  
-        if self.repo_sub == "variant":
-            variants = []
+                product = session.query(Product).filter(Product.id==id).first()
+                self.title = f'{self.title}-[{product.name}]'
+                
+    #custom function -----
+    
+    def variant_details(self,product,dic_replace): 
+        #baserepo :get_details_list 定義每個detail取什麼欄位資料出來,編輯欄己定義在baserepo
+        #每個sub 都要自己定義不同的欄位
+        details = []
+        
+        for row in product.variants:
+            dic_replace.update({"parent_id":product.id,
+                "tooltip_title":row.variant,
+                "rowid":row.id})
+                
+            details.append([self.detail_template(dic_replace)]+[row.variant])
+        return {'fields':['屬性'],'data':details}        
+
+    def sku_details(self,product,dic_replace): 
+        #baserepo :get_details_list 定義每個detail取什麼欄位資料出來,編輯欄己定義在baserepo
+        #每個sub 都要自己定義不同的欄位
+        details = []
+        
+        for row in product.skus:
+            dic_replace.update({"parent_id":product.id,
+                "tooltip_title":row.name,
+                "rowid":row.id})
+                
+            details.append([self.detail_template(dic_replace)]+
+                [row.name,row.sku,row.price,row.quantity])
+        return {'fields':['庫存','副型號','售價','存量'],'data':details}  
+        
+    def get_details(self,id): 
+        # route: update_sub 
+        # 製作details 
+        # 去除差異化, 留下共通動作
+        try:
+            detail_fun = self.update_sub_form[self.repo_sub][2]
+            dic_replace = {"class_name":self.__class__.__name__.replace("Repo",""),
+                "repo_sub":self.repo_sub,"title":self.title}
             with app.db_session.session_scope() as session:
                 product = session.query(Product).filter(Product.id==id).first()
-                #variants = [v for v in product.variants]
-                variants = self.get_details_list(id,product.variants)
-                #raise Exception(self.get_details_list(product.variants)) 
-            return {'fields':['屬性'],
-                        'data':variants}  
+                #在這裡不同的sub 會有不同的欄位來源
+                return detail_fun(product,dic_replace)
+        except IndexError:
+            return None
         
     

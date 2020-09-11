@@ -1,4 +1,9 @@
 ----- 2020.09
+2020/09/11 Fri:-product subcategory
+               -sku
+2020/09/10 Thu:-修改alert,使用tostr
+               -product category
+               -product repo 區分repo_sub
 2020/09/09 Wed:-思考及設計區分update 及 update details 走不同的routes,不要太複雜
                -修改session lastURL為 list ,並會pop,append 使得先進後出
 2020/09/08 Tue:product repo, 介面

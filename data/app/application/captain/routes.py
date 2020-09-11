@@ -117,7 +117,7 @@ def update_sub(repo_request,id,repo_sub,detail_id):
     repo_name = repo_request#repo_split[0]
     repo = _repo(repo_name)() 
     repo.repo_sub = repo_sub    
-    
+    repo.set_title(id)
     details = repo.get_details(id)
     form = []
     
@@ -238,7 +238,11 @@ def image():
     
     data_to_template = {"active_menu":"image_manager","store":current_app.store_config}
     return render_template('/captain/image.html',**data_to_template)
-       
+
+@captain.route('/zm', methods=['GET'])
+@login_required
+def zm(): 
+    return render_template('/captain/zm.html')   
 def _repo(name):
     import importlib
     

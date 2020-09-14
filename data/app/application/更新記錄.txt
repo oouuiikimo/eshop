@@ -1,6 +1,13 @@
 ----- 2020.09
+2020/09/14 Mon:-修改db sku 去掉name, 增加active
+               -新增update sub form 載入js, 因應有些form 會自訂有js動作
+               -sku values 新增編輯之思考
+               -sku values option choices
+---
 2020/09/11 Fri:-product subcategory
-               -sku
+               -details repo 程式優化
+               -sku details
+               -sku 修改思考
 2020/09/10 Thu:-修改alert,使用tostr
                -product category
                -product repo 區分repo_sub

@@ -12,7 +12,7 @@ from db_test import run_my_program,create,drop
 author = 'tom@your-tom.com'
     
 def product_add(session):
-    p1 = Product(name="p1",active=True,order=1,sku='p1',
+    p1 = Product(name="商品1",active=True,order=1,sku='p1',
         created_by=author,updated_by=author)    
     session.add(p1)
         
@@ -117,14 +117,14 @@ def add_variant(session):
     v3v1 = VariantValues(value="棉",order=1)
     v3v2 = VariantValues(value="尼龍",order=2)
     v3v3 = VariantValues(value="纖維",order=3)
-    v1.values.extend([v1v1,v1v2,v1v3,v1v4,v1v5,v1v6,v1v7])
-    v2.values.extend([v2v1,v2v2,v2v3,v2v4,v2v5,v2v6,v2v7,v2v8])
-    v3.values.extend([v3v1,v3v2,v3v3])
+    v1.VariantValues.extend([v1v1,v1v2,v1v3,v1v4,v1v5,v1v6,v1v7])
+    v2.VariantValues.extend([v2v1,v2v2,v2v3,v2v4,v2v5,v2v6,v2v7,v2v8])
+    v3.VariantValues.extend([v3v1,v3v2,v3v3])
     session.add_all([v1,v2,v3])
 
 def set_sku(session):
     p1 = session.query(Product).get(1)
-    sku1 = ProductSku(name='L-黃',sku='L-黃',quantity=5,price=100)
+    sku1 = ProductSku(sku='L-黃',quantity=5,price=100)
     L = session.query(VariantValues).get(3)
     yellow = session.query(VariantValues).get(13)
     sku1.values.extend([L,yellow])
@@ -145,15 +145,16 @@ def query_category_product(session):
     p1.category = c1
     session.add(p1)
     
-def reset():
-    drop(SubProductCategory,ProductCategory,
+def reset(session):
+    models = [SubProductCategory,ProductCategory,
         Product,ProductSku,ProductArticle,ProductReview,
         ProductArticleMaster,ProductImage,
-        Variant,VariantValues,ProductSkuValues)
-    create(SubProductCategory,ProductCategory,
-        Product,ProductSku,ProductArticle,ProductReview,
-        ProductArticleMaster,ProductImage,
-        Variant,VariantValues,ProductSkuValues)
+        Variant,VariantValues]
+    for model in models:
+        drop(model)
+    for model in models:
+        create(model)    
+
     
     
 if __name__ == "__main__":
@@ -161,8 +162,11 @@ if __name__ == "__main__":
     #drop(ProductSku)
     #create(ProductSku)
     
+    funcs_reset = [reset,product_add,add_variant,product_category_add,
+        sub_product_category_add,set_product_variants,add_article,
+        set_sku]
     #"""
-    funcs = [query_category_product] #[query_product_variants,set_sku] #[add_variant,product_add,set_product_variants] 
+    funcs = [] #funcs_reset 
     for func in funcs:
         run_my_program(func)
     #"""

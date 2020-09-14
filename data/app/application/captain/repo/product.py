@@ -8,6 +8,8 @@ from .productcategory import RepoProductCategory
 from .form_product import *
 from sqlalchemy import exc,func
 import datetime
+import os
+_path = os.path.dirname(os.path.abspath(__file__))
 
 class RepoProduct(BaseRepo):
     #public function  ----    
@@ -21,10 +23,9 @@ class RepoProduct(BaseRepo):
         """
         if self.repo_sub is None:
             self.repo_sub = 'basic'
-        self.update_sub_form = {'basic':("基本資訊",Update_basic_Form),'category':("目錄",Update_category_Form),
-            'variant':("屬性",Update_variant_Form,self.variant_details),'sku':("庫存",Update_sku_Form,self.sku_details),
-            'image':("圖片",Update_image_Form),
-            'article':("文章",Update_article_Form),'active':("上架",Update_active_Form)}
+
+        self.update_sub_js = {'sku':'sku.js'}  
+        #self.parent_id = None
         #異動tables
         #Base.metadata.create_all(app.db_session.engine)
         #異動data
@@ -47,19 +48,27 @@ class RepoProduct(BaseRepo):
       
         return self.Struct(**form_data)
         
-    def update_form(self,id=None):
+    def update_form(self,id=0,detail_id=0):
         #這裡區分 repo_sub 
         db_item = self.find(id)
-
+        #raise Exception(self.update_sub_form(id=1))
         try:    
-            form = self.update_sub_form[self.repo_sub][1](obj=db_item) #UpdateForm(obj=db_item)
+            form = self.update_sub_form(id)[self.repo_sub][1](obj=db_item) #UpdateForm(obj=db_item)               
             if self.repo_sub == 'category':
                 prductCategory = RepoProductCategory()
                 form.category.choices = form.category.choices + prductCategory.get_tree()
+            if self.repo_sub == 'sku' and int(detail_id) == 0:
+                form.variantvalues_source.choices = form.variantvalues_source.choices + self.get_variantvalues(id,detail_id)
             #raise Exception(db_item.category)    
         except KeyError as e:
             abort(404)
-                        
+        try:
+            js = os.path.join(_path,self.update_sub_js[self.repo_sub])
+            #raise Exception(js)
+            with open(js,'r') as jsfile:
+                self.js = jsfile.read()
+        except KeyError as e:
+            pass
         #if form has any select choices to fill...
         #example:form.roles.choices = self.get_roles()
         
@@ -94,7 +103,7 @@ class RepoProduct(BaseRepo):
   
     def find(self, id=None):
         form_item = None
-        if id:
+        if int(id)>0:
             with app.db_session.session_scope() as session: 
                 db_item = session.query(Product).get(id)
                 form_item = self.form_mapper(db_item)
@@ -186,13 +195,39 @@ class RepoProduct(BaseRepo):
             return '刪除失敗!!'
         return None  
     
-    def set_title(self,id):
-        with app.db_session.session_scope() as session:
+    def set_title(self,id=None):
+        if id and id >0:
+            with app.db_session.session_scope() as session:
                 product = session.query(Product).filter(Product.id==id).first()
                 self.title = f'{self.title}-[{product.name}]'
                 
     #custom function -----
-    
+    def get_variantvalues(self,id,detail_id):
+        #新增sku時, 提供選項, 但需扣除己有的sku Values
+        #若是編輯時, 則只提供sku 的values
+        variants = []
+        with app.db_session.session_scope() as session:
+            
+            if int(detail_id)>0: #編輯狀態
+                sku = session.query(ProductSku).get(detail_id)
+                for value in sku.values:
+                    variants.append((value.id,f'{value.variant.variant}_{value.value}'))
+            else: #新增狀態
+                product = session.query(Product).filter(Product.id==id).first()
+                for variant in product.variants:
+                    for value in variant.VariantValues: #要如何分辨不同的variant?
+                        variants.append((value.id,f'{variant.variant}_{value.value}'))
+        return variants
+        
+    def update_sub_form(self,id):
+        if int(id)>0:
+            return {'basic':("基本資訊",Update_basic_Form),'category':("目錄",Update_category_Form),
+            'variant':("屬性",Update_variant_Form,self.variant_details),'sku':("庫存",Update_sku_Form,self.sku_details),
+            'image':("圖片",Update_image_Form),
+            'article':("文章",Update_article_Form),'active':("上架",Update_active_Form)}    
+        else:
+            return {'basic':("基本資訊",Update_basic_Form)}
+            
     def variant_details(self,product,dic_replace): 
         #baserepo :get_details_list 定義每個detail取什麼欄位資料出來,編輯欄己定義在baserepo
         #每個sub 都要自己定義不同的欄位
@@ -224,8 +259,10 @@ class RepoProduct(BaseRepo):
         # route: update_sub 
         # 製作details 
         # 去除差異化, 留下共通動作
+        if int(id)==0:
+            return
         try:
-            detail_fun = self.update_sub_form[self.repo_sub][2]
+            detail_fun = self.update_sub_form(id)[self.repo_sub][2]
             dic_replace = {"class_name":self.__class__.__name__.replace("Repo",""),
                 "repo_sub":self.repo_sub,"title":self.title}
             with app.db_session.session_scope() as session:

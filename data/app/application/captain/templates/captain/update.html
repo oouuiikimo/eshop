@@ -54,7 +54,7 @@
 
 								<form class="form form-horizontal striped-rows" method="post" action="" >
 										{% for field in form%}<!--id:{{field.id}}-->
-										{%if field.type != 'CSRFTokenField' and field.type != 'HiddenField'-%}
+										{%if field.type != 'CSRFTokenField' and field.type != 'HiddenField' and field.type != 'HiddenSelect'-%}
 										{%if field.type != 'RadioField' and field.type != 'MultiCheckboxField' 
                                             and field.type != 'SelectCheckboxField'-%}
 										<div class="form-group row">
@@ -108,7 +108,12 @@
 										{%endif-%}
 										{%endif-%}<!--{{field.data}}-->
 										{%endfor-%}
-										{{ form.csrf_token }}
+										<!--list other input -->
+                                        {% for field in form%}<!--id:{{field.id}}-->
+										{%if field.type == 'CSRFTokenField' or field.type == 'HiddenField' or field.type == 'HiddenSelect'-%}
+										{{ field }}
+                                        {%endif-%}
+                                        {%endfor-%}
 
 									<div class="form-actions right">
 										<button type="button" class="btn btn-warning mr-1" onclick="javascript:cancel();">

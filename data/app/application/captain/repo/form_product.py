@@ -6,7 +6,7 @@ from wtforms.validators import (DataRequired,ValidationError,
                                 Length,
                                 URL)
 from flask_wtf import CSRFProtect, FlaskForm
-from .form_base import MultiCheckboxField,SelectCheckboxField
+from .form_base import MultiCheckboxField,SelectCheckboxField,HiddenSelect
 
 #依repo_sub 會有許多 UpdateForm    
 
@@ -33,8 +33,13 @@ class Update_category_Form(FlaskForm):
         render_kw={'class':'form-control'})
         
 class Update_sku_Form(FlaskForm):
-        price = IntegerField('價格', 
-        render_kw={'class':'form-control'})  
+    sku = StringField('副型號',
+        render_kw={'class':'form-control'})
+    price = IntegerField('價格', 
+        render_kw={'class':'form-control'})
+    variantvalues_source = HiddenSelect('variantvalues_source',
+        choices=[],
+        render_kw={'class':'d-none'})
     
 class Update_image_Form(FlaskForm):
     image = StringField('文章圖片', [

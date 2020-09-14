@@ -87,6 +87,8 @@ def update(repo_request,id):
     #處理複雜的次操作,轉到update_sub
     
     if repo.repo_sub:
+        if not id:
+            id=0
         return redirect(url_for('captain.update_sub',repo_request=repo_request,id=id,repo_sub=repo.repo_sub))
     
     form,item = repo.update_form(id)  
@@ -117,14 +119,16 @@ def update_sub(repo_request,id,repo_sub,detail_id):
     repo_name = repo_request#repo_split[0]
     repo = _repo(repo_name)() 
     repo.repo_sub = repo_sub    
-    repo.set_title(id)
+    
+    repo.set_title(int(id))
+    
     details = repo.get_details(id)
     form = []
     
     #show form only when no details or has detail_id
-    
+    #if detail_id form must have detail_id
     if not details or detail_id :
-        form,item = repo.update_form(id)
+        form,item = repo.update_form(id,detail_id)
         details = [] #don't show list when edit form
         if detail_id:
             #push lastURL
@@ -145,8 +149,9 @@ def update_sub(repo_request,id,repo_sub,detail_id):
     
     data_to_template = {'form':form,'update_type':'{}.{}'.format(repo.title,'新增' if not id else '編輯'),
         "active_menu":repo.active_menu,"store":current_app.store_config,
-        "sub_menu":repo.update_sub_form,"details":details,
-        "repo_name":repo_name,"repo_sub":repo.repo_sub,"id":id}
+        "sub_menu":repo.update_sub_form(id),"details":details,
+        "repo_name":repo_name,"repo_sub":repo.repo_sub,"id":id,
+        "js":repo.js if repo.js else ""}
     return render_template('/captain/sub_update.html',**data_to_template)
     
 @captain.route('/delete/<repo_name>', methods=['POST'])

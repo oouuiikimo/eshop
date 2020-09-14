@@ -7,8 +7,9 @@ from sqlalchemy.sql import text
 class BaseRepo(object):
     def __init__(self):
         self.repo_sub = None
-        self.update_sub_form = None
+        #self.update_sub_form = None
         self.details = None
+        self.js = None
         
     def get_list(self,page=1,per_page=10,search=None,sort=None):
     

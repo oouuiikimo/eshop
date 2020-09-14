@@ -9,5 +9,7 @@ class MultiCheckboxField(SelectMultipleField):
 class SelectCheckboxField(SelectField):
     widget = widgets.ListWidget(prefix_label=False)
     option_widget = widgets.CheckboxInput()
-
- 
+    
+class HiddenSelect(SelectField):
+    widget = widgets.Select()
+    

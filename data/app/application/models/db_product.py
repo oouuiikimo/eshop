@@ -172,12 +172,12 @@ class ProductSku(Base):
     """
     __tablename__ = 'product_sku'
     id = Column(Integer, primary_key = True)
-    name = Column(String(20))
     sku = Column(String(20), #從sku辨別屬性值
-        unique=True,
         nullable=False)  
     quantity = Column(Integer,nullable=False,default=0)
     price = Column(Integer,nullable=False,default=0)  
+    active = Column(Boolean,default=False)
+    lot_maintain = Column(Boolean,default=False)
     id_product = Column(Integer, ForeignKey('product.id'))
     values = relationship('VariantValues', secondary=productsku_value, backref='ProductSku')
 
@@ -249,7 +249,7 @@ class ProductReview(Base):
                     nullable=False)
     active = Column(Boolean,default=True) #後台可設定不顯示
     customer_id = Column(Integer, ForeignKey('customer.id'))
-    customer = relationship("Customer", backref = "product_review")     
+    customer = relationship("Customer", backref = "product_review")
     product_id = Column(Integer, ForeignKey('product.id'))
     product = relationship("Product", backref = "product_review")                    
             

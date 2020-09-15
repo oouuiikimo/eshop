@@ -8,13 +8,19 @@
     
     function get_variantvalues_source() {
         var x = document.getElementById('variantvalues_source');
-         var txt = "";
-         var val = "";
+
+         let variants = {}
          for (var i = 0; i < x.length; i++) {
-             txt +=x[i].text + ",";
-             val +=x[i].value + ",";
+             let variant = x[i].text.split('_')
+             //console.log(variant[0])
+             if (!variants.hasOwnProperty(variant[0])) {
+                variants[variant[0]]=[{"id":x[i].value,"value":variant[1]}]
+             }
+             else 
+                variants[variant[0]].push({"id":x[i].value,"value":variant[1]}) 
+             
           }
-        console.log(val)   
+        console.log(variants)   
     }      
          
 

@@ -52,9 +52,9 @@
                                 <span class="m-1 block">
                                 {%for menu in sub_menu-%}
                                 {%if menu == repo_sub-%}
-                                <span class="font-weight-bold font-italic">{{sub_menu[menu][0]}}</span>  
+                                <span class="font-weight-bold font-italic">{{sub_menu[menu]["menu"]}}</span>  
                                 {%else-%}
-                                <a href="/captain/update/{{repo_name}}/{{id}}/{{menu}}">{{sub_menu[menu][0]}}</a>  
+                                <a href="/captain/update/{{repo_name}}/{{id}}/{{menu}}">{{sub_menu[menu]["menu"]}}</a>  
                                 {%endif-%}
                                 {% if not loop.last -%}
                                 |
@@ -146,7 +146,7 @@
                                 <div class="card-header">
                                     <ul class="list-inline mb-0">
                                         <li class="align-middle mr-1">
-                                        <h4 class="card-title"><span class="under_line-red">{{sub_menu[repo_sub][0]}}.列表</span></h4>
+                                        <h4 class="card-title"><span class="under_line-red">{{sub_menu[repo_sub]["menu"]}}.列表</span></h4>
                                         </li>
                                         <li class="align-middle">
                                             <div class="input-group-append">

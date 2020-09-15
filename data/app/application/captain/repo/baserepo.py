@@ -95,7 +95,11 @@ class BaseRepo(object):
             <i class=\"feather icon-x-circle\" data-toggle=\"tooltip\" title=\"刪除{title}{tooltip_title}\"></a></i>
             <a href="/captain/update/{class_name}/{parent_id}/{repo_sub}/{rowid}" class="ml-1">
             <i class=\"feather icon-edit\" data-toggle=\"tooltip\" title=\"編輯{title}{tooltip_title}\"></a></i></div>""" .format(**dic_replace) 
-                         
+    
+    def detail_dict(self):
+        return {"class_name":self.__class__.__name__.replace("Repo",""),
+                "repo_sub":self.repo_sub,"title":self.title}
+    
     class Struct:
         def __init__(self, **entries):
             self.__dict__.update(entries)

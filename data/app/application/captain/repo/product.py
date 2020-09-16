@@ -30,7 +30,10 @@ class RepoProduct(BaseRepo):
         return self.title
     
     def sub_menu(self,id):
-        return sub_repo
+        if int(id)>0:
+            return sub_repo
+        #id若為0表示新增, 只能出現basic先供存檔, 再補其它    
+        return {"basic":sub_repo["basic"]}    
         
     def set_subrepo(self,repo_sub,id,detail_id):
         self.repo_sub = repo_sub
@@ -85,21 +88,23 @@ class RepoProduct(BaseRepo):
         
         try:
             with app.db_session.session_scope() as session:
-                if id and id is not None:
+                if id and int(id)>0:
                     db_item = session.query(Product).get(id)
                 else:
                     db_item = Product()
                 #--- 區分sub處
                 
                 self.subRepo.update(session,db_item,item)
-                #raise Exception(db_item.category.id)
+                
                 #---
                 db_item.updated = datetime.datetime.now()
                 db_item.updated_by = current_user.email
             
-                if not id:
+                if int(id)==0:
                     db_item.created_by = current_user.email
-                    session.add(db_item)
+                session.add(db_item)
+                session.commit()
+                return db_item.id #回傳更新的id
                     
         except exc.SQLAlchemyError as e:
             """ 捕獲錯誤, 否則無法回傳
@@ -108,10 +113,14 @@ class RepoProduct(BaseRepo):
                 return str(e.__dict__['orig'])
                 #raise Exception(str(e.__dict__['orig']))
             return "更新失敗!"    
+        except Exception as e: 
+            return str(e)
             #raise Exception('刪除失敗!!')
 
-    def delete(self, items):
-    
+    def delete(self,items):
+        """
+        刪除 product, 不是details
+        """
         def validate_del(session,item):
             #todo:檢查sku,session.query(func.count(User.id)).scalar() 
             sku_count = session.query(func.count(ProductSku.id)).filter(ProductSku.id_product==item.id).scalar() 
@@ -146,6 +155,36 @@ class RepoProduct(BaseRepo):
             return '刪除失敗!!'
         return None  
     
+    def delete_details(self,product_id,dels):
+        """
+        id = product.id
+        items = details.id
+        """
+        #raise Exception(self.repo_sub)
+        try:
+            with app.db_session.session_scope() as session:
+                if product_id and int(product_id)>0:
+                    db_item = session.query(Product).get(product_id)
+                else:
+                    return "查無商品"
+                #--- 區分sub處
+                
+                self.subRepo.delete(session,db_item,dels)
+                
+                #---
+                db_item.updated = datetime.datetime.now()
+                db_item.updated_by = current_user.email
+
+                session.add(db_item)
+                    
+        except exc.SQLAlchemyError as e:
+            """ 捕獲錯誤, 否則無法回傳
+            """
+            if 'orig' in e.__dict__:
+                return str(e.__dict__['orig'])
+                #raise Exception(str(e.__dict__['orig']))
+            return "更新失敗!"    
+        
     def set_title(self,id=None):
         if id and id >0:
             with app.db_session.session_scope() as session:

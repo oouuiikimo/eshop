@@ -239,7 +239,7 @@ class RepoSubProductCategory(BaseRepo):
         #has_child = db.session.query(SubProductCategory.id_parent).filter(SubProductCategory.id_parent.isnot(None)).distinct()
         #return SubProductCategory.query.filter(SubProductCategory.id.notin_(has_child)).all()
         with app.db_session.session_scope() as session:
-            return [i.__str__ for i in session.query(SubProductCategory).filter(SubProductCategory.is_leaf == True).all()]
+            return [(str(i.id),self.get_cat_path(i)) for i in session.query(SubProductCategory).filter(SubProductCategory.is_leaf == True).all()]
         
     def __repr__(self):
         return self.title

@@ -20,15 +20,22 @@ class Update_basic_Form(FlaskForm):
     description =  TextAreaField('商品搜尋頁簡介', [],
         render_kw={'class':'form-control','placeholder':'300字內', 'rows': 20})  
     order = SelectField('排序', choices=[(3, '-請選擇顯示排序-'),(1, '熱銷優先'), (2, '推廣'), (3, '一般'), (4, '過季品'), (5, '不推廣')],
-        render_kw={'class':'form-control'}, coerce=int)          
+        render_kw={'class':'form-control'}, coerce=int)  
+    category = SelectField('主目錄', 
+        choices = [('', '-請選擇目錄-')],
+        render_kw={'class':'form-control'})
+    active = RadioField('上架', 
+        choices = [('1', '上架'),('0', '下架')],
+        default='0',
+        render_kw={'class':'custom-control-input'})          
         
 class Update_variant_Form(FlaskForm):
     variant = StringField('商品適用屬性', [
         DataRequired(),Length(max=100)],
         render_kw={'class':'form-control','placeholder':'屬性名稱100字內'})    
 
-class Update_category_Form(FlaskForm):
-    category = SelectField('主目錄', 
+class Update_subcategory_Form(FlaskForm):
+    subcategory = SelectField('其目錄', 
         choices = [('', '-請選擇目錄-')],
         render_kw={'class':'form-control'})
         

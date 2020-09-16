@@ -244,7 +244,7 @@ class RepoProductCategory(BaseRepo):
         #return ProductCategory.query.filter(ProductCategory.id.notin_(has_child)).all()
         with app.db_session.session_scope() as session:
             #return (str(i.id),i.name)
-            return [ i.__str__ for i in session.query(ProductCategory).filter(ProductCategory.is_leaf == True).all()]
+            return [ (str(i.id),self.get_cat_path(i)) for i in session.query(ProductCategory).filter(ProductCategory.is_leaf == True).all()]
     
     def get_cat_path(self,item_cat):
         #return only one cat tree

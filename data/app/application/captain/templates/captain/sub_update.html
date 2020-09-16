@@ -68,14 +68,14 @@
 							<div class="card-body">
                                 {%if form-%}
 								<form class="form form-horizontal striped-rows" method="post" action="" >
-										{% for field in form%}<!--id:{{field.id}}-->
+										{% for field in form%}<!--id:{{field.id}}--><!--{{field.data}}-->
 										{%if field.type != 'CSRFTokenField' and field.type != 'HiddenField' and field.type != 'HiddenSelect'-%}
 										{%if field.type != 'RadioField' and field.type != 'MultiCheckboxField' 
                                             and field.type != 'SelectCheckboxField'-%}
 										<div class="form-group row">
 											<label class="col-md-3 label-control" for="{{field.id}}">{{ field.label.text }}</label>
 											<div class="col-md-9">
-											{{ field }} <!--{{field.data}}-->
+											{{ field }} 
                                         <ul class="errmessages d-none" id='err_{{field.id}}'>
                                         
                                         </ul>
@@ -121,10 +121,10 @@
 									</div>
 		                        </div>
 										{%endif-%}
-										{%endif-%}<!--{{field.data}}-->
+										{%endif-%}
 										{%endfor-%}
                                         <!--list other input -->
-                                        {% for field in form%}<!--id:{{field.id}}-->
+                                        {% for field in form%}
 										{%if field.type == 'CSRFTokenField' or field.type == 'HiddenField' or field.type == 'HiddenSelect'-%}
 										{{ field }}
                                         {%endif-%}
@@ -223,7 +223,7 @@
       show_form_error();
     {% for message in get_flashed_messages() %}
         //console.log('{{message}}')    
-        fire_alert(type='danger','更新失敗','{{message}}',true)
+        toastr.error('更新失敗:{{message}}')
     {% endfor %}
     
     });    
@@ -247,8 +247,10 @@
     }
 
     function addClsToEle(ele,cls) {
-      var element = document.getElementById(ele);
-      element.classList.add(cls);
+      //var element = document.getElementById(ele);
+      let inputs = document.querySelectorAll("[id^='ele']")
+      inputs.forEach(item => ele.classList.add(cls))
+      //ele.classList.add(cls);
     }
 
     function removeClsToEle(ele,cls) {

@@ -157,7 +157,7 @@
       show_form_error();
     {% for message in get_flashed_messages() %}
         //console.log('{{message}}')    
-        fire_alert(type='danger','更新失敗','{{message}}',true)
+        toastr.error('更新失敗:{{message}}')
     {% endfor %}
       
     });    

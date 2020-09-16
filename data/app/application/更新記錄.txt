@@ -1,4 +1,6 @@
 ----- 2020.09
+2020/09/16 Wed:-product basic新增, 修改
+               -subcategory 新增, 修改, 刪除
 2020/09/15 Tue:-修改product裡的所有sub功能, 到另外一個單獨檔案 sub_product
 2020/09/14 Mon:-修改db sku 去掉name, 增加active
                -新增update sub form 載入js, 因應有些form 會自訂有js動作

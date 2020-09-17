@@ -115,7 +115,7 @@ class RepoProduct(BaseRepo):
             return "更新失敗!"    
         except Exception as e: 
             return str(e)
-            #raise Exception('刪除失敗!!')
+            raise Exception(str(e))
 
     def delete(self,items):
         """
@@ -168,9 +168,7 @@ class RepoProduct(BaseRepo):
                 else:
                     return "查無商品"
                 #--- 區分sub處
-                
                 self.subRepo.delete(session,db_item,dels)
-                
                 #---
                 db_item.updated = datetime.datetime.now()
                 db_item.updated_by = current_user.email
@@ -183,7 +181,10 @@ class RepoProduct(BaseRepo):
             if 'orig' in e.__dict__:
                 return str(e.__dict__['orig'])
                 #raise Exception(str(e.__dict__['orig']))
-            return "更新失敗!"    
+            return "更新失敗!" 
+        #except Exception as e: 
+            #return str(e)
+            #raise Exception(str(e))
         
     def set_title(self,id=None):
         if id and id >0:

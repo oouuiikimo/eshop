@@ -1,4 +1,7 @@
 ----- 2020.09
+2020/09/17 Thu:-subcategory程式優化, 處理更新檢查相同, 重複, 自動刪舊增新
+               -product variant頁面
+               -product sku 頁面,js處理屬性值之顯示及選擇
 2020/09/16 Wed:-product basic新增, 修改
                -subcategory 新增, 修改, 刪除
 2020/09/15 Tue:-修改product裡的所有sub功能, 到另外一個單獨檔案 sub_product

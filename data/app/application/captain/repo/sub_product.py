@@ -37,7 +37,6 @@ class BaseSub():
 class SubBasic(BaseSub):
     def __init__(self,app,id,detail_id):
         super().__init__(app,id,detail_id)
-        self.title = "基本資訊"
         self.update_form = Update_basic_Form
     
     def update(self,session,db_item,item):
@@ -63,7 +62,6 @@ class SubBasic(BaseSub):
 class SubCategory(BaseSub):
     def __init__(self,app,id,detail_id):
         super().__init__(app,id,detail_id)
-        self.title = "目錄"
         self.update_form = Update_subcategory_Form
         
     def form_data(self):
@@ -71,10 +69,10 @@ class SubCategory(BaseSub):
             with self.app.db_session.session_scope() as session:
                 db_data = session.query(SubProductCategory).get(self.detail_id)
                 #raise Exception(db_data.id)
-                return {"subcategory":db_data.id}
+                return {"subcategory":db_data.id,"original":db_data.id}
         else:
             db_data = SubProductCategory()
-            return {"subcategory":""}
+            return {"subcategory":"","original":0}
                 
     def set_form_choice(self,obj):
         form = self.update_form(obj=obj)
@@ -97,9 +95,17 @@ class SubCategory(BaseSub):
         return {'fields':['分類'],'data':details}    
         
     def update(self,session,db_item,item):
-        #todo: 要檢查是否己有同id
+        #若沒有改變, 則退出
+        if int(item.subcategory) == int(item.original):
+            raise Exception("分類沒有改變,取消更新") 
+        
+        #檢查是否己有同id
         subcategory = session.query(SubProductCategory).filter(SubProductCategory.id==item.subcategory).first()
         if subcategory not in db_item.sub_categorys:
+            #刪除舊的:original, 新增新的:subcategory
+            if int(item.original)>0:
+                original = session.query(SubProductCategory).filter(SubProductCategory.id==item.original).first()
+                db_item.sub_categorys.remove(original)
             db_item.sub_categorys.append(subcategory)
         else:
             raise Exception("己有同樣分類, 無法再新增")
@@ -112,18 +118,46 @@ class SubCategory(BaseSub):
 class SubVariant(BaseSub):
     def __init__(self,app,id,detail_id):
         super().__init__(app,id,detail_id)
-        self.title = "屬性"
         self.update_form = Update_variant_Form
     
     def form_data(self):
         if self.detail_id and int(self.detail_id)>0:
             with self.app.db_session.session_scope() as session:
-                db_data = session.query(ProductSku).get(self.detail_id)
-                #raise Exception(db_data.id)
-                return {"sku":db_data.sku,"price":db_data.price,"quantity":db_data.quantity}
+                db_data = session.query(Variant).get(self.detail_id)
+                return {"variant":db_data.id,"original":db_data.id}
         else:
             db_data = ProductSku()
-            return {"sku":db_data.sku,"price":db_data.price,"quantity":db_data.quantity}
+            return {"variant":db_data.id,"original":0}
+                
+    def set_form_choice(self,obj):
+        form = self.update_form(obj=obj)
+        with self.app.db_session.session_scope() as session:
+            choices = [(str(i.id),i.variant) for i in session.query(Variant).all()]
+            form.variant.choices = form.variant.choices + choices
+        return form
+    
+    def validate_update(self,db_item,item):
+        #todo: 檢查是否己有sku, 或己銷售, 若有, 則不能更新, 需視為新商品另增一個
+        if db_item.skus:
+            raise Exception("己有庫存, 屬性禁止更新, 若有不同屬性商品請另建新商品!")
+                
+    def update(self,session,db_item,item):
+        self.validate_update(db_item,item)
+        #若沒有改變, 則退出
+        if int(item.variant) == int(item.original):
+            raise Exception("所選屬性沒有改變,取消更新") 
+        
+        #檢查是否己有同id
+        variant = session.query(Variant).filter(Variant.id==item.variant).first()
+        if variant not in db_item.variants:
+            
+            #刪除舊的:original, 新增新的:subcategory
+            if int(item.original)>0:
+                original = session.query(Variant).filter(Variant.id==item.original).first()
+                db_item.variants.remove(original)
+            db_item.variants.append(variant)
+        else:
+            raise Exception("己有同樣屬性, 無法再新增")
             
     def details(self,dic_replace,template): 
         details = []
@@ -135,25 +169,54 @@ class SubVariant(BaseSub):
                     "rowid":row.id})
                     
                 details.append([template(dic_replace)]+[row.variant])
-        return {'fields':['屬性'],'data':details}          
+        return {'fields':['屬性'],'data':details}  
+        
+    def delete(self,session,db_item,dels):
+        self.validate_update(db_item,dels)
+        for _del in dels:
+            variant = session.query(Variant).filter(Variant.id==_del).first()
+            db_item.variants.remove(variant)
+            #raise Exception(str(variant))
 
 class SubSku(BaseSub):
     def __init__(self,app,id,detail_id):
         super().__init__(app,id,detail_id)
-        self.title = "庫存"
         self.update_form = Update_sku_Form
         self.update_form_js = 'sku.js'
     
     def form_data(self):
-        if self.detail_id and int(self.detail_id)>0:
-            with self.app.db_session.session_scope() as session:
+        with self.app.db_session.session_scope() as session:
+            if self.detail_id and int(self.detail_id)>0:
                 db_data = session.query(ProductSku).get(self.detail_id)
-                #raise Exception(db_data.id)
-                return {"sku":db_data.sku,"price":db_data.price,"quantity":db_data.quantity}
+            else:
+                db_data = ProductSku()
+            return {"sku":db_data.sku,"price":db_data.price,"quantity":db_data.quantity,
+                    "lot_maintain":'1' if bool(db_data.lot_maintain) == True else '0',
+                    "active":'1' if bool(db_data.active) == True else '0'}
+                
+    def validate_update(self,db_item,item):
+        #todo: 檢查是否己有sku, 或己銷售, 若有, 則不能更新, 需視為新商品另增一個
+        if db_item.skus:
+            raise Exception("己有庫存, 屬性禁止更新, 若有不同屬性商品請另建新商品!")
+                
+    def update(self,session,db_item,item):
+        #self.validate_update(db_item,item)
+        #values,sku 只限新增,更新不可
+        if int(self.detail_id)==0:
+            sku = ProductSku()
+            sku.sku = item.sku
+            sku.id_product = db_item.id
+            #db_item.skus.append(sku)
         else:
-            db_data = ProductSku()
-            return {"sku":db_data.sku,"price":db_data.price,"quantity":db_data.quantity}
-        
+            sku = session.query(ProductSku).filter(ProductSku.id==self.detail_id).first()
+            
+        sku.price = int(item.price)
+        sku.quantity = int(item.quantity)
+        sku.lot_maintain = True if item.lot_maintain=='1' else False
+        sku.active = True if item.active=='1' else False
+        session.add(sku)
+       
+            
     def details(self,dic_replace,template): 
         details = []
         with self.app.db_session.session_scope() as session:
@@ -180,7 +243,7 @@ class SubSku(BaseSub):
                     for value in sku.values:
                         variants.append((value.id,f'{value.variant.variant}_{value.value}'))
                 else: #新增狀態,
-                    product = session.query(Product).filter(Product.id==id).first()
+                    product = self.parent(session)
                     for variant in product.variants:
                         for value in variant.VariantValues: #要如何分辨不同的variant?
                             variants.append((value.id,f'{variant.variant}_{value.value}'))
@@ -188,13 +251,21 @@ class SubSku(BaseSub):
             return variants
             
         form = self.update_form(obj=obj)    
+        choices = get_variantvalues()
         form.variantvalues_source.choices = form.variantvalues_source.choices + get_variantvalues()
+        form.variantvalues_source.default = choices[0][0]
         return form
     
+    def delete(self,session,db_item,dels):
+        #self.validate_update(db_item,dels)
+        for _del in dels:
+            variant = session.query(ProductSku).filter(ProductSku.id==_del).first()
+            session.delete(variant)
+        
+        
 class SubImage(BaseSub):
     def __init__(self,app,id,detail_id):
         super().__init__(app,id,detail_id)
-        self.title = "圖片"
         self.update_form = Update_image_Form
     
     #def form_data(self):
@@ -203,7 +274,6 @@ class SubImage(BaseSub):
 class SubArticle(BaseSub):
     def __init__(self,app,id,detail_id):
         super().__init__(app,id,detail_id)
-        self.title = "文章"
         self.update_form = Update_article_Form
     
     #def form_data(self):
@@ -212,7 +282,6 @@ class SubArticle(BaseSub):
 class SubActive(BaseSub):
     def __init__(self,app,id,detail_id):
         super().__init__(app,id,detail_id)
-        self.title = "上架"
         self.update_form = Update_active_Form
         
     
@@ -222,7 +291,6 @@ class SubActive(BaseSub):
 class SubOther(BaseSub):
     def __init__(self,app,id,detail_id):
         super().__init__(app,id,detail_id)
-        self.title = "基本資訊"
         self.update_form = Update_basic_Form
     
     def form_data(self):

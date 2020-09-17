@@ -67,7 +67,7 @@
 						<div class="card-content collpase show">
 							<div class="card-body">
                                 {%if form-%}
-								<form class="form form-horizontal striped-rows" method="post" action="" >
+								<form class="form form-horizontal striped-rows" id="sub_update" method="post" action="" >
 										{% for field in form%}<!--id:{{field.id}}--><!--{{field.data}}-->
 										{%if field.type != 'CSRFTokenField' and field.type != 'HiddenField' and field.type != 'HiddenSelect'-%}
 										{%if field.type != 'RadioField' and field.type != 'MultiCheckboxField' 
@@ -124,6 +124,9 @@
 										{%endif-%}
 										{%endfor-%}
                                         <!--list other input -->
+                                <div id="jsfields">        
+                                        
+                                </div>        
                                         {% for field in form%}
 										{%if field.type == 'CSRFTokenField' or field.type == 'HiddenField' or field.type == 'HiddenSelect'-%}
 										{{ field }}
@@ -211,7 +214,10 @@
     <script src="/captain/statics/js/ckeditor.js?v=3"></script>
 <script>
     var csrf_token = "{{csrf_token()}}";
-
+    var detail_id = null
+    {%if detail_id-%}
+    detail_id = {{detail_id|int}}
+    {%endif-%}
     $(window).on("load", function(){
       // Handler when all assets (including images) are loaded
       var ckeditor = document.querySelectorAll(".editor");
@@ -248,14 +254,23 @@
 
     function addClsToEle(ele,cls) {
       //var element = document.getElementById(ele);
-      let inputs = document.querySelectorAll("[id^='ele']")
-      inputs.forEach(item => ele.classList.add(cls))
+      
+      let inputs = document.getElementsByName(ele)
+      inputs.forEach(item => item.classList.add(cls))
       //ele.classList.add(cls);
     }
 
     function removeClsToEle(ele,cls) {
-      var element = document.getElementById(ele);
-      element.classList.remove(cls);
+       
+      try {
+        let inputs = document.getElementById(ele);
+        inputs.classList.remove(cls);
+        }
+        catch (e) {
+          console.log(e)
+          //toastr.error('錯誤:'+inputs)
+        }
+      
     }
     
     function show_form_error() {
@@ -274,7 +289,15 @@
             var err_{{field.id}} = document.querySelector("#err_{{field.id}}");
             var entry = document.createElement('li');
             entry.appendChild(document.createTextNode('{{err}}'));
-            err_{{field.id}}.appendChild(entry);
+            console.log('{{field.id}}:{{err}}')
+            try {
+                err_{{field.id}}.appendChild(entry);
+                }
+            catch (e) {
+              //console.log(err_{{field.id}})
+              //toastr.error('錯誤:'+error)
+            }
+            
             {% endfor -%}
             error.push({'{{field.id}}':{'type':'{{field.type}}','error':{{field.id}}}})
             {% endif -%}

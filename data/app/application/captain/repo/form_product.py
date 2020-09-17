@@ -1,5 +1,6 @@
 from wtforms import (Form, StringField, TextField, validators,widgets,IntegerField,
-    BooleanField,SelectMultipleField,SelectField,RadioField,TextAreaField)
+    BooleanField,SelectMultipleField,SelectField,RadioField,TextAreaField,
+    HiddenField)
 from wtforms.validators import (DataRequired,ValidationError,
                                 Email,
                                 EqualTo,
@@ -30,22 +31,37 @@ class Update_basic_Form(FlaskForm):
         render_kw={'class':'custom-control-input'})          
         
 class Update_variant_Form(FlaskForm):
-    variant = StringField('商品適用屬性', [
-        DataRequired(),Length(max=100)],
-        render_kw={'class':'form-control','placeholder':'屬性名稱100字內'})    
+    variant = SelectField('商品適用屬性', [DataRequired()],
+        choices = [('', '-請選擇目錄-')],
+        render_kw={'class':'form-control'})  
+    original = HiddenField('original',default=0)    
 
 class Update_subcategory_Form(FlaskForm):
-    subcategory = SelectField('其目錄', 
-        choices = [('', '-請選擇目錄-')],
+    subcategory = SelectField('其它分類', 
+        DataRequired(),choices = [('', '-請選擇目錄-')],
         render_kw={'class':'form-control'})
+    original = HiddenField('original',default=0)    
         
 class Update_sku_Form(FlaskForm):
     sku = StringField('副型號',
         render_kw={'class':'form-control'})
-    price = IntegerField('價格', 
+    price = IntegerField('價格', [DataRequired()],
         render_kw={'class':'form-control'})
+    quantity = IntegerField('存量', [DataRequired()],
+        render_kw={'class':'form-control'},default=0)
+    lot_maintain = RadioField('庫存管理', 
+        choices = [('1', '是'),('0', '否')],
+        default='0',
+        render_kw={'class':'custom-control-input'})
+    active = RadioField('上架', 
+        choices = [('1', '上架'),('0', '下架')],
+        default='0',
+        render_kw={'class':'custom-control-input'})
+    #todo:要有一個input 是可以存所選的屬性值, 不管有幾個屬性, 或沒有
+    #
+    values = HiddenField('屬性值')
     variantvalues_source = HiddenSelect('variantvalues_source',
-        choices=[],
+        choices=[], coerce= int,
         render_kw={'class':'d-none'})
     
 class Update_image_Form(FlaskForm):

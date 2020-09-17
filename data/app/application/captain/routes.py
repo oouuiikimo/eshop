@@ -151,7 +151,7 @@ def update_sub(repo_request,id,repo_sub,detail_id):
     data_to_template = {'form':form,'update_type':'{}.{}'.format(repo.title,'新增' if not id else '編輯'),
         "active_menu":repo.active_menu,"store":current_app.store_config,
         "sub_menu":repo.sub_menu(id),"details":details,
-        "repo_name":repo_name,"repo_sub":repo.repo_sub,"id":id,
+        "repo_name":repo_name,"repo_sub":repo.repo_sub,"id":id,"detail_id":detail_id,
         "js":repo.js if repo.js else ""}
     return render_template('/captain/sub_update.html',**data_to_template)
     

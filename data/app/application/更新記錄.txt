@@ -1,4 +1,7 @@
 ----- 2020.09
+2020/09/18 Fri:-variant功能
+               -product 禁止及判斷功能加強
+               -db cascade delete 測試及修改
 2020/09/17 Thu:-subcategory程式優化, 處理更新檢查相同, 重複, 自動刪舊增新
                -product variant頁面
                -product sku 頁面,js處理屬性值之顯示及選擇

@@ -118,6 +118,7 @@ class Product(Base):
     sku = Column(String(20), #從sku辨別屬性值
         unique=True,
         nullable=False)
+    isvariant = Column(Boolean,default=False)
     order = Column(Integer)
     active = Column(Boolean,default=False)
     created = Column(DateTime,
@@ -137,9 +138,9 @@ class Product(Base):
     id_category = Column(Integer, ForeignKey('product_category.id'))
     category = relationship("ProductCategory", backref="Product")
     sub_categorys = relationship('SubProductCategory', secondary=product_subcategory, backref='Product')
-    images = relationship("ProductImage", backref="Product")
-    articles = relationship("ProductArticleMaster", backref="Product")
-    skus = relationship("ProductSku", backref = "Product")
+    images = relationship("ProductImage", backref="Product",cascade="all, delete")
+    articles = relationship("ProductArticleMaster", backref="Product",cascade="all, delete")
+    skus = relationship("ProductSku", backref = "Product",cascade="all, delete")
     variants = relationship('Variant', secondary=product_variant, backref='Product')
     def __repr__(self):
         return (self.id,self.name)
@@ -157,7 +158,7 @@ class Variant(Base):
     __tablename__ = 'variant'
     id = Column(Integer, primary_key = True)
     variant= Column(String(20))
-    
+    values = relationship("VariantValues",  backref="Variant", cascade="all, delete")
     products = relationship('Product', secondary=product_variant, backref='Variant')
 
     def __repr__(self):
@@ -179,7 +180,7 @@ class ProductSku(Base):
     active = Column(Boolean,default=False)
     lot_maintain = Column(Boolean,default=False)
     id_product = Column(Integer, ForeignKey('product.id'))
-    values = relationship('VariantValues', secondary=productsku_value, backref='ProductSku')
+    values = relationship('VariantValues', secondary=productsku_value, backref='ProductSku', cascade="all, delete")
 
     def __repr__(self):
         return (self.id,self.sku)
@@ -192,8 +193,7 @@ class VariantValues(Base):
     value = Column(String(20))
     order = Column(Integer)
     id_variant = Column(Integer, ForeignKey('variant.id'))
-    variant = relationship("Variant", backref="VariantValues")
-    sku = relationship('ProductSku', secondary=productsku_value, backref='VariantValues')
+    #variant = relationship("Variant",  back_populates="VariantValues")
 
     def __repr__(self):
         return (self.id,self.value)
@@ -235,7 +235,8 @@ class ProductArticleMaster(Base): # 為為product article 的details 表格
     id_product = Column(Integer, ForeignKey('product.id'))
     title = Column(String(60)) #商品內的文章標題, 像是商品說明, 退換貨說明, 規格...等等,會有重複
     order = Column(Integer)
-    articles = relationship('ProductArticle', secondary=product_article_details, backref='ProductArticleMaster')
+    articles = relationship('ProductArticle', secondary=product_article_details,
+        backref='ProductArticleMaster',cascade="all, delete")
 
 class ProductReview(Base):
     __tablename__ = 'product_review'

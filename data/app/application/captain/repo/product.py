@@ -24,27 +24,43 @@ class RepoProduct(BaseRepo):
         """
         if self.repo_sub is None:
             self.repo_sub = 'basic'
-        self.subRepo = None       
+        self.subRepo = None    
+        self.submenu = []
         
     def __repr__(self):
         return self.title
     
     def sub_menu(self,id):
         if int(id)>0:
-            return sub_repo
+            with app.db_session.session_scope() as session: 
+                #若isvariant = false ,不顯示屬性頁簽,並禁止進入該頁簽
+                #raise Exception(sub_repo)
+                if not self.subRepo.parent(session).isvariant:
+                    self.submenu = {key:value for (key,value) in sub_repo.items() if key is not 'variant'}
+                else:
+                    self.submenu = sub_repo
+            
         #id若為0表示新增, 只能出現basic先供存檔, 再補其它    
-        return {"basic":sub_repo["basic"]}    
+        else:
+            self.submenu = {"basic":sub_repo["basic"]}    
         
     def set_subrepo(self,repo_sub,id,detail_id):
+        #檢查menu是否有該repo_sub, 若無或被禁止, 則回應錯誤或導向
         self.repo_sub = repo_sub
-        self.subRepo = sub_repo[self.repo_sub]["class"](app,id,detail_id)    
+        self.subRepo = sub_repo[self.repo_sub]["class"](app,id,detail_id) 
+        self.sub_menu(id)
+        if repo_sub not in self.submenu:
+            self.repo_sub = "basic"
+            
+           
+        self.set_title(int(id))
         
     def update_form(self,id=0,detail_id=0):
         #取表單需要的單筆資料,並轉成struct,供表單呈現
         form_data = self.subRepo.form_data()    
         db_item = self.Struct(**form_data)
         #取表單class ,並動態產生choices ,如果有需要
-        form = self.subRepo.set_form_choice(db_item)  
+        form = self.subRepo.prepare_form(db_item)  
         #取需要的js.檔案, 備template使用
         
         try:
@@ -181,9 +197,10 @@ class RepoProduct(BaseRepo):
             if 'orig' in e.__dict__:
                 return str(e.__dict__['orig'])
                 #raise Exception(str(e.__dict__['orig']))
-            return "更新失敗!" 
-        #except Exception as e: 
-            #return str(e)
+            return f"更新失敗!{e}" 
+            raise e
+        except Exception as e: 
+            return str(e)
             #raise Exception(str(e))
         
     def set_title(self,id=None):

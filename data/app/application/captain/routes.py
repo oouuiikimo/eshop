@@ -120,14 +120,14 @@ def update_sub(repo_request,id,repo_sub,detail_id):
     repo_name = repo_request#repo_split[0]
     repo = _repo(repo_name)() 
     repo.set_subrepo(repo_sub,id,detail_id)
-    repo.set_title(int(id))
-    
+
     details = repo.get_details(id)
     form = []
     
     #show form only when no details or has detail_id
     #if detail_id form must have detail_id
-    if not details or detail_id :
+    #應增加一個情況是, 雖然有時進details,但有時直接強迫進form,跳過details
+    if not details or detail_id or repo.subRepo.skip_details():
         form,item = repo.update_form(id,detail_id)
         details = [] #don't show list when edit form
         if detail_id:
@@ -150,7 +150,7 @@ def update_sub(repo_request,id,repo_sub,detail_id):
     
     data_to_template = {'form':form,'update_type':'{}.{}'.format(repo.title,'新增' if not id else '編輯'),
         "active_menu":repo.active_menu,"store":current_app.store_config,
-        "sub_menu":repo.sub_menu(id),"details":details,
+        "sub_menu":repo.submenu,"details":details,
         "repo_name":repo_name,"repo_sub":repo.repo_sub,"id":id,"detail_id":detail_id,
         "js":repo.js if repo.js else ""}
     return render_template('/captain/sub_update.html',**data_to_template)

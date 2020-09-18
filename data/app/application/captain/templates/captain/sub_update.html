@@ -47,7 +47,9 @@
 				<div class="col-md-12">
 					<div class="card">
 						<div class="card-header">
-							<h4 class="card-title" id="horz-layout-icons"><span class="under_line-red">{{update_type}}</span>
+							<h4 class="card-title" id="horz-layout-icons"><span class="under_line-red">{{update_type|safe}}
+                             <a href="javascript:cancel();" data-toggle="tooltip" title="返回上頁"><i class="fa fa-angle-double-left"></i></a></span>
+                            
                             {%if sub_menu-%}
                                 <span class="m-1 block">
                                 {%for menu in sub_menu-%}

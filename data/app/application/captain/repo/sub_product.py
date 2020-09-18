@@ -26,13 +26,18 @@ class BaseSub():
             return {"name":db_data.name,"sku":db_data.sku,"description":db_data.description,
                     "order":db_data.order,
                     "category":db_data.category.id if db_data.category else "",
+                    "isvariant":'1' if bool(db_data.isvariant) == True else '0',
                     "active":'1' if bool(db_data.active) == True else '0'}
         
     def details(self,dic_replace,template):
         return
         
-    def set_form_choice(self,obj):
+    def prepare_form(self,obj):
         return self.update_form(obj=obj)
+        
+    def skip_details(self):
+        #有時雖有details功能, 但特殊情況下跳過, 直接進入form
+        return False
         
 class SubBasic(BaseSub):
     def __init__(self,app,id,detail_id):
@@ -44,6 +49,7 @@ class SubBasic(BaseSub):
         db_item.sku = item.sku
         db_item.description = item.description
         db_item.order = item.order
+        db_item.isvariant = True if item.isvariant=='1' else False
         db_item.active = True if item.active=='1' else False
         category = session.query(ProductCategory).filter(ProductCategory.id==item.category).first()
         db_item.category = category
@@ -52,9 +58,13 @@ class SubBasic(BaseSub):
         if db_item.active == True:
         
         """
+        
 
-    def set_form_choice(self,obj):
-        form = self.update_form(obj=obj)
+    def prepare_form(self,obj):
+        if int(self.parent_id)==0:
+            #編輯時使用表單(有些欄位不能再更改,但要顯示...如何做)
+            self.update_form = Insert_basic_Form
+        form = self.update_form(obj=obj)    
         prductCategory = RepoProductCategory()
         form.category.choices = form.category.choices + prductCategory.get_tree_for_form() #get_tree()
         return form
@@ -74,7 +84,9 @@ class SubCategory(BaseSub):
             db_data = SubProductCategory()
             return {"subcategory":"","original":0}
                 
-    def set_form_choice(self,obj):
+    def prepare_form(self,obj):
+        #新增時使用表單
+
         form = self.update_form(obj=obj)
         subprductCategory = RepoSubProductCategory()
         form.subcategory.choices = form.subcategory.choices + subprductCategory.get_tree_for_form()
@@ -129,7 +141,7 @@ class SubVariant(BaseSub):
             db_data = ProductSku()
             return {"variant":db_data.id,"original":0}
                 
-    def set_form_choice(self,obj):
+    def prepare_form(self,obj):
         form = self.update_form(obj=obj)
         with self.app.db_session.session_scope() as session:
             choices = [(str(i.id),i.variant) for i in session.query(Variant).all()]
@@ -183,6 +195,12 @@ class SubSku(BaseSub):
         super().__init__(app,id,detail_id)
         self.update_form = Update_sku_Form
         self.update_form_js = 'sku.js'
+        self.isvariant = False
+        with self.app.db_session.session_scope() as session:
+            product = self.parent(session)
+            self.isvariant = product.isvariant
+        if self.isvariant:
+            self.update_form = Update_skus_Form
     
     def form_data(self):
         with self.app.db_session.session_scope() as session:
@@ -190,9 +208,14 @@ class SubSku(BaseSub):
                 db_data = session.query(ProductSku).get(self.detail_id)
             else:
                 db_data = ProductSku()
-            return {"sku":db_data.sku,"price":db_data.price,"quantity":db_data.quantity,
+                
+            data = {"sku":db_data.sku,"price":db_data.price,"quantity":db_data.quantity,
                     "lot_maintain":'1' if bool(db_data.lot_maintain) == True else '0',
                     "active":'1' if bool(db_data.active) == True else '0'}
+            if db_data.values:
+                #編輯頁時, 顯示value名稱
+                data.update({"values":','.join([str(i.value) for i in db_data.values])})
+            return data    
                 
     def validate_update(self,db_item,item):
         #todo: 檢查是否己有sku, 或己銷售, 若有, 則不能更新, 需視為新商品另增一個
@@ -206,14 +229,22 @@ class SubSku(BaseSub):
             sku = ProductSku()
             sku.sku = item.sku
             sku.id_product = db_item.id
-            #db_item.skus.append(sku)
+            
+            if self.isvariant:
+            #todo:新增variant values,並檢查是否都有齊全,且不得重複
+                values = str(item.values).split(',')
+                for v in values:
+                    value = session.query(VariantValues).filter(VariantValues.id==int(v)).first()
+                    sku.values.append(value)
+            
         else:
             sku = session.query(ProductSku).filter(ProductSku.id==self.detail_id).first()
-            
+        #編輯只限更新以下...    
         sku.price = int(item.price)
         sku.quantity = int(item.quantity)
         sku.lot_maintain = True if item.lot_maintain=='1' else False
         sku.active = True if item.active=='1' else False
+        
         session.add(sku)
        
             
@@ -231,7 +262,7 @@ class SubSku(BaseSub):
                    
         return {'fields':['副型號','售價','存量'],'data':details}     
     
-    def set_form_choice(self,obj):
+    def prepare_form(self,obj):
         def get_variantvalues():
             #新增sku時, 提供選項, 
             #若是編輯時, 則只提供sku 的values
@@ -245,23 +276,35 @@ class SubSku(BaseSub):
                 else: #新增狀態,
                     product = self.parent(session)
                     for variant in product.variants:
-                        for value in variant.VariantValues: #要如何分辨不同的variant?
+                        for value in variant.values: #要如何分辨不同的variant?
                             variants.append((value.id,f'{variant.variant}_{value.value}'))
             #raise Exception(variants)                
             return variants
-            
+        
+
         form = self.update_form(obj=obj)    
-        choices = get_variantvalues()
-        form.variantvalues_source.choices = form.variantvalues_source.choices + get_variantvalues()
-        form.variantvalues_source.default = choices[0][0]
+        if self.isvariant:
+            choices = get_variantvalues()
+            form.variantvalues_source.choices = form.variantvalues_source.choices + get_variantvalues()
+        #form.variantvalues_source.default = choices[0][0]
         return form
     
     def delete(self,session,db_item,dels):
         #self.validate_update(db_item,dels)
         for _del in dels:
-            variant = session.query(ProductSku).filter(ProductSku.id==_del).first()
-            session.delete(variant)
+            #delete cascade sku.values
+            sku = session.query(ProductSku).filter(ProductSku.id==_del).first()
+            session.delete(sku)
         
+    def skip_details(self):
+        #檢查, 是否沒有屬性, 即不需進入details, 直接進入form
+        #且必須填充 self.detail_id
+        with self.app.db_session.session_scope() as session:
+            product = self.parent(session)
+            if not product.isvariant:
+                self.detail_id = product.skus[0].id if product.skus else 0
+                return True
+        return False
         
 class SubImage(BaseSub):
     def __init__(self,app,id,detail_id):

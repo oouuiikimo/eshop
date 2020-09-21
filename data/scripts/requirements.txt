@@ -10,4 +10,5 @@ Flask-Caching
 flask-mail
 wtforms_sqlalchemy
 shortuuid
+Pillow
 

@@ -1,6 +1,6 @@
 from wtforms import (Form, StringField, TextField, validators,widgets,IntegerField,
     BooleanField,SelectMultipleField,SelectField,RadioField,TextAreaField,
-    HiddenField)
+    HiddenField,FileField)
 from wtforms.validators import (DataRequired,ValidationError,
                                 Email,
                                 EqualTo,
@@ -108,10 +108,15 @@ class Update_skus_Form(FlaskForm):
         render_kw={'class':'d-none'})
         
 class Update_image_Form(FlaskForm):
-    image = StringField('文章圖片', [
-        DataRequired(),Length(max=60)],
-        render_kw={'class':'form-control','placeholder':'文章圖片60字內,用以辨識文章,須唯一'})
-
+    file_name = HiddenField('商品圖片', [
+        DataRequired(),Length(max=40)],
+        render_kw={'class':'form-control'})
+    file = FileField()    
+    active = RadioField('上架', 
+        choices = [('1', '上架'),('0', '下架')],
+        default='0',
+        render_kw={'class':'custom-control-input'})
+        
 class Update_article_Form(FlaskForm):
     title = StringField('文章標題', [
         DataRequired(),Length(max=60)],

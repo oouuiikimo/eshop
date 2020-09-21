@@ -1,4 +1,8 @@
 ----- 2020.09
+2020/09/21 Mon:-image 商品圖資料庫及表單和功能構思
+               -pillow 使用初探
+               -裁切功能思考
+---
 2020/09/18 Fri:-variant功能
                -product 禁止及判斷功能加強
                -db cascade delete 測試及修改

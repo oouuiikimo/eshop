@@ -60,7 +60,7 @@
         selectList.id = name;
         selectList.name = name;
         selectList.setAttribute("class", "form-control"); 
-        selectList.setAttribute("onchange", "update_values();"); 
+        selectList.setAttribute("onchange", "update_values();");
         if (!apply)
             selectList.setAttribute("disabled",true)
         //Create and append the options
@@ -80,7 +80,8 @@
         
         parent_div.appendChild(_lable)
         parent_div.appendChild(_input_div)
-        document.getElementById("jsfields").appendChild(parent_div)
+        document.getElementById("jsfields").appendChild(gen_input("屬性值",selectList))
+        //document.getElementById("jsfields").appendChild(parent_div)
         
     }
     

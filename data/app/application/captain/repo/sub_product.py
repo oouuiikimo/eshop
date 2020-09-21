@@ -272,7 +272,7 @@ class SubSku(BaseSub):
                 if int(self.detail_id)>0: #編輯狀態
                     sku = session.query(ProductSku).get(self.detail_id)
                     for value in sku.values:
-                        variants.append((value.id,f'{value.variant.variant}_{value.value}'))
+                        variants.append((value.id,f'{value.Variant.variant}_{value.value}'))
                 else: #新增狀態,
                     product = self.parent(session)
                     for variant in product.variants:

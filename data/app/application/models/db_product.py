@@ -151,7 +151,7 @@ class ProductImage(Base):
     __tablename__ = 'product_image'
     id = Column(Integer, primary_key = True)
     id_product = Column(Integer, ForeignKey('product.id'))
-    file_name = Column(String(22),unique=True,
+    file_name = Column(String(40),unique=True,
         nullable=False) #sku_short_uuid.jpg
 
 class Variant(Base):

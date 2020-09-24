@@ -310,9 +310,17 @@ class SubImage(BaseSub):
     def __init__(self,app,id,detail_id):
         super().__init__(app,id,detail_id)
         self.update_form = Update_image_Form
+        self.update_form_js = 'image.js'
     
-    #def form_data(self):
-    #    pass
+    def form_data(self):
+        if self.detail_id and int(self.detail_id)>0:
+            with self.app.db_session.session_scope() as session:
+                db_data = session.query(ProductImage).get(self.detail_id)
+                #raise Exception(db_data.id)
+                return {"file_name":db_data.file_name,"active":'1' if bool(db_data.active) == True else '0'}
+        else:
+            db_data = SubProductCategory()
+            return {"file_name":"","active":'1'}
     
 class SubArticle(BaseSub):
     def __init__(self,app,id,detail_id):

@@ -111,10 +111,15 @@ class Update_image_Form(FlaskForm):
     file_name = HiddenField('商品圖片', [
         DataRequired(),Length(max=40)],
         render_kw={'class':'form-control'})
-    file = FileField()    
+    file = FileField('圖片',
+        render_kw={'class':'d-none'})    
+    watermark = BooleanField('加浮水印')
+    fill_or_crop = RadioField('縮放方式', 
+        choices = [('1', '填滿'),('0', '裁切')],
+        default='0',
+        render_kw={'class':'custom-control-input'})
     active = RadioField('上架', 
         choices = [('1', '上架'),('0', '下架')],
-        default='0',
         render_kw={'class':'custom-control-input'})
         
 class Update_article_Form(FlaskForm):

@@ -19,7 +19,7 @@ class Config:
     MAIL_SERVER='smtp.gmail.com',
     MAIL_PORT=465,
     MAIL_USE_SSL=True,
-    MAIL_USERNAME = '',
+    MAIL_USERNAME = 'tom@your-tom.com',
     MAIL_PASSWORD = ''
     CACHE = {'CACHE_TYPE': 'filesystem','CACHE_DIR':'cache','CACHE_DEFAULT_TIMEOUT':300}
     #google

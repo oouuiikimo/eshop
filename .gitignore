@@ -1,7 +1,0 @@
-/log
-/data/app/cache
-/data/app/__pycache__
-*.pyc
-/data/private
-/data/app/application/dbcreate.py
-/data/app/config

@@ -14,13 +14,13 @@ class Config:
     # Database
     SQLALCHEMY_DATABASE_URI = 'sqlite:////home/user/data/app/application/site1.db' #'postgresql+psycopg2://postgres:ouigugi@postgres:5432/wwwdev'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    ADMIN = ''
+    ADMIN = 'tom@your-tom.com'
     #BABEL_DEFAULT_LOCALE = 'zh_TW'
     MAIL_SERVER='smtp.gmail.com',
     MAIL_PORT=465,
     MAIL_USE_SSL=True,
     MAIL_USERNAME = 'tom@your-tom.com',
-    MAIL_PASSWORD = ''
+    MAIL_PASSWORD = '6ouigugI'
     CACHE = {'CACHE_TYPE': 'filesystem','CACHE_DIR':'cache','CACHE_DEFAULT_TIMEOUT':300}
     #google
     GOOGLE_CLIENT_ID = ''

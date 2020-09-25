@@ -137,5 +137,5 @@ class Update_active_Form(FlaskForm):
 class SearchForm(FlaskForm):
     
     """Contact form."""
-    title = StringField('文章標題', 
+    name = StringField('商品名稱', 
         render_kw={'class':'form-control'})

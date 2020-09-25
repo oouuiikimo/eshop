@@ -39,13 +39,14 @@ def list(repo_name):
     default_per_page = 10
     page = request.args.get('page') or 1
     per_page = request.args.get('per_page') or default_per_page
+    
     sort = request.args.get('sort')
     #準備 repo_modelname_list
     repo = _repo(repo_name)()
     
     #準備 repo_modelname_search_form       
     searchForm = repo.search_form()
-
+    
     #if post filter 處理查詢條件,else 回傳空值
     if request.method == 'POST':
         
@@ -55,26 +56,27 @@ def list(repo_name):
             }} 
         session['sort']=sort
         lastURL = session['lastURL'].pop()
+        thisURL = '/captain/list/{}?page={}&per_page={}&sort={}'.format(repo_name,int(page),int(per_page),sort)
+        if thisURL is not lastURL:
+            return redirect(thisURL)
         return redirect(lastURL) #jsonify(session['search'])
     #return jsonify(session['search'])    
     if 'search' in session and session['search'] and repo_name in session['search'] and session['search'][repo_name]:
         search=session['search'][repo_name]
+        #復原searchForm內容
+        for i in session['search'][repo_name]:
+            searchForm[i].data = session['search'][repo_name][i]
     else:
         search=None
         
-    #復原searchForm內容
-    if  'search' in session and session['search'] and repo_name in session['search'] and session['search'][repo_name]:
-        #session['search']= None
-        #return jsonify(session['search'])
-        for i in session['search'][repo_name]:
-            searchForm[i].data = session['search'][repo_name][i]
     #記住上一頁的位址及頁碼,供post,update取消鍵返回之用
-    session['lastURL'] = ['/captain/list/{}?page={}&per_page={}'.format(repo_name,int(page),int(per_page))]
+    session['lastURL'] = ['/captain/list/{}?page={}&per_page={}&sort={}'.format(repo_name,int(page),int(per_page),sort)]
     #準備資料集
     page,data,count,pagination = repo.get_list(page=page,per_page=per_page,search=search,sort=sort)
     data_to_template = {'page':page,'per_page':per_page,'data':data,'count':count,'pagination':pagination,
         'search_form':searchForm,'repo_name':repo_name,'repo_title':repo.title,'repo_desc':repo.description,
         "active_menu":repo.active_menu,'sort':sort,"store":current_app.store_config}
+        
     return render_template('/captain/list.html',**data_to_template)
     
 #new repo item. if has repo_sub then show default sub form    

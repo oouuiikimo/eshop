@@ -95,8 +95,8 @@ class RepoProduct(BaseRepo):
     def get_search_filters(self,search):
         filters = []
         if search:
-            if 'title' in search and search['title']: 
-                filters.append(Product.title.like(f'%{search["title"]}%') )   
+            if 'name' in search and search['name']: 
+                filters.append(Product.name.like(f'%{search["name"]}%') )   
 
         return filters
 

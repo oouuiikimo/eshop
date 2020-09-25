@@ -1,0 +1,288 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bootstrap Sign in Form with Facebook and Twitter Buttons</title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<style type="text/css">
+	.login-form {
+		width: 385px;
+		margin: 30px auto;
+	}
+    .login-form form {        
+    	margin-bottom: 15px;
+        background: #f7f7f7;
+        box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+        padding: 30px;
+    }
+    .login-form h2 {
+        margin: 0 0 15px;
+    }
+    .form-control, .login-btn {
+        min-height: 38px;
+        border-radius: 2px;
+    }
+    .input-group-addon .fa {
+        font-size: 18px;
+    }
+    .login-btn {
+        font-size: 15px;
+        font-weight: bold;
+    }
+	.social-btn .btn {
+		border: none;
+        margin: 10px 3px 0;
+        opacity: 1;
+	}
+    .social-btn .btn:hover {
+        opacity: 0.9;
+    }
+	.social-btn .btn-primary {
+        background: #507cc0;
+    }
+	.social-btn .btn-info {
+		background: #64ccf1;
+	}
+	.social-btn .btn-danger {
+		background: #df4930;
+	}
+    .or-seperator {
+        margin-top: 20px;
+        text-align: center;
+        border-top: 1px solid #ccc;
+    }
+    .or-seperator i {
+        padding: 0 10px;
+        background: #f7f7f7;
+        position: relative;
+        top: -11px;
+        z-index: 1;
+    }   
+</style>
+</head>
+<body>
+
+<div class="login-form">
+    {% if form.errors %}
+    <ul class="errors">
+        {% for field_name, field_errors in form.errors|dictsort if field_errors %}
+            {% for error in field_errors %}
+                <li>{{ form[field_name].label }}: {{ error }}</li>
+            {% endfor %}
+        {% endfor %}
+    </ul>
+{% endif %}
+{% with messages = get_flashed_messages() %}
+   {% if messages %}
+        {% for message in messages %}
+         <div class="alert alert-warning">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            <span id="spanmsg">{{ message }}</span>
+            
+        </div>
+        {% endfor %}
+  {% endif %}
+ {% endwith %}
+    <form action="/auth/login?next={{next}}" method="post">
+        <h2 class="text-center">Sign in</h2>
+        <div class="form-group">
+        {{ form.csrf_token() }}
+        	<div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-user"></i></span>
+                <!--<input type="text" class="form-control" name="username" placeholder="Username" required="required">-->
+                {{ form.email() }}
+            </div>
+        </div>
+		<div class="form-group">
+            <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-lock"></i></span>
+                <!--<input type="password" class="form-control" name="password" placeholder="Password" required="required">			-->
+                {{ form.password() }}                
+            </div>
+        </div>       
+       
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary login-btn btn-block">Sign in</button>
+        </div>
+        <div class="clearfix">
+            <label class="pull-left checkbox-inline"><input type="checkbox"> Remember me</label>
+            <a href="#" class="pull-right">Forgot Password?</a>
+        </div>
+		<div class="or-seperator"><i>or</i></div>
+        <p class="text-center">Login with your social media account</p>
+        <div class="text-center social-btn">
+            <a href="javascript:fb_login();" class="btn btn-primary" id="fbBtn"><i class="fa fa-facebook"></i>&nbsp; Facebook</a>
+            <!--<a href="/auth/login/t" class="btn btn-info"><i class="fa fa-twitter"></i>&nbsp; Twitter</a>-->
+			<a href="/auth/login/g/user_login" class="btn btn-danger">
+            <i class="fa fa-google"></i>
+            <span>&nbsp;Google <span></a>
+        </div>
+    </form>
+    <p class="text-center text-muted small">Don't have an account? <a href="#">Sign up here!</a></p>
+</div>
+
+            
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script> 
+<div id="fb-root"></div>
+<script async defer crossorigin="anonymous" src="https://connect.facebook.net/zh_TW/sdk.js#xfbml=1&version=v7.0" nonce="49Nohvcg"></script>
+
+<script>
+var csrf_token = "{{csrf_token()}}";
+//console.log(csrf_token);
+
+  window.fbAsyncInit = function() {
+    FB.init({
+      appId      : '3047683778598908',
+      cookie     : true,                     // Enable cookies to allow the server to access the session.
+      xfbml      : true,                     // Parse social plugins on this webpage.
+      version    : 'v7.0'           // Use this Graph API version for this call.
+    });
+
+
+    FB.getLoginStatus(function(response) {   // Called after the JS SDK has been initialized.
+      statusChangeCallback(response);        // Returns the login status.
+    });
+    
+
+  };
+  
+   function fb_login() {
+
+    FB.login(function(response) {
+      if (response.status === 'connected') {
+        // Logged into your webpage and Facebook.
+
+        let userId = response.authResponse.userID;
+
+        getUserInfo(userId);
+      } else {
+        // The person is not logged into your webpage or we are unable to tell. 
+        alert('login failed!!');
+      }
+    });
+    } 
+    
+   function fb_logout() {
+        FB.logout(function(response) {
+        // user is now logged out
+        console.log(response);
+        });
+    }    
+  
+  function statusChangeCallback(response) {  // Called with the results from FB.getLoginStatus().
+    console.log('statusChangeCallback');
+    //console.log(response);                   // The current login status of the person.
+    if (response.status === 'connected') {   // Logged into your webpage and Facebook.
+      let userId = response.authResponse.userID;
+      //testAPI(response)
+      //getUserInfo(userId);
+      
+    } else {                                 // Not logged into your webpage or we are unable to tell.
+      //document.getElementById('status').innerHTML = 'Please log ' +
+      //  'into this webpage.';
+      return ;
+    }
+  }
+
+  function testAPI(response) {                      // Testing Graph API after login.  See statusChangeCallback() for when this call is made.
+    //console.log('Welcome!  Fetching your information.... '+response.authResponse.signedRequest.email);
+    FB.api('/me', function(response) {
+      console.log('Successful login for: ' + JSON.stringify(response) ); //.signedRequest
+
+    });
+  }
+
+function getUserInfo(userId) {
+    // body...
+    FB.api(
+      '/'+userId+'/?fields=email,id,name',
+      'GET',
+      {},
+      function(response) {
+        // Insert your code here
+        //console.log(response);
+        let id = response.id;
+        let name = response.name;
+        let email = response.email;
+        //console.log('id:'+id+',name:'+name+',email:'+email)
+        login_to_app(userId,email)
+        //loginViaEmail(email);
+      }
+    );
+  }
+  
+function login_to_app(fbID,fbEmail) {
+  /*ajax 取得登入結果
+    - 若成功, 則轉址到頁面 
+    -若不成功, 顯示原因訊息
+  */
+  var formData = new FormData();
+    formData.append('fbID', fbID);
+    formData.append('fbEmail', fbEmail);
+    formData.append('csrf_token',csrf_token);
+    ajax("/auth/login/fb", "POST",formData)
+    .then(function(result) {
+      //data = JSON.parse(result)
+      console.log('登入facebook:' +result)
+      window.location = '{{next}}'
+      
+      })
+    .catch((error) => {
+      console.log('登入facebook失敗' +error)
+      //fire_alert('danger','登入facebook失敗',error,5000)
+    })    
+    ;
+}
+
+function ajax(url, method, data) {
+
+  return new Promise(function(resolve, reject) {
+    
+    var request = new XMLHttpRequest();
+    
+    request.addEventListener("load", transferComplete);
+    request.addEventListener("error", transferFailed);
+    request.addEventListener("abort", transferCanceled);
+
+    request.onerror = function() {
+      reject(new Error("Network Error"));
+    };
+    
+    function transferComplete(evt) {
+        data = JSON.parse(this.response)
+        
+        if (data['success']) {
+            //console.log('transferComplete:'+data['success'])
+            resolve(data['success']);
+            
+        }
+        else {
+            console.log('transferComplete:'+data['success'])
+            reject(new Error(data['error']));
+            }
+
+      //console.log("The transfer is complete."+this.response);
+    }
+
+    function transferFailed(evt) {
+      console.log("An error occurred while transferring the file.");
+      reject(new Error("Network Error"));
+    }
+
+    function transferCanceled(evt) {
+      console.log("The transfer has been canceled by the user.");
+    }
+    
+    request.open(method, url, true);
+    request.send(data);
+  });
+}  
+</script>
+</body>
+</html>

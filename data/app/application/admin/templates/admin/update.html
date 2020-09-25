@@ -1,0 +1,125 @@
+{% extends "layout.html" %}
+{% block css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Trumbowyg/2.21.0/ui/trumbowyg.min.css" 
+    integrity="sha256-gGT+1paaAYq1+9QOclw7eVo/EqQo9ZNdwJqkTTOa/Gs=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-resizable@1.0.6/resizable.css">    
+{% endblock %}
+{% block content %}
+
+          <div class="col-md-12">
+            <!-- general form elements disabled -->
+            <div class="card ">
+              <div class="card-header">
+                {%if id-%}
+                <h3 class="card-title">表單修改</h3>
+                <div class="float-right"><a href="/admin/delete/{{menu}}/{{model}}/{{id}}">刪除此筆</a></div>
+                {%else-%}
+                <h3 class="card-title">表單新增</h3>
+                {%endif-%}
+              </div>
+              <!-- /.card-header -->
+              <div class="card-body">
+                <form novalidate method="POST" action="{{formaction}}">
+                {% for row in layout%}
+                    {%for field in row%}
+                    {% if (loop.index % ((row|length)|int) ==1) or (row|length)|int ==1 -%}
+                    <div class="row">
+                    {%endif-%}
+                      <div class="col-sm-{{(12/row|length)|int|string}}">
+                        <div class="form-group">
+                        {%if form[field].type=='BooleanField'-%}
+                          {{ form[field].label }}
+                           <div class="form-check">
+                          {{ form[field] }}
+                          <!--{{ form[field].label }}-->
+                           </div>
+                        {%else-%}
+                          {{ form[field].label }}
+                          {{ form[field] }}
+                        {%endif-%}
+
+                        </div>
+                      </div>
+                    {% if loop.index % ((row|length)|int) ==0 or loop.last -%}</div>{%endif%}                        
+                    {%endfor%}
+                {%endfor%}
+
+                  <div class="row">
+                    <div class="col-sm-6">
+                        {% for field in form if field.id == 'csrf_token' or field.type =='HiddenField'%}{{ field }}{% endfor %}
+                        <div class="form-group">
+                        {{form.submit}}
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                      <div class="form-group">
+                        <!-- empty -->
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+{% endblock %}  
+{%block js%}
+<script src="/admin/statics/js/ckeditor.js?v=3"></script>
+<script>
+
+    var ckeditor = document.querySelectorAll("textarea[id=editor]");
+    //alert(ckeditor.length);
+    if (ckeditor.length) {init_ckeditor()}
+    function init_ckeditor() {
+        ClassicEditor.create( document.querySelector( '#editor' ) )
+            .then( editor => {
+                window.editor = editor;
+            } )
+            .catch( error => {
+                console.error( 'There was a problem initializing the editor.', error );
+            } );
+            
+        //editor.getData()  
+        //for image test : https://cdn.pixabay.com/photo/2015/09/16/08/55/online-942406_640.jpg
+    }
+
+    function addClsToEle(ele,cls) {
+      var element = document.getElementById(ele);
+      element.classList.add(cls);
+    }
+    
+    function createErrorSpan(eleId,errorMessage) {
+        // Create a new element
+        var newNode = document.createElement('span');
+        // add the class to the 'spam'
+        newNode.innerHTML = errorMessage;
+        newNode.setAttribute('class', 'error invalid-feedback');
+        // Get the parent node
+        var parentNode = document.getElementById(eleId).parentElement
+        //var parentNode = document.querySelector('#some-element');
+        // Insert the new node after the last element in the parent node
+        parentNode.append(newNode);    
+    }
+    
+{% for field in form if field.id != 'csrf_token' and field.type !='HiddenField' and field.type != 'SubmitField' -%}
+    {% if field.errors %}
+    //error extraClass:{{field.id}}
+    addClsToEle('{{field.id}}','is-invalid')
+        {% for error in field.errors %}
+    createErrorSpan('{{field.id}}','{{error}}')
+        {% endfor -%}
+    {% endif -%}
+{%endfor-%}
+
+//flash messages
+{% with messages = get_flashed_messages(with_categories=true) -%}
+    {% if messages -%}
+        {% for category, message in messages %}
+    toastr['{{category}}']('{{message}}');
+        {% endfor -%}
+    {% endif -%}
+{% endwith -%}
+   
+   
+</script>          
+{% endblock %}          

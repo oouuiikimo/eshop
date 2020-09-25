@@ -1,0 +1,134 @@
+----- 2020.09
+2020/09/25 Fri:-image 圖片上傳resize,縮圖, watermark ,並存檔
+               -image details 頁面
+               -image 圖片修改及刪除功能
+2020/09/24 Thu:-pil 各種功能測試
+               -image 介面上傳wtforms,img置換js
+               -nginx 防盗連功能查詢作法
+2020/09/22 Web:-pil 各種功能測試
+2020/09/21 Mon:-image 商品圖資料庫及表單和功能構思
+               -pillow 使用初探
+               -裁切功能思考
+---
+2020/09/18 Fri:-variant功能
+               -product 禁止及判斷功能加強
+               -db cascade delete 測試及修改
+2020/09/17 Thu:-subcategory程式優化, 處理更新檢查相同, 重複, 自動刪舊增新
+               -product variant頁面
+               -product sku 頁面,js處理屬性值之顯示及選擇
+2020/09/16 Wed:-product basic新增, 修改
+               -subcategory 新增, 修改, 刪除
+2020/09/15 Tue:-修改product裡的所有sub功能, 到另外一個單獨檔案 sub_product
+2020/09/14 Mon:-修改db sku 去掉name, 增加active
+               -新增update sub form 載入js, 因應有些form 會自訂有js動作
+               -sku values 新增編輯之思考
+               -sku values option choices
+---
+2020/09/11 Fri:-product subcategory
+               -details repo 程式優化
+               -sku details
+               -sku 修改思考
+2020/09/10 Thu:-修改alert,使用tostr
+               -product category
+               -product repo 區分repo_sub
+2020/09/09 Wed:-思考及設計區分update 及 update details 走不同的routes,不要太複雜
+               -修改session lastURL為 list ,並會pop,append 使得先進後出
+2020/09/08 Tue:product repo, 介面
+2020/09/07 Mon:設計product table class, 及相關的表格:images,variants,values,skus
+---
+2020/09/04 Fri:思考product 的各種資料欄位設計, 最後傾向使用關聯表格, 初版先以最單純方式
+               日後亦保留擴充的彈性
+2020/09/01 Wed:修改架構為可區分 repo_sub 支援複雜的更新功能
+----- 2020.08
+2020/08/31 Mon:商品屬性UI思考,希望愈簡單愈直覺愈好
+2020/08/28 Fri:-圖片思考:放棄以blob存檔(實在太複雜, 沒有必要!), 而己sku命名慣例存實檔(幹!怎麼這簡單..)
+               -產品資料及介面設計思考
+2020/08/27 Thu:-多表格關聯一表格方法研究, 可以解決圖片,文章被多個表格引用的問題
+2020/08/26 Wed:-實作存圖檔上傳到sqlite blob,並讀取顯示圖片
+               -思考圖片存檔專門功能介面, 取代filemanager
+               -javascrpt 檢查上傳圖檔格式
+2020/08/25 Tue:-後台:商品主目錄
+               -後台:商品雜目錄
+               -後台商品作業功能問題思考
+2020/08/24 Mon:將attribute 選擇前端js,搬到實際頁面做調整
+               -product table調整, 增加content_link_1~3[json array],若有link,則優先於html
+               -所以仍需要sitearticle
+               -建立表格:customer,product...等
+---
+2020/08/21 Fri:完成產品屬性選項, 前端javascript設計,選擇後, 篩選可選購項目
+               - 後台list 考慮改為 app/email畫面
+2020/08/20 Thu:產品屬性選項, 前端構思
+2020/08/19 Wed:產品及類別資料表設計,測試
+2020/08/18 Tue:商店設置轉換json,預設一個基礎json檔
+               -產品及類別資料表設計,測試
+               -evernote 整理
+               -Satchless應該要看一下, 是否可以應用
+2020/08/17 Mon:-cython 將modules改成c,可保護程式碼, 加快執行速度
+               -商品資料結構及管理介面研究
+               -設定Store config -> namedtuple
+---
+2020/08/14 Fri:python tricks 書研讀; 商品資料結構及管理介面研究
+2020/08/13 Thu:更改captain list post search 後, 下頁回上頁會出現"是否重送表單"的問題, 將post redirect 就解決了
+               - 更改 models/database 裡 Session = sessionmaker(bind=self.engine增加 , autoflush=False
+                 讓sql語句自動送出, 否則有些頁面無法讀取正確資料
+               -  
+2020/08/12 Wed:-測試json array filter 目前找不到方法達成, 避免使用json格式的欄位; 
+               -設計商品資料表
+2020/08/11 Tue:-增加captain list sort 功能; 新增 blogarticle 功能; 
+               -實作tag input
+2020/08/10 Mon:修改所有表格一律有create,update,author; 修改captain list_row; 修正blogCategory 目錄樹 錯誤
+---
+2020/08/07 Fri:db_article 更改, 
+2020/08/06 Thu:-前台頁面補充:blog,products,cart...
+               -研究最新SEO:
+               --響應式最佳
+               --不用keywork,但要title,description,viewpoint
+               --圖片要加alternative
+               --要有sitemap.xml
+               --robot.txt指引佳
+               --不要有javascript錯誤,或無法載入的檔案..css,js檔
+2020/08/05 Wed:-前台template ; bp routes (未上線前皆需登入保護); 
+               -頁面補充: layout,header,footer,mobile menu,cart 
+               -今日無commit!
+2020/08/03 Mon:後台fb,google登入; 更新右上角使用者訊息; 新增使用者帳戶設定頁; js處理menu active       
+----- 2020.07
+2020/07/14 Tue:更改左側表單成自動變化,menu_admin.py
+2020/07/15 wed:刪除頁面功能,ckeditor打包新功能, 並加入文章編輯頁
+2020/07/16 Thu:試著動態載入form class 失敗, 處理新刪修動作後回到上一頁路徑,修正頁數若大於最後頁, 一律顯示最後頁
+                完善刪除功能到各model,確認relation刪除正確
+2020/07/17 Fri:principals,flask_mail,flask_caching,瞭解sqlalchemy和flask-sqlalchemy使用差別
+---
+2020/07/20 Mon:更改auth 不使用 flask-sqlalchemy
+2020/07/21 Tue:解決 modelREPO 集中處理session 事務的困難及問題, 尋找到新的後台管理UI-stack horizontal
+2020/07/22 Wed:stack template 熟悉,list 頁面
+    - active 子項, 母項menu 會自動更改顯示active, 所以只需要在子項增加 class active 即可
+    - menu 並不會常變動,所以寫死在layout 中即可
+2020/07/23 Thu:rows_to_dict()功能, 實現將query 結果轉為dict, 包含relation結果;list頁面 
+2020/07/24 Fri:完善modelREPO,list, update, insert頁面 
+2020/07/26 Sun:修改theme color 主色, 修改form custom input樣式, 增加美觀
+---
+2020/07/27 Mon:刪除功能,登入增加google認証
+2020/07/28 Tue:flash alert,delete repo action
+2020/07/29 Wed:social login ,register
+            - social登入:若己有帳號即登入
+            - social登入:若尚未有帳號, 詢問是否要註冊成為會員, 
+            -- 是: 即建立帳號並登入
+            -- 否: 登出social 並回到登入頁
+            - 登入後, 若是有其它會員資料尚未填寫, 可秀出是否要進入完備個人資料選項, 但不強制
+            - 登出步驟:
+            -- 使用者按下登出
+            -- logout route 中判斷登入的類型
+            --- 若是 google , 可轉到專用html 頁面, 並自動按下轉址退出位址, 執行退出google
+            var logout = function() {
+                document.location.href = "https://www.google.com/accounts/Logout?continue=https://appengine.google.com/_ah/logout?continue=http://www.example.com";
+            }
+            ,或者, 只提示目前只退出本網站, 但尚未登出google , 並給一個登出google連結給使用者登出
+            --- 若是facebook 可以call fb.logout 將使用者登出fb
+            
+2020/07/30 Thu:
+2020/07/31 Fri:fb登入熟悉運作,處理list頁查詢的form 結果,改成存到session ,否則更新資料的取消返回上頁會詢問是否重新送出查詢,
+            - 前站blueprint 構思,前站分幾個bp:
+            -- shop: 不論登入與否, 都可以看到的各項商品展示頁面及功能
+            -- member 專屬會員的各項查詢及功能
+            -- cart 購物車功能及結帳功能
+-----

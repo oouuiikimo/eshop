@@ -1,0 +1,341 @@
+{% extends "/captain/layout.html" %}
+{%block css%} 
+<link rel="stylesheet" type="text/css" href="/captain/statics/vendors/js/gallery/photo-swipe/photoswipe.css">
+<link rel="stylesheet" type="text/css" href="/captain/statics/vendors/js/gallery/photo-swipe/default-skin/default-skin.css">
+<link rel="stylesheet" type="text/css" href="/captain/statics/css/pages/gallery.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
+
+{%endblock%}
+{% block content %}
+    <div class="app-content container center-layout mt-2">
+      <div class="content-overlay"></div>
+      <div class="content-wrapper">
+<div class="content-header row">
+          <div class="content-header-left col-md-6 col-12 mb-2">
+            <h3 class="content-header-title mb-0">圖片管理</h3><!--
+            <div class="row breadcrumbs-top">
+              <div class="breadcrumb-wrapper col-12">
+                <ol class="breadcrumb">
+                  <li class="breadcrumb-item"><a href="index.html">Home</a>
+                  </li>
+                  <li class="breadcrumb-item"><a href="#">Users</a>
+                  </li>
+                  <li class="breadcrumb-item active">Account setting
+                  </li>
+                </ol>
+              </div>
+            </div>
+          </div>
+          <div class="content-header-right col-md-6 col-12 mb-md-0 mb-2">
+            <div class="media width-250 float-right">
+              <div class="media-left media-middle">
+                <div id="sp-bar-total-sales"></div>
+              </div>
+              <div class="media-body media-right text-right">
+                <h3 class="m-0">$5,668</h3><span class="text-muted">Sales</span>
+              </div>
+            </div>-->
+          </div>
+        </div>
+        <div class="content-body"><!-- account setting page start -->
+<section id="page-account-settings">
+    <div class="row">
+        <!-- left menu section -->
+        <div class="col-md-3 mb-2 mb-md-0">
+
+        <div class="card-header">
+          <div class="card-title">
+          <ul class="list-inline m-0 d-flex">
+            <li class="list-inline-item">
+            <button type="button" class="btn btn-sm btn-icon btn-primary "><i class="fa fa-trash"></i> 刪除</button>
+            </li>
+            <li class="list-inline-item">
+              <button type="button" class="btn btn-sm btn-icon btn-primary "><i class="fa fa-pencil"></i> 修改</button>
+            </li>
+            <li class="list-inline-item">
+              <button type="button" class="btn btn-sm btn-icon btn-primary "><i class="fa fa-plus"></i> 新增</button>
+            </li>
+          </ul>
+          </div>
+        </div>
+            <div class="card-body border rounded jstree jstree-1 jstree-default" id="jstree_demo_div" 
+            role="tree" aria-multiselectable="true" tabindex="0" aria-activedescendant="j1_4" aria-busy="false"
+            style="background-color:#ffffff">
+                <ul class="jstree-container-ul jstree-children" role="group">
+                <li class="jstree-open" id="node_1">Root
+                  <ul>
+                    <li>
+                      <a href="#" class="jstree-clicked">Child</a>
+                    </li>
+                  </ul>
+                </li>
+                </ul>
+            </div>
+
+        </div>
+        <!-- right content section -->
+        <div class="col-md-9">
+<section id="image-grid" class="card">
+  <div class="card-header">
+      <h4 class="card-title">Image gallery</h4>
+      <!--<a class="heading-elements-toggle"><i class="fa fa-ellipsis-v font-medium-3"></i></a>
+        <div class="heading-elements">
+            <ul class="list-inline mb-0">
+                <li><a data-action="collapse"><i class="feather icon-minus"></i></a></li>
+                <li><a data-action="reload"><i class="feather icon-rotate-cw"></i></a></li>
+                <li><a data-action="expand"><i class="feather icon-maximize"></i></a></li>
+                <li><a data-action="close"><i class="feather icon-x"></i></a></li>
+            </ul>
+        </div>-->
+    </div>
+  <div class="card-content collapse show">
+    <div class="card-body">
+        <div class="card-text">
+          <p>Image gallery grid with title, description &amp; photo-swipe integration. Display images gallery in 4-2-1 columns and photo-swipe provides gallery features.</p>
+        </div>
+    </div>
+    <div class="card-body  my-gallery" itemscope="" itemtype="http://schema.org/ImageGallery" data-pswp-uid="1">
+      <div class="card-deck-wrapper">
+        <div class="card-deck">
+          <figure class="card card-img-top border-grey border-lighten-2" itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject">
+            <a href="/captain/statics/images/gallery/1.jpg" itemprop="contentUrl" data-size="360x360">
+                <img class="gallery-thumbnail card-img-top" src="/captain/statics/images/gallery/1.jpg" itemprop="thumbnail" alt="Image description">
+            </a>
+            <div class="card-body px-0">
+              <h4 class="card-title">Card title 1</h4>
+              <p class="card-text">This is a longer card with supporting text below.</p>
+            </div>
+          </figure>
+          <figure class="card card-img-top border-grey border-lighten-2" itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject">
+            <a href="/captain/statics/images/gallery/2.jpg" itemprop="contentUrl" data-size="480x360">
+                <img class="gallery-thumbnail card-img-top" src="/captain/statics/images/gallery/2.jpg" itemprop="thumbnail" alt="Image description">
+            </a>
+            <div class="card-body px-0">
+              <h4 class="card-title">Card title 2</h4>
+              <p class="card-text">This is a longer card with supporting text below.</p>
+            </div>
+          </figure>
+          <figure class="card card-img-top border-grey border-lighten-2" itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject">
+            <a href="/captain/statics/images/gallery/3.jpg" itemprop="contentUrl" data-size="480x360">
+                <img class="gallery-thumbnail card-img-top" src="/captain/statics/images/gallery/3.jpg" itemprop="thumbnail" alt="Image description">
+            </a>
+            <div class="card-body px-0">
+              <h4 class="card-title">Card title 3</h4>
+              <p class="card-text">This is a longer card with supporting text below.</p>
+            </div>
+          </figure>
+          <figure class="card card-img-top border-grey border-lighten-2" itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject">
+            <a href="/captain/statics/images/gallery/4.jpg" itemprop="contentUrl" data-size="480x360">
+                <img class="gallery-thumbnail card-img-top" src="/captain/statics/images/gallery/4.jpg" itemprop="thumbnail" alt="Image description">
+            </a>
+            <div class="card-body px-0">
+              <h4 class="card-title">Card title 4</h4>
+              <p class="card-text">This is a longer card with supporting text below.</p>
+            </div>
+          </figure>
+        </div>
+      </div>
+
+      <div class="card-deck-wrapper">
+        <div class="card-deck mt-1">
+          <figure class="card card-img-top border-grey border-lighten-2" itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject">
+            <a href="/captain/statics/images/gallery/5.jpg" itemprop="contentUrl" data-size="480x360">
+                <img class="gallery-thumbnail card-img-top" src="/captain/statics/images/gallery/5.jpg" itemprop="thumbnail" alt="Image description">
+            </a>
+            <div class="card-body px-0">
+              <h4 class="card-title">Card title 5</h4>
+              <p class="card-text">This is a longer card with supporting text below.</p>
+            </div>
+          </figure>
+          <figure class="card card-img-top border-grey border-lighten-2" itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject">
+            <a href="/captain/statics/images/gallery/6.jpg" itemprop="contentUrl" data-size="480x360">
+                <img class="gallery-thumbnail card-img-top" src="/captain/statics/images/gallery/6.jpg" itemprop="thumbnail" alt="Image description">
+            </a>
+            <div class="card-body px-0">
+              <h4 class="card-title">Card title 6</h4>
+              <p class="card-text">This is a longer card with supporting text below.</p>
+            </div>
+          </figure>
+          <figure class="card card-img-top border-grey border-lighten-2" itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject">
+            <a href="/captain/statics/images/gallery/7.jpg" itemprop="contentUrl" data-size="480x360">
+                <img class="gallery-thumbnail card-img-top" src="/captain/statics/images/gallery/7.jpg" itemprop="thumbnail" alt="Image description">
+            </a>
+            <div class="card-body px-0">
+              <h4 class="card-title">Card title 7</h4>
+              <p class="card-text">This is a longer card with supporting text below.</p>
+            </div>
+          </figure>
+          <figure class="card card-img-top border-grey border-lighten-2" itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject">
+            <a href="/captain/statics/images/gallery/8.jpg" itemprop="contentUrl" data-size="480x360">
+                <img class="gallery-thumbnail card-img-top" src="/captain/statics/images/gallery/8.jpg" itemprop="thumbnail" alt="Image description">
+            </a>
+            <div class="card-body px-0">
+              <h4 class="card-title">Card title 4</h4>
+              <p class="card-text">This is a longer card with supporting text below.</p>
+            </div>
+          </figure>
+        </div>
+      </div>
+
+      <div class="card-deck-wrapper">
+        <div class="card-deck mt-1">
+          <figure class="card card-img-top border-grey border-lighten-2" itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject">
+            <a href="/captain/statics/images/gallery/9.jpg" itemprop="contentUrl" data-size="480x360">
+                <img class="gallery-thumbnail card-img-top" src="/captain/statics/images/gallery/9.jpg" itemprop="thumbnail" alt="Image description">
+            </a>
+            <div class="card-body px-0">
+              <h4 class="card-title">Card title 9</h4>
+              <p class="card-text">This is a longer card with supporting text below.</p>
+            </div>
+          </figure>
+          <figure class="card card-img-top border-grey border-lighten-2" itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject">
+            <a href="/captain/statics/images/gallery/10.jpg" itemprop="contentUrl" data-size="480x360">
+                <img class="gallery-thumbnail card-img-top" src="/captain/statics/images/gallery/10.jpg" itemprop="thumbnail" alt="Image description">
+            </a>
+            <div class="card-body px-0">
+              <h4 class="card-title">Card title 10</h4>
+              <p class="card-text">This is a longer card with supporting text below.</p>
+            </div>
+          </figure>
+          <figure class="card card-img-top border-grey border-lighten-2" itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject">
+            <a href="/captain/statics/images/gallery/11.jpg" itemprop="contentUrl" data-size="480x360">
+                <img class="gallery-thumbnail card-img-top" src="/captain/statics/images/gallery/11.jpg" itemprop="thumbnail" alt="Image description">
+            </a>
+            <div class="card-body px-0">
+              <h4 class="card-title">Card title 11</h4>
+              <p class="card-text">This is a longer card with supporting text below.</p>
+            </div>
+          </figure>
+          <figure class="card card-img-top border-grey border-lighten-2" itemprop="associatedMedia" itemscope="" itemtype="http://schema.org/ImageObject">
+            <a href="/captain/statics/images/gallery/12.jpg" itemprop="contentUrl" data-size="480x360">
+                <img class="gallery-thumbnail card-img-top" src="/captain/statics/images/gallery/12.jpg" itemprop="thumbnail" alt="Image description">
+            </a>
+            <div class="card-body px-0">
+              <h4 class="card-title">Card title 12</h4>
+              <p class="card-text">This is a longer card with supporting text below.</p>
+            </div>
+          </figure>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Root element of PhotoSwipe. Must have class pswp. -->
+    <div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+        <!-- Background of PhotoSwipe. 
+             It's a separate element as animating opacity is faster than rgba(). -->
+        <div class="pswp__bg"></div>
+
+        <!-- Slides wrapper with overflow:hidden. -->
+        <div class="pswp__scroll-wrap">
+
+            <!-- Container that holds slides. 
+                PhotoSwipe keeps only 3 of them in the DOM to save memory.
+                Don't modify these 3 pswp__item elements, data is added later on. -->
+            <div class="pswp__container" style="transform: translate3d(0px, 0px, 0px);">
+                <div class="pswp__item" style="display: block; transform: translate3d(-1594px, 0px, 0px);"><div class="pswp__zoom-wrap" style="transform: translate3d(575px, 44px, 0px) scale(1);"><img class="pswp__img" src="/captain/statics/images/gallery/1.jpg" style="opacity: 1; width: 273px; height: 205px;"></div></div>
+                <div class="pswp__item" style="transform: translate3d(0px, 0px, 0px);"><div class="pswp__zoom-wrap" style="transform: translate3d(386.344px, 194.625px, 0px) scale(1.13472);"><img class="pswp__img pswp__img--placeholder" src="/captain/statics/images/gallery/2.jpg" style="width: 273px; height: 205px; display: none;"><img class="pswp__img" src="/captain/statics/images/gallery/2.jpg" style="display: block; width: 273px; height: 205px;"></div></div>
+                <div class="pswp__item" style="display: block; transform: translate3d(1594px, 0px, 0px);"><div class="pswp__zoom-wrap" style="transform: translate3d(575px, 44px, 0px) scale(1);"><img class="pswp__img" src="/captain/statics/images/gallery/3.jpg" style="opacity: 1; width: 273px; height: 205px;"></div></div>
+            </div>
+
+            <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+            <div class="pswp__ui pswp__ui--fit pswp__ui--hidden">
+
+                <div class="pswp__top-bar">
+
+                    <!--  Controls are self-explanatory. Order can be changed. -->
+
+                    <div class="pswp__counter">2 / 4</div>
+
+                    <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                    <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                    <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                    <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                    <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                    <!-- element will get class pswp__preloader-active when preloader is running -->
+                    <div class="pswp__preloader">
+                        <div class="pswp__preloader__icn">
+                          <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                          </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                    <div class="pswp__share-tooltip"></div> 
+                </div>
+
+                <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+                </button>
+
+                <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+                </button>
+
+                <div class="pswp__caption">
+                    <div class="pswp__caption__center">
+              <h4 class="card-title">Card title 2</h4>
+              <p class="card-text">This is a longer card with supporting text below.</p>
+            </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+  </div>
+  <!--/ PhotoSwipe -->
+</section>
+        </div>
+    </div>
+</section>
+<!-- account setting page end -->
+        </div>
+      </div>
+    </div>
+
+
+{% endblock %}    
+{%block js%} 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
+<script src="/captain/statics/vendors/js/gallery/photo-swipe/photoswipe.min.js"></script>    
+<script src="/captain/statics/vendors/js/gallery/photo-swipe/photoswipe-ui-default.min.js"></script>
+<script src="/captain/statics/js/scripts/gallery/photo-swipe/photoswipe-script.min.js"></script>
+<script>
+
+var csrf_token = "{{csrf_token()}}";
+
+
+$(window).on("load", function(){
+  // Handler when all assets (including images) are loaded
+  $('#jstree_demo_div')
+  // listen for event
+  .on('changed.jstree', function (e, data) {
+    var i, j, r = [];
+    for(i = 0, j = data.selected.length; i < j; i++) {
+      r.push(data.instance.get_node(data.selected[i]).a_attr.href);
+    }
+    //$('#event_result').html('Selected: ' + r.join(', '));
+  })
+  
+  $(function () { 
+        //$('#jstree_demo_div').jstree(); 
+        $('#jstree_demo_div').jstree({ 'core' : {
+    'data' : [
+       { "id" : "ajson1", "parent" : "#", "text" : "Simple root node","a_attr":{"href":"/captain/"} },
+       { "id" : "ajson2", "parent" : "#", "text" : "Root node 2" },
+       { "id" : "ajson3", "parent" : "ajson2", "text" : "Child 1" },
+       { "id" : "ajson4", "parent" : "ajson2", "text" : "Child 2" },
+    ]
+} });
+    });
+});
+
+
+</script>
+{%endblock%}

@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+{% block css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Trumbowyg/2.21.0/ui/trumbowyg.min.css" 
+    integrity="sha256-gGT+1paaAYq1+9QOclw7eVo/EqQo9ZNdwJqkTTOa/Gs=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-resizable@1.0.6/resizable.css">    
+{% endblock %}
+{% block content %}
+<h1>CKEditor 5 – classic editor build – development sample</h1>
+
+<div id="editor">
+	<h2>Sample</h2>
+
+	<p>This is an instance of the <a href="https://ckeditor.com/docs/ckeditor5/latest/builds/guides/overview.html#classic-editor">classic editor build</a>.</p>
+
+	<figure class="image">
+		<img src="./statics/img/sample.jpg" alt="Autumn fields" />
+	</figure>
+
+	<p>You can use this sample to validate whether your <a href="https://ckeditor.com/docs/ckeditor5/latest/builds/guides/development/custom-builds.html">custom build</a> works fine.</p>
+</div>
+
+{% endblock %}
+
+{%block js%}
+<script src="./statics/js/ckeditor.js?v=1"></script>
+<script>
+	ClassicEditor.create( document.querySelector( '#editor' ) )
+		.then( editor => {
+			window.editor = editor;
+		} )
+		.catch( error => {
+			console.error( 'There was a problem initializing the editor.', error );
+		} );
+        
+    //editor.getData()  
+    //for image test : https://cdn.pixabay.com/photo/2015/09/16/08/55/online-942406_640.jpg
+</script>
+{% endblock %}

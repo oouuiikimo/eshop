@@ -1,0 +1,372 @@
+{% extends "captain/layout.html" %}
+{%block css%} 
+    <link rel="stylesheet" type="text/css" href="/captain/statics/vendors/css/forms/icheck/icheck.css">
+    <link rel="stylesheet" type="text/css" href="/captain/statics/vendors/css/forms/icheck/custom.css">
+    <link rel="stylesheet" type="text/css" href="/captain/statics/css/pages/page-users.min.css">
+	<link rel="stylesheet" type="text/css" href="/captain/statics/css/plugins/forms/checkboxes-radios.min.css">
+    <link rel="stylesheet" type="text/css" href="/captain/statics/css/bootstrap-tagsinput.css">
+    <style>
+    .errmessages {color:#ff7588;}
+    .errmessages li{list-style-type: disc;}
+    .ck-editor__editable:not(.ck-editor__nested-editable) {
+        min-height: 500px;
+    }
+    
+    .label-info {
+    background-color: #5bc0de;
+}
+.label {
+    display: inline;
+    padding: .2em .6em .3em;
+    font-size: 75%;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: .25em;
+}
+.bootstrap-tagsinput {
+    width:100%;
+}
+
+
+	</style>
+{%endblock%}
+{% block content %}
+    <div class="app-content container center-layout mt-2">
+      <div class="content-overlay"></div>
+      <div class="content-wrapper">
+        <div class="content-header row">
+          
+        </div>
+        <div class="content-body">
+		<section id="horizontal-form-layouts">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="card">
+						<div class="card-header">
+							<h4 class="card-title" id="horz-layout-icons"><span class="under_line-red">{{update_type|safe}}
+                             <a href="javascript:cancel();" data-toggle="tooltip" title="返回上頁"><i class="fa fa-angle-double-left"></i></a></span>
+                            
+                            {%if sub_menu-%}
+                                <span class="m-1 block">
+                                {%for menu in sub_menu-%}
+                                {%if menu == repo_sub-%}
+                                <span class="font-weight-bold font-italic">{{sub_menu[menu]["menu"]}}</span>  
+                                {%else-%}
+                                <a href="/captain/update/{{repo_name}}/{{id}}/{{menu}}">{{sub_menu[menu]["menu"]}}</a>  
+                                {%endif-%}
+                                {% if not loop.last -%}
+                                |
+                                {% endif -%}
+                                <!--<a href="#">基本資訊</a> | <a href="#">屬性</a> | <a href="#">圖片</a> | <a href="#">文章</a> | <a href="#">價格</a> | <a href="#">上架</a>-->
+                                {%endfor%}</span>{%endif%}
+							</h4>
+							<div class="heading-elements"><!-- 右上角功能鍵,省略 --></div>
+						</div>
+						<div class="card-content collpase show">
+							<div class="card-body">
+                                {%if form-%}
+								<form class="form form-horizontal striped-rows" id="sub_update" method="post" action="" >
+										{% for field in form%}<!--id:{{field.id}}--><!--{{field.data}}-->
+										{%if field.type != 'CSRFTokenField' and field.type != 'HiddenField' and field.type != 'HiddenSelect'-%}
+										{%if field.type != 'RadioField' and field.type != 'MultiCheckboxField' 
+                                            and field.type != 'SelectCheckboxField'-%}
+										<div class="form-group row">
+											<label class="col-md-3 label-control" for="{{field.id}}">{{ field.label.text }}</label>
+											<div class="col-md-9">
+											{{ field }} 
+                                        <ul class="errmessages d-none" id='err_{{field.id}}'>
+                                        
+                                        </ul>
+											</div>
+										</div>
+										{%elif field.type == 'SelectCheckboxField' or field.type == 'RadioField'-%}
+										
+		                    	<div class="form-group row">
+	                        		<label class="col-md-3 label-control">{{field.label.text}}</label>
+	                        		<div class="col-md-9">
+										<div class="input-group skin skin-flat">
+										{% for subfield in field %}
+											<div class="d-inline-block custom-control custom-radio mr-1">
+												<input type="radio" name="{{subfield.name}}" id="{{subfield.id}}" 
+												value="{{subfield.data}}" {%if field.data==subfield.data or (field.data == 'None' and field.default==subfield.data)%}checked{%endif%}>
+												<label for="{{subfield.id}}">{{subfield.label.text}}</label>
+											</div>{% endfor -%}
+										</div>
+                                        <ul class="errmessages d-none" id='err_{{field.id}}'>
+                                        
+                                        </ul>
+									</div>
+                                    
+		                        </div>	
+
+								        {%elif field.type == 'MultiCheckboxField'-%}
+		                    	<div class="form-group row">
+	                        		<label class="col-md-3 label-control">{{field.label.text}}</label>
+	                        		<div class="col-md-9">
+										<div class="row skin skin-line">
+										{% for subfield in field %}
+											<div class="col-md-6 col-sm-12 custom-control custom-radio mr-1">
+											<fieldset>
+												<input type="checkbox" name="{{subfield.name}}" id="{{subfield.id}}" 
+												value="{{subfield.data}}" {%if subfield.data in field.data%}checked{%endif%}>
+												<label for="{{subfield.id}}">{{subfield.label.text}}</label>
+												</fieldset>
+											</div>{% endfor -%}
+										</div>
+                                        <ul class="errmessages d-none" id='err_{{field.id}}'>
+                                        
+                                        </ul>
+									</div>
+		                        </div>
+										{%endif-%}
+										{%endif-%}
+										{%endfor-%}
+                                        <!--list other input -->
+                                <div id="jsfields">        
+                                        
+                                </div>        
+                                        {% for field in form%}
+										{%if field.type == 'CSRFTokenField' or field.type == 'HiddenField' or field.type == 'HiddenSelect'-%}
+										{{ field }}
+                                        {%endif-%}
+                                        {%endfor-%}
+
+									<div class="form-actions right">
+										<button type="button" class="btn btn-warning mr-1" onclick="javascript:cancel();">
+											<i class="feather icon-x"></i> 取消
+										</button>
+										<button type="submit" class="btn btn-primary">
+											<i class="fa fa-check-square-o"></i> 儲存
+										</button>
+									</div>
+								
+                                </form>
+                                {%endif-%}
+                                <div><!--details-->
+                                {%if details-%}
+                                <div class="card-header">
+                                    <ul class="list-inline mb-0">
+                                        <li class="align-middle mr-1">
+                                        <h4 class="card-title"><span class="under_line-red">{{sub_menu[repo_sub]["menu"]}}.列表</span></h4>
+                                        </li>
+                                        <li class="align-middle">
+                                            <div class="input-group-append">
+                                              <button type="button" class="btn btn-icon btn-sm btn-danger" onclick="javascript:delete_items(this);"
+                                              data-toggle="tooltip" title="刪除"><i class="feather icon-minus"></i></button>
+                                            </div>
+                                        </li>
+                                        <li class="align-middle">
+                                            <div class="input-group-append">
+                                              <button type="button" class="btn btn-icon btn-sm btn-success" onclick="javascript:location.href='/captain/update/{{repo_name}}/{{id}}/{{repo_sub}}/0'"
+                                              data-toggle="tooltip" title="新增"><i class="feather icon-plus"></i></button>
+                                            </div>
+                                        </li>
+
+                                    </ul>   
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th><input id="check_toggle" type="checkbox" value="" onclick="javascript:toggle_check();"> &nbsp;編輯功能</th>
+                                                {%for f in details.fields-%}
+                                                <th>{{f}}</th>
+                                                {%endfor-%}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {%for row in details.data-%}
+                                                <tr>
+                                                {%for val in row-%}
+                                                <td scope="row">{{val|safe}}
+                                                </td>
+                                                {%endfor-%}
+                                                </tr>
+                                            {%endfor-%}
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                {%endif-%}
+                                </div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+
+            </section>
+        <!-- users list ends -->
+
+        </div>
+
+    </div></div>
+
+{% endblock %}    
+{%block js%} 
+    <script src="/captain/statics/vendors/js/forms/tags/tagging.min.js"></script>
+    <script src="/captain/statics/vendors/js/forms/icheck/icheck.min.js"></script>
+    <script src="/captain/statics/js/scripts/forms/checkbox-radio.min.js?v=3"></script>
+	<script src="/captain/statics/js/bootstrap-tagsinput.min.js?v=2"></script>
+    <script src="/captain/statics/js/ckeditor.js?v=3"></script>
+<script>
+    var csrf_token = "{{csrf_token()}}";
+    var detail_id = null
+    {%if detail_id-%}
+    detail_id = {{detail_id|int}}
+    {%endif-%}
+    $(window).on("load", function(){
+      // Handler when all assets (including images) are loaded
+      var ckeditor = document.querySelectorAll(".editor");
+        //alert(ckeditor.length);
+      if (ckeditor.length) {
+        ckeditor.forEach(element => init_ckeditor(element));
+        
+      }
+      show_form_error();
+    {% for message in get_flashed_messages() %}
+        //console.log('{{message}}')    
+        toastr.error('更新失敗:{{message}}')
+    {% endfor %}
+    
+    });    
+    
+    function cancel() {
+        //console.log({{session["lastURL"]|length}})
+        window.location.href = '{{session["lastURL"][(session["lastURL"]|length)-1]|safe}}';
+    }
+    
+    function init_ckeditor(ckeditor) {
+        ClassicEditor.create(ckeditor)// document.querySelector( '#editor' ) )
+            .then( editor => {
+                window.editor = editor;
+            } )
+            .catch( error => {
+                console.error( 'There was a problem initializing the editor.', error );
+            } );
+            
+        //editor.getData()  
+        //for image test : https://cdn.pixabay.com/photo/2015/09/16/08/55/online-942406_640.jpg
+    }
+
+    function addClsToEle(ele,cls) {
+      //var element = document.getElementById(ele);
+      
+      let inputs = document.getElementsByName(ele)
+      inputs.forEach(item => item.classList.add(cls))
+      //ele.classList.add(cls);
+    }
+
+    function removeClsToEle(ele,cls) {
+       
+      try {
+        let inputs = document.getElementById(ele);
+        inputs.classList.remove(cls);
+        }
+        catch (e) {
+          console.log(e)
+          //toastr.error('錯誤:'+inputs)
+        }
+      
+    }
+    
+    function show_form_error() {
+
+        var error = []
+        {% for field in form if field.id != 'csrf_token' and field.type !='HiddenField'-%}
+            {% if field.errors %}
+            let {{field.id}}=[]
+            //error extraClass:{{field.id}}
+            addClsToEle('{{field.id}}','is-invalid')
+            removeClsToEle('err_{{field.id}}','d-none')
+
+            {% for err in field.errors %}
+            {{field.id}}.push('{{err}}')
+
+            var err_{{field.id}} = document.querySelector("#err_{{field.id}}");
+            var entry = document.createElement('li');
+            entry.appendChild(document.createTextNode('{{err}}'));
+            console.log('{{field.id}}:{{err}}')
+            try {
+                err_{{field.id}}.appendChild(entry);
+                }
+            catch (e) {
+              //console.log(err_{{field.id}})
+              //toastr.error('錯誤:'+error)
+            }
+            
+            {% endfor -%}
+            error.push({'{{field.id}}':{'type':'{{field.type}}','error':{{field.id}}}})
+            {% endif -%}
+        {%endfor-%}
+        console.log(error)
+
+   }
+
+function toggle_check() {
+	var x = document.querySelectorAll("input[type=checkbox][name=delete]");
+	var me = document.getElementById("check_toggle")
+	if (me.checked == true){
+		for (i=0;i<x.length;i++) {
+			x[i].checked = true;
+			}
+	  } else {
+			for (i=0;i<x.length;i++) {
+				x[i].checked = false;
+			}
+	  }
+	}
+   
+function delete_items(e,item=null) {
+    console.log(e.className)
+    var x = document.querySelectorAll("input[type=checkbox][name=delete]:checked");
+    //al.lpert(x.length);
+    var delete_items = []
+    if (item)
+        delete_items.push(item)
+    else
+        x.forEach(element => delete_items.push(element.value));
+        
+    if (delete_items.length ==0) return null
+    //spinner
+    e.innerHTML='<i class="fa fa-circle-o-notch fa-spin fa-fw"></i>';
+    /*
+    <i class="fa fa-repeat spinner"></i>
+    <i class="fa fa-circle-o-notch fa-spin fa-fw"></i>
+    */
+    var formData = new FormData();
+    formData.append('id', JSON.stringify(delete_items));
+    formData.append('csrf_token',csrf_token);
+    ajax("/captain/delete/{{repo_name}}/{{id}}/{{repo_sub}}", "POST",formData)
+    .then(function(result) {
+      data = JSON.parse(result)
+      //alert(data['success']);
+	  
+      toastr.success('刪除作業成功')
+	   return data['redirect']
+      
+        })
+    .then(function(result) {
+      //gotopage(1);
+	  
+	  	var timeoutID = window.setTimeout((function(result) {
+		//window.location = result
+        window.location.reload();
+		//alert('result:'+result)
+		}),1000,result);
+        })
+    .catch((error) => {
+      toastr.error('刪除作業失敗:'+error)
+    })    
+    ;
+
+}
+    //custom sub js
+   {{js|safe}}
+</script>          
+{%endblock%}

@@ -1,0 +1,596 @@
+{% extends "/captain/layout.html" %}
+{%block css%} 
+<link rel="stylesheet" type="text/css" href="/captain/statics/vendors/css/forms/selects/select2.min.css">
+<link rel="stylesheet" type="text/css" href="/captain/statics/vendors/css/pickers/pickadate/pickadate.css">
+<link rel="stylesheet" type="text/css" href="/captain/statics/vendors/css/forms/toggle/switchery.min.css">
+    <link rel="stylesheet" type="text/css" href="/captain/statics/vendors/css/tables/datatable/datatables.min.css">
+    <link rel="stylesheet" type="text/css" href="/captain/statics/css/pages/page-users.min.css">
+    <link rel="stylesheet" type="text/css" href="/captain/statics/css/plugins/forms/validation/form-validation.css">
+    <link rel="stylesheet" type="text/css" href="/captain/statics/css/plugins/pickers/daterange/daterange.min.css">
+    <style>
+
+	</style>
+{%endblock%}
+{% block content %}
+    <div class="app-content container center-layout mt-2">
+      <div class="content-overlay"></div>
+      <div class="content-wrapper">
+        <!--<div class="content-header row">
+          <div class="content-header-left col-md-6 col-12 mb-2">
+            <h3 class="content-header-title mb-0">Account setting</h3>
+            <div class="row breadcrumbs-top">
+              <div class="breadcrumb-wrapper col-12">
+                <ol class="breadcrumb">
+                  <li class="breadcrumb-item"><a href="index.html">Home</a>
+                  </li>
+                  <li class="breadcrumb-item"><a href="#">Users</a>
+                  </li>
+                  <li class="breadcrumb-item active">Account setting
+                  </li>
+                </ol>
+              </div>
+            </div>
+          </div>
+          <div class="content-header-right col-md-6 col-12 mb-md-0 mb-2">
+            <div class="media width-250 float-right">
+              <div class="media-left media-middle">
+                <div id="sp-bar-total-sales"></div>
+              </div>
+              <div class="media-body media-right text-right">
+                <h3 class="m-0">$5,668</h3><span class="text-muted">Sales</span>
+              </div>
+            </div>
+          </div>
+        </div>-->
+        <div class="content-body"><!-- account setting page start -->
+<section id="page-account-settings">
+    <div class="row">
+        <!-- left menu section -->
+        <div class="col-md-3 mb-2 mb-md-0">
+            <ul class="nav nav-pills flex-column mt-md-0 mt-1">
+                <li class="nav-item">
+                    <a class="nav-link d-flex active" id="account-pill-general" data-toggle="pill"
+                        href="#account-vertical-general" aria-expanded="true">
+                        <i class="feather icon-globe"></i>
+                        基本設置
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link d-flex" id="account-pill-password" data-toggle="pill" href="#account-vertical-password"
+                        aria-expanded="false">
+                        <i class="feather icon-lock"></i>
+                        更改密碼
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link d-flex" id="account-pill-info" data-toggle="pill" href="#account-vertical-info"
+                        aria-expanded="false">
+                        <i class="feather icon-info"></i>
+                        權限
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link d-flex" id="account-pill-social" data-toggle="pill" href="#account-vertical-social"
+                        aria-expanded="false">
+                        <i class="feather icon-camera"></i>
+                        帳號來源
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link d-flex" id="account-pill-connections" data-toggle="pill"
+                        href="#account-vertical-connections" aria-expanded="false">
+                        <i class="feather icon-feather"></i>
+                        Connections
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link d-flex" id="account-pill-notifications" data-toggle="pill"
+                        href="#account-vertical-notifications" aria-expanded="false">
+                        <i class="feather icon-message-circle"></i>
+                        通知設定
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <!-- right content section -->
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-content">
+                    <div class="card-body">
+                        <div class="tab-content">
+                            <div role="tabpanel" class="tab-pane active" id="account-vertical-general"
+                                aria-labelledby="account-pill-general" aria-expanded="true">
+                                <div class="media">
+                                    <a href="javascript: void(0);">
+                                        <!--<img id="account_photo" src="/captain/statics/images/portrait/small/{{current_user.email}}.jpg"-->
+                                        <img id="account_photo" src="/captain/get_photo/{{current_user.id}}"
+                                            class="rounded mr-75" alt="profile image" height="64" width="64" style="object-fit: cover;">
+                                    </a>
+                                    <div class="media-body mt-75">
+                                        <div class="col-12 px-0 d-flex flex-sm-row flex-column justify-content-start">
+                                            <label class="btn btn-sm btn-secondary ml-50 mb-50 mb-sm-0 cursor-pointer"
+                                                for="account-upload">上傳頭像</label>
+                                            <input type="file" id="account-upload" hidden accept=".jpg, .jpeg, .png">
+                                            <button id="set_account_photo" class="btn btn-sm btn-primary ml-50">變更頭像</button>
+                                        </div>
+                                        <p class="text-muted ml-75 mt-50"><small>Allowed JPG, GIF or PNG. Max
+                                                size of
+                                                800kB</small></p>
+                                    </div>
+                                </div>
+                                <hr>
+                                <form novalidate>
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <div class="controls">
+                                                    <label for="account-name">名稱</label>
+                                                    <input type="text" class="form-control" id="account-name"
+                                                        placeholder="Name" value="{{current_user.name}}" required
+                                                        data-validation-required-message="This name field is required">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <div class="controls">
+                                                    <label for="account-e-mail">E-mail</label>
+                                                    <input type="email" class="form-control" id="account-e-mail" disabled
+                                                        placeholder="Email" value="{{current_user.email}}" required
+                                                        data-validation-required-message="This email field is required">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="alert alert-warning alert-dismissible mb-2" role="alert">
+                                                <button type="button" class="close" data-dismiss="alert"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">×</span>
+                                                </button>
+                                                <p class="mb-0">
+                                                    Your email is not confirmed. Please check your inbox.
+                                                </p>
+                                                <a href="javascript: void(0);">Resend confirmation</a>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 d-flex flex-sm-row flex-column justify-content-end">
+                                            <button type="submit" class="btn btn-primary mr-sm-1 mb-1 mb-sm-0">
+                                                儲存</button>
+                                            <button type="reset" class="btn btn-light">取消</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="tab-pane fade " id="account-vertical-password" role="tabpanel"
+                                aria-labelledby="account-pill-password" aria-expanded="false">
+                                <form novalidate>
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <div class="controls">
+                                                    <label for="account-old-password">Old Password</label>
+                                                    <input type="password" class="form-control"
+                                                        id="account-old-password" required placeholder="Old Password"
+                                                        data-validation-required-message="This old password field is required">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <div class="controls">
+                                                    <label for="account-new-password">New Password</label>
+                                                    <input type="password" name="password" id="account-new-password"
+                                                        class="form-control" placeholder="New Password" required
+                                                        data-validation-required-message="The password field is required"
+                                                        minlength="6">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <div class="controls">
+                                                    <label for="account-retype-new-password">Retype New
+                                                        Password</label>
+                                                    <input type="password" name="con-password" class="form-control"
+                                                        required id="account-retype-new-password"
+                                                        data-validation-match-match="password"
+                                                        placeholder="New Password"
+                                                        data-validation-required-message="The Confirm password field is required"
+                                                        minlength="6">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 d-flex flex-sm-row flex-column justify-content-end">
+                                            <button type="submit" class="btn btn-primary mr-sm-1 mb-1 mb-sm-0">Save
+                                                changes</button>
+                                            <button type="reset" class="btn btn-light">Cancel</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="tab-pane fade" id="account-vertical-info" role="tabpanel"
+                                aria-labelledby="account-pill-info" aria-expanded="false">
+                                <form novalidate>
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label for="accountTextarea">Bio</label>
+                                                <textarea class="form-control" id="accountTextarea" rows="3"
+                                                    placeholder="Your Bio data here..."></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <div class="controls">
+                                                    <label for="account-birth-date">Birth date</label>
+                                                    <input type="text" class="form-control birthdate-picker" required
+                                                        placeholder="Birth date" id="account-birth-date"
+                                                        data-validation-required-message="This birthdate field is required">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label for="accountSelect">Country</label>
+                                                <select class="form-control" id="accountSelect">
+                                                    <option>USA</option>
+                                                    <option>India</option>
+                                                    <option>Canada</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label for="languageselect2">Languages</label>
+                                                <select class="form-control" id="languageselect2" multiple="multiple">
+                                                    <option value="English" selected>English</option>
+                                                    <option value="Spanish">Spanish</option>
+                                                    <option value="French">French</option>
+                                                    <option value="Russian">Russian</option>
+                                                    <option value="German">German</option>
+                                                    <option value="Arabic" selected>Arabic</option>
+                                                    <option value="Sanskrit">Sanskrit</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <div class="controls">
+                                                    <label for="account-phone">Phone</label>
+                                                    <input type="text" class="form-control" id="account-phone" required
+                                                        placeholder="Phone number" value="(+656) 254 2568"
+                                                        data-validation-required-message="This phone number field is required">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label for="account-website">Website</label>
+                                                <input type="text" class="form-control" id="account-website"
+                                                    placeholder="Website address">
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label for="musicselect2">Favourite Music</label>
+                                                <select class="form-control" id="musicselect2" multiple="multiple">
+                                                    <option value="Rock">Rock</option>
+                                                    <option value="Jazz" selected>Jazz</option>
+                                                    <option value="Disco">Disco</option>
+                                                    <option value="Pop">Pop</option>
+                                                    <option value="Techno">Techno</option>
+                                                    <option value="Folk" selected>Folk</option>
+                                                    <option value="Hip hop">Hip hop</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label for="moviesselect2">Favourite movies</label>
+                                                <select class="form-control" id="moviesselect2" multiple="multiple">
+                                                    <option value="The Dark Knight" selected>The Dark Knight
+                                                    </option>
+                                                    <option value="Harry Potter" selected>Harry Potter</option>
+                                                    <option value="Airplane!">Airplane!</option>
+                                                    <option value="Perl Harbour">Perl Harbour</option>
+                                                    <option value="Spider Man">Spider Man</option>
+                                                    <option value="Iron Man" selected>Iron Man</option>
+                                                    <option value="Avatar">Avatar</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 d-flex flex-sm-row flex-column justify-content-end">
+                                            <button type="submit" class="btn btn-primary mr-sm-1 mb-1 mb-sm-0">Save
+                                                changes</button>
+                                            <button type="reset" class="btn btn-light">Cancel</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="tab-pane fade " id="account-vertical-social" role="tabpanel"
+                                aria-labelledby="account-pill-social" aria-expanded="false">
+                                <form>
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label for="account-twitter">Twitter</label>
+                                                <input type="text" id="account-twitter" class="form-control"
+                                                    placeholder="Add link" value="https://www.twitter.com">
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label for="account-facebook">Facebook</label>
+                                                <input type="text" id="account-facebook" class="form-control"
+                                                    placeholder="Add link">
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label for="account-google">Google+</label>
+                                                <input type="text" id="account-google" class="form-control"
+                                                    placeholder="Add link">
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label for="account-linkedin">LinkedIn</label>
+                                                <input type="text" id="account-linkedin" class="form-control"
+                                                    placeholder="Add link" value="https://www.linkedin.com">
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label for="account-instagram">Instagram</label>
+                                                <input type="text" id="account-instagram" class="form-control"
+                                                    placeholder="Add link">
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label for="account-quora">Quora</label>
+                                                <input type="text" id="account-quora" class="form-control"
+                                                    placeholder="Add link">
+                                            </div>
+                                        </div>
+                                        <div class="col-12 d-flex flex-sm-row flex-column justify-content-end">
+                                            <button type="submit" class="btn btn-primary mr-sm-1 mb-1 mb-sm-0">Save
+                                                changes</button>
+                                            <button type="reset" class="btn btn-light">Cancel</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="tab-pane fade" id="account-vertical-connections" role="tabpanel"
+                                aria-labelledby="account-pill-connections" aria-expanded="false">
+                                <div class="row">
+                                    <div class="col-12 mb-3">
+                                        <a href="javascript: void(0);" class="btn btn-info">Connect to
+                                            <strong>Twitter</strong></a>
+                                    </div>
+                                    <div class="col-12 mb-3">
+                                        <button class=" btn btn-sm btn-secondary float-right">edit</button>
+                                        <h6>You are connected to facebook.</h6>
+                                        <span>Johndoe@gmail.com</span>
+                                    </div>
+                                    <div class="col-12 mb-3">
+                                        <a href="javascript: void(0);" class="btn btn-danger">Connect to
+                                            <strong>Google</strong>
+                                        </a>
+                                    </div>
+                                    <div class="col-12 mb-2">
+                                        <button class=" btn btn-sm btn-secondary float-right">edit</button>
+                                        <h6>You are connected to Instagram.</h6>
+                                        <span>Johndoe@gmail.com</span>
+                                    </div>
+                                    <div class="col-12 d-flex flex-sm-row flex-column justify-content-end">
+                                        <button type="submit" class="btn btn-primary mr-sm-1 mb-1 mb-sm-0">Save
+                                            changes</button>
+                                        <button type="reset" class="btn btn-light">Cancel</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="account-vertical-notifications" role="tabpanel"
+                                aria-labelledby="account-pill-notifications" aria-expanded="false">
+                                <div class="row">
+                                    <h6 class="ml-1 mb-2">Activity</h6>
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <input type="checkbox" class="switchery" data-size="sm" checked
+                                                id="accountSwitch1">
+                                            <label class="ml-50" for="accountSwitch1">Email me when someone
+                                                comments</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <input type="checkbox" class="switchery" data-size="sm" checked
+                                                id="accountSwitch2">
+                                            <label for="accountSwitch2" class="ml-50">Email me when someone answers
+                                                on</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <input type="checkbox" class="switchery" data-size="sm" id="accountSwitch3">
+                                            <label for="accountSwitch3" class="ml-50">Email me hen someone follows
+                                                me</label>
+                                        </div>
+                                    </div>
+                                    <h6 class="ml-1 my-2">Application</h6>
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <input type="checkbox" class="switchery" data-size="sm" checked
+                                                id="accountSwitch4">
+                                            <label for="accountSwitch4" class="ml-50">News and announcements</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <input type="checkbox" class="switchery" data-size="sm" id="accountSwitch5">
+                                            <label for="accountSwitch5" class="ml-50">Weekly product updates</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <input type="checkbox" class="switchery" data-size="sm" checked
+                                                id="accountSwitch6">
+                                            <label for="accountSwitch6" class="ml-50">Weekly blog digest</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 d-flex flex-sm-row flex-column justify-content-end">
+                                        <button type="submit" class="btn btn-primary mr-sm-1 mb-1 mb-sm-0">Save
+                                            changes</button>
+                                        <button type="reset" class="btn btn-light">Cancel</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- account setting page end -->
+        </div>
+      </div>
+    </div>
+
+
+{% endblock %}    
+{%block js%} 
+    
+    <script src="/captain/statics/vendors/js/forms/select/select2.full.min.js"></script>
+    <script src="/captain/statics/vendors/js/forms/validation/jqBootstrapValidation.js"></script>
+    <script src="/captain/statics/vendors/js/pickers/pickadate/picker.js"></script>
+    <script src="/captain/statics/vendors/js/pickers/pickadate/picker.date.js"></script>
+    <script src="/captain/statics/vendors/js/forms/toggle/switchery.min.js"></script>
+    <script src="/captain/statics/js/scripts/pages/account-setting.min.js"></script>
+<script>
+
+var csrf_token = "{{csrf_token()}}";
+
+
+$(window).on("load", function(){
+  // Handler when all assets (including images) are loaded
+  const fileSelector = document.getElementById('account-upload');
+  document.getElementById('set_account_photo').addEventListener('click', (event) => {
+    set_account_photo()
+  });
+  fileSelector.addEventListener('change', (event) => {
+    const file = event.target.files[0];
+    check_file_type(file,resize_image_preview)
+    //resize_image_preview(file)
+  });
+});
+
+function get_file_type(header) {
+    let type = null
+    
+    switch (header) {
+        case "89504e47":
+            type = "image/png";
+            break;
+        case "47494638":
+            type = "image/gif";
+            break;
+        case "ffd8ffe0":
+        case "ffd8ffe1":
+        case "ffd8ffe2":
+        case "ffd8ffe3":
+        case "ffd8ffe8":
+            type = "image/jpeg";
+            break;
+        default:
+            //console.log('default:')
+            type = "unknown"; // Or you can use the blob.type as fallback
+            break;
+    }
+    //console.log(type)
+    return type
+}
+var file_type = "OK"
+function check_file_type(file,callback) {
+    
+    if (file) {
+        var filerdr = new FileReader();
+        filerdr.onloadend = function() {
+        //check file type
+		  
+          var arr = (new Uint8Array(filerdr.result));
+          
+          var header = "";
+          for(var i = 0; i < arr.length; i++) {
+             header += arr[i].toString(16);
+          }
+          //console.log(header)
+          _type = get_file_type(header)
+		  if (_type != 'unknown')
+			callback(file)  
+		  else
+			alert('not allowed')
+          // Check the file signature against known types
+
+        };
+        filerdr.readAsArrayBuffer(file.slice(0,4))
+    }
+    //return file_type
+}
+
+function resize_image_preview(file) { //image preview after select image
+  if (file) {
+        
+    var filerdr = new FileReader();
+    console.log(file_type)
+
+    filerdr.onload = function(e) {
+      var img = new Image();
+      
+      img.onload = function() {
+        var canvas = document.createElement('canvas');
+        var ctx = canvas.getContext('2d');
+        canvas.width = 250;
+        canvas.height = canvas.width * (img.height / img.width);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        // SEND THIS DATA TO WHEREVER YOU NEED IT
+		let account_photo = document.getElementById('account_photo');
+		account_photo.src =  canvas.toDataURL('image/png');
+        //var data = canvas.toDataURL('image/png');
+
+        $('#imgprvw').attr('src', img.src);
+        //$('#imgprvw').attr('src', data);//converted image in variable 'data'
+      }
+      img.src = e.target.result;
+    }
+    filerdr.readAsDataURL(file);
+
+  }
+}
+
+function set_account_photo() {
+    //alert(document.getElementById('account_photo').src)
+  
+    var formData = new FormData();
+    
+    formData.append('csrf_token',csrf_token);
+    var base64_img = document.getElementById('account_photo').src.split(',')[1];
+    formData.append('photo',base64_img)
+    ajax("/captain/account_setting", "POST",formData)
+    .then(function(result) {
+      data = JSON.parse(result)
+      //alert(data['success']);
+	  fire_alert('success','圖片變更作業成功',data['success'],2000) 
+	   return data['image']
+     
+        })
+
+    .catch((error) => {
+      fire_alert('danger','圖片變更作業失敗',error,2000)
+    })    
+    ;
+
+}
+</script>
+{%endblock%}

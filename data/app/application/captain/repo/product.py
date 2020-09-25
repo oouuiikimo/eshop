@@ -81,7 +81,7 @@ class RepoProduct(BaseRepo):
 
         return form
 
-    def _list_rows(self,row):
+    def _list_rows(self,row): 
         return {
                 'title_field':row.name, #編輯icon tooltips name
                 'fields_value':[

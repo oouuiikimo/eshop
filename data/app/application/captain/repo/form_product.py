@@ -98,7 +98,7 @@ class Update_skus_Form(FlaskForm):
         render_kw={'class':'custom-control-input'})
     active = RadioField('上架', 
         choices = [('1', '上架'),('0', '下架')],
-        default='0',
+        default='0', 
         render_kw={'class':'custom-control-input'})
     #todo:要有一個input 是可以存所選的屬性值, 不管有幾個屬性, 或沒有
     #

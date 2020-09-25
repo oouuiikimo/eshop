@@ -4,5 +4,4 @@
 *.pyc
 /data/private
 /data/app/application/dbcreate.py
-/data/app/config.py
-/data/app/config/store.json
+/data/app/config

@@ -1,4 +1,11 @@
 ----- 2020.09
+2020/09/25 Fri:-image 圖片上傳resize,縮圖, watermark ,並存檔
+               -image details 頁面
+               -image 圖片修改及刪除功能
+2020/09/24 Thu:-pil 各種功能測試
+               -image 介面上傳wtforms,img置換js
+               -nginx 防盗連功能查詢作法
+2020/09/22 Web:-pil 各種功能測試
 2020/09/21 Mon:-image 商品圖資料庫及表單和功能構思
                -pillow 使用初探
                -裁切功能思考

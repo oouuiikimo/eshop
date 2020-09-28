@@ -1,4 +1,8 @@
 ----- 2020.09
+2020/09/29 Mon:-image 圖片details 頁面功能
+               -image delete
+               -新增subRepo檢查detail_id之insert , delete 權限
+               -增加圖片若遺失時處理載入預設圖片置換
 2020/09/25 Fri:-image 圖片上傳resize,縮圖, watermark ,並存檔
                -image details 頁面
                -image 圖片修改及刪除功能

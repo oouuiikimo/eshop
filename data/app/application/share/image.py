@@ -22,7 +22,8 @@ def thumbnail(file,pix):
         ratio = im.size[0]/im.size[1]
         print(ratio)
         im.thumbnail((int(pix),int(pix/ratio)))
-        im.save( f"{os.path.splitext(file)[0]}_thumbnail.{im.format.lower()}" )
+        #im.save( f"{os.path.splitext(file)[0]}_thumbnail.{im.format.lower()}" )
+        im.save( f"{os.path.splitext(file)[0]}_thumbnail.png" )
         print(im.format, im.size, im.mode)
     
 def resize_paste(file,new_size):
@@ -43,7 +44,7 @@ def resize_paste(file,new_size):
             fill_pix = int((new_size[1] - nim.size[1])/2)
             resultPicture.paste(nim,(0,fill_pix))
         print(f'new size:{nim.size}')
-        resultPicture.save(f'new_{os.path.splitext(file)[0]}.png')
+        resultPicture.save(f'{os.path.splitext(file)[0]}.png')
         print(f'result size:{resultPicture.size}')
     #resultPicture = Image.new('RGBA', new_size, (0, 0, 0, 0))
     #把照片貼到底圖
@@ -68,7 +69,7 @@ def resize_crop(file,new_size):
             crop_pix = int((nim.size[1]-new_size[1])/2)
             result = nim.crop((0,crop_pix,nim.size[0],int(new_size[1]+crop_pix)))
         #print(f'new size:{result.size}')
-        result.save(f'new_{file}', quality=100)    
+        result.save(f'{file}', quality=100)    
         
 def logo_watermark(img, logo_path):
     '''
@@ -82,18 +83,22 @@ def logo_watermark(img, logo_path):
     baseim.save('test3.jpg', 'JPEG')
     
 
-def text_watermark(img, text, out_file="test4.jpg", angle=0, opacity=0.25):
+def text_watermark(file, text, out_file="test4.png", angle=0, opacity=0.25):
     '''
     新增一個文字水印，做成透明水印的模樣，應該是png圖層合併
     http://www.pythoncentral.io/watermark-images-python-2x/
     這裡會產生著名的 ImportError("The _imagingft C module is not installed") 錯誤
     Pillow通過安裝來解決 pip install Pillow
     '''
+    result = None
     with Image.open(file) as img:
+        
         watermark = Image.new('RGBA', img.size, (255,255,255,0)) 
         #白色底, 透明度0
+        
+        FONT = os.path.join(os.path.dirname(os.path.abspath( __file__ )),"msjh.ttc")
 
-        FONT = "msjh.ttc"
+        #return FONT
         size = 12
         #得到字型
         n_font = ImageFont.truetype(FONT, size)
@@ -116,8 +121,8 @@ def text_watermark(img, text, out_file="test4.jpg", angle=0, opacity=0.25):
         alpha = watermark.split()[3]
         alpha = ImageEnhance.Brightness(alpha).enhance(opacity)
         watermark.putalpha(alpha)
-        Image.composite(watermark, img, watermark).save(out_file, 'JPEG')
-        
+        result = Image.composite(watermark, img, watermark)
+    result.save(file)    
     
 if __name__ == '__main__':
     file1 = "image1.jpg"

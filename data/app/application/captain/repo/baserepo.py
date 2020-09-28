@@ -89,13 +89,18 @@ class BaseRepo(object):
 
         return page,out_rows,count,get_pagination(count,page,per_page)
 
-    def detail_template(self,dic_replace):
-        return """<div style="width:100px;"><input type="checkbox" name="delete" value="{rowid}">
-            <a href="javascript:void(0)" onclick="delete_items(this,{rowid});" class="ml-1">
-            <i class=\"feather icon-x-circle\" data-toggle=\"tooltip\" title=\"刪除{title}{tooltip_title}\"></a></i>
-            <a href="/captain/update/{class_name}/{parent_id}/{repo_sub}/{rowid}" class="ml-1">
-            <i class=\"feather icon-edit\" data-toggle=\"tooltip\" title=\"編輯{title}{tooltip_title}\"></a></i></div>""" .format(**dic_replace) 
-    
+    def detail_template(self,dict_replace):
+        _temp = ""
+        if self.subRepo.allow_delete is True:
+            _temp = """<input type="checkbox" name="delete" value="{rowid}">
+                <a href="javascript:void(0)" onclick="delete_items(this,{rowid});" class="ml-1">
+                <i class=\"feather icon-x-circle\" data-toggle=\"tooltip\" title=\"刪除{title}{tooltip_title}\"></i></a>""".format(**dict_replace) 
+        if self.subRepo.allow_update is True:
+            _temp = _temp + """<a href="/captain/update/{class_name}/{parent_id}/{repo_sub}/{rowid}" class="ml-1">
+                <i class=\"feather icon-edit\" data-toggle=\"tooltip\" title=\"編輯{title}{tooltip_title}\"></i></a>""".format(**dict_replace) 
+
+        return f'<div style="width:100px;">{_temp}</div>'
+        
     def detail_dict(self):
         return {"class_name":self.__class__.__name__.replace("Repo",""),
                 "repo_sub":self.repo_sub,"title":self.title}

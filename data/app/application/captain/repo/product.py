@@ -111,7 +111,7 @@ class RepoProduct(BaseRepo):
                 #--- 區分sub處
                 
                 self.subRepo.update(session,db_item,item)
-                
+                #raise Exception("repo_sub update")
                 #---
                 db_item.updated = datetime.datetime.now()
                 db_item.updated_by = current_user.email
@@ -216,8 +216,9 @@ class RepoProduct(BaseRepo):
 
         if int(id)==0:
             return
-        dic_replace = self.detail_dict() #{"class_name":self.__class__.__name__.replace("Repo",""),
-        return self.subRepo.details(dic_replace,self.detail_template)
+        dict_replace = self.detail_dict() #{"class_name":self.__class__.__name__.replace("Repo",""),
+        #處理details 每行的編輯欄位, 上面在baserepo, 下面丟給sub_repo處理
+        return self.subRepo.details(dict_replace,self.detail_template)
 
         
     

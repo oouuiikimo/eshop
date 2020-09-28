@@ -69,7 +69,7 @@
 						<div class="card-content collpase show">
 							<div class="card-body">
                                 {%if form-%}
-								<form class="form form-horizontal striped-rows" id="sub_update" method="post" action="" >
+								<form class="form form-horizontal striped-rows" id="sub_update" method="post" action="" enctype="multipart/form-data">
 										{% for field in form%}<!--id:{{field.id}}--><!--{{field.data}}-->
 										{%if field.type != 'CSRFTokenField' and field.type != 'HiddenField' and field.type != 'HiddenSelect'-%}
 										{%if field.type != 'RadioField' and field.type != 'MultiCheckboxField' 

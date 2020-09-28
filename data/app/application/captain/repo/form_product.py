@@ -1,6 +1,6 @@
 from wtforms import (Form, StringField, TextField, validators,widgets,IntegerField,
     BooleanField,SelectMultipleField,SelectField,RadioField,TextAreaField,
-    HiddenField,FileField)
+    HiddenField,FileField,MultipleFileField)
 from wtforms.validators import (DataRequired,ValidationError,
                                 Email,
                                 EqualTo,
@@ -70,6 +70,7 @@ class Update_subcategory_Form(FlaskForm):
     original = HiddenField('original',default=0)    
         
 class Update_sku_Form(FlaskForm):
+    #適用於單一屬性商品
     sku = StringField('副型號',
         render_kw={'class':'form-control','readonly':True})
     price = IntegerField('價格', [DataRequired(message="請輸入價格(數字)")],
@@ -86,6 +87,7 @@ class Update_sku_Form(FlaskForm):
         render_kw={'class':'custom-control-input'})
 
 class Update_skus_Form(FlaskForm):
+    #適用於多屬性商品
     sku = StringField('副型號',
         render_kw={'class':'form-control'})
     price = IntegerField('價格', [DataRequired(message="請輸入價格(數字)")],
@@ -109,18 +111,15 @@ class Update_skus_Form(FlaskForm):
         
 class Update_image_Form(FlaskForm):
     file_name = HiddenField('商品圖片', [
-        DataRequired(),Length(max=40)],
+        Length(max=40)],
         render_kw={'class':'form-control'})
     file = FileField('圖片',
         render_kw={'class':'d-none'})    
     watermark = BooleanField('加浮水印')
-    fill_or_crop = RadioField('縮放方式', 
+    fill_or_crop = SelectField('縮放方式', 
         choices = [('1', '填滿'),('0', '裁切')],
         default='0',
-        render_kw={'class':'custom-control-input'})
-    active = RadioField('上架', 
-        choices = [('1', '上架'),('0', '下架')],
-        render_kw={'class':'custom-control-input'})
+        render_kw={'class':'form-control'})
         
 class Update_article_Form(FlaskForm):
     title = StringField('文章標題', [

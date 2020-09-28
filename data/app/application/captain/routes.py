@@ -40,7 +40,7 @@ def list(repo_name):
     page = request.args.get('page') or 1
     per_page = request.args.get('per_page') or default_per_page
     
-    sort = request.args.get('sort')
+    sort = request.args.get('sort') or ""
     #準備 repo_modelname_list
     repo = _repo(repo_name)()
     
@@ -128,23 +128,37 @@ def update_sub(repo_request,id,repo_sub,detail_id):
     
     #show form only when no details or has detail_id
     #if detail_id form must have detail_id
-    #應增加一個情況是, 雖然有時進details,但有時直接強迫進form,跳過details
+    """if情況是
+    若無deailts or 
+    request 有指定detail_id or 
+    有 details,但有時直接強迫進form,跳過details (少有, 目前只有skus , 但單一屬性商品, 無需建立多屬性時用)
+    """
     if not details or detail_id or repo.subRepo.skip_details():
+        #todo: 可否先檢查是否開放新增表單或編輯表單, 若不行馬上做出動作, 並跳出?
+        if int(detail_id) > 0 and repo.subRepo.allow_update is False:
+            flash("不支援編輯功能")  
+            return redirect(f'/captain/update/{repo_request}/{id}/{repo_sub}')
+        if int(detail_id) == 0 and repo.subRepo.allow_insert is False:
+            flash("不支援新增功能")  
+            return redirect(f'/captain/update/{repo_request}/{id}/{repo_sub}')    
+            
         form,item = repo.update_form(id,detail_id)
         details = [] #don't show list when edit form
         if detail_id:
-            #push lastURL
+            #ready to go for it , then push lastURL
             session['lastURL'].append(f'/captain/update/{repo_request}/{id}/{repo_sub}')
-            #return jsonify(session['lastURL'])
-    
+        
         if request.method == 'POST' and form.validate():
-            #return "OK"
+            #return str([f'{i.id}:{i.data}:{len(i.errors)}' for i in form])
             form.populate_obj(obj=item)
             result = repo.update(item,id) #可以返回依 repo_sub 值有不同的update
             try: 
                 _id = int(result) #redirect 到新id頁
+                
                 if detail_id and 'lastURL' in session and session['lastURL'] is not None:
+             #return session['lastURL'].pop()
                     return redirect(session['lastURL'].pop())
+                #return str(detail_id)    
                 return redirect(url_for('captain.update_sub',repo_request=repo_request,id=_id,
                     repo_sub=repo_sub,detail_id=detail_id))
             except ValueError:

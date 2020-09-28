@@ -3,6 +3,8 @@ from ...models.db_product import *
 from .productcategory import RepoProductCategory
 from .subproductcategory import RepoSubProductCategory
 from flask import jsonify
+import shortuuid
+import os
 
 class BaseSub():
     def __init__(self,app,id,detail_id):
@@ -11,6 +13,9 @@ class BaseSub():
         self.parent_id = int(id)
         self.detail_id = detail_id
         self.update_form_js = None
+        self.allow_insert = True
+        self.allow_update = True
+        self.allow_delete = True
     
     def parent(self,session):
         if self.parent_id>0:
@@ -29,7 +34,7 @@ class BaseSub():
                     "isvariant":'1' if bool(db_data.isvariant) == True else '0',
                     "active":'1' if bool(db_data.active) == True else '0'}
         
-    def details(self,dic_replace,template):
+    def details(self,dict_replace,template):
         return
         
     def prepare_form(self,obj):
@@ -92,16 +97,16 @@ class SubCategory(BaseSub):
         form.subcategory.choices = form.subcategory.choices + subprductCategory.get_tree_for_form()
         return form
 
-    def details(self,dic_replace,template): 
+    def details(self,dict_replace,template): 
         details = []
         with self.app.db_session.session_scope() as session:
             product = self.parent(session)
             for row in product.sub_categorys:
-                dic_replace.update({"parent_id":product.id,
+                dict_replace.update({"parent_id":product.id,
                     "tooltip_title":row.name,
                     "rowid":row.id})
                     
-                details.append([template(dic_replace)]+
+                details.append([template(dict_replace)]+
                     [row.name])
                    
         return {'fields':['分類'],'data':details}    
@@ -171,16 +176,16 @@ class SubVariant(BaseSub):
         else:
             raise Exception("己有同樣屬性, 無法再新增")
             
-    def details(self,dic_replace,template): 
+    def details(self,dict_replace,template): 
         details = []
         with self.app.db_session.session_scope() as session:
             product = self.parent(session)
             for row in product.variants:
-                dic_replace.update({"parent_id":product.id,
+                dict_replace.update({"parent_id":product.id,
                     "tooltip_title":row.variant,
                     "rowid":row.id})
                     
-                details.append([template(dic_replace)]+[row.variant])
+                details.append([template(dict_replace)]+[row.variant])
         return {'fields':['屬性'],'data':details}  
         
     def delete(self,session,db_item,dels):
@@ -195,7 +200,7 @@ class SubSku(BaseSub):
         super().__init__(app,id,detail_id)
         self.update_form = Update_sku_Form
         self.update_form_js = 'sku.js'
-        self.isvariant = False
+        self.isvariant = False # flag 是否是多屬性商品
         with self.app.db_session.session_scope() as session:
             product = self.parent(session)
             self.isvariant = product.isvariant
@@ -248,16 +253,16 @@ class SubSku(BaseSub):
         session.add(sku)
        
             
-    def details(self,dic_replace,template): 
+    def details(self,dict_replace,template): 
         details = []
         with self.app.db_session.session_scope() as session:
             product = self.parent(session)
             for row in product.skus:
-                dic_replace.update({"parent_id":product.id,
+                dict_replace.update({"parent_id":product.id,
                     "tooltip_title":row.sku,
                     "rowid":row.id})
                     
-                details.append([template(dic_replace)]+
+                details.append([template(dict_replace)]+
                     [row.sku,row.price,row.quantity])
                    
         return {'fields':['副型號','售價','存量'],'data':details}     
@@ -311,17 +316,96 @@ class SubImage(BaseSub):
         super().__init__(app,id,detail_id)
         self.update_form = Update_image_Form
         self.update_form_js = 'image.js'
+        self.allow_update = False
     
     def form_data(self):
         if self.detail_id and int(self.detail_id)>0:
             with self.app.db_session.session_scope() as session:
                 db_data = session.query(ProductImage).get(self.detail_id)
                 #raise Exception(db_data.id)
-                return {"file_name":db_data.file_name,"active":'1' if bool(db_data.active) == True else '0'}
+                return {"file_name":db_data.file_name}
         else:
             db_data = SubProductCategory()
-            return {"file_name":"","active":'1'}
-    
+            return {"file_name":""}
+            
+    def update(self,session,db_item,item):
+        from ...share.image import thumbnail,resize_paste,resize_crop,logo_watermark,text_watermark
+        """
+        此功能只限新增
+        必須有圖檔,製圖, 存id_product, active , file_name
+        不提供編輯
+        """
+        #排除編輯的情況
+        if int(self.detail_id)>0:
+            return 
+            
+        if int(self.detail_id)==0:
+            image = ProductImage()
+            image.file_name = f'{shortuuid.uuid()}.png'#short_uuid
+            image.id_product = db_item.id
+            
+
+            if item.file:
+                """
+                處理圖檔
+                """
+                #取路徑檔名
+                file_path = os.path.join(
+                    str(os.path.dirname(self.app.instance_path)),
+                    'application',
+                    self.app.store_config.PRODUCT_IMAGE_PATH,
+                    image.file_name)
+                #先存檔
+                
+                item.file.save(file_path)
+                #raise Exception(file_path)
+                #取resize圖
+                #raise Exception(item.fill_or_crop == "1")
+                if item.fill_or_crop == "1": #fill
+                    resize_paste(file_path,self.app.store_config.PRODUCT_IMAGE_SIZE)
+                else:#crop
+                    resize_crop(file_path,self.app.store_config.PRODUCT_IMAGE_SIZE)
+                #raise Exception(item.watermark)    
+                if item.watermark:
+                    text_watermark(file_path,"fuck you")
+                
+                #取縮圖
+                thumbnail(file_path,200)
+                #raise Exception(file_path)
+                session.add(image)
+
+    def delete(self,session,db_item,dels):
+        #self.validate_update(db_item,dels)
+        for _del in dels:
+            #delete cascade sku.values
+            img = session.query(ProductImage).filter(ProductImage.id==_del).first()
+            #若有圖檔, 刪實體檔案
+            os.remove(os.path.join(str(os.path.dirname(self.app.instance_path)),
+                    'application',
+                    self.app.store_config.PRODUCT_IMAGE_PATH,
+                    img.file_name))
+            os.remove(os.path.join(str(os.path.dirname(self.app.instance_path)),
+                    'application',
+                    self.app.store_config.PRODUCT_IMAGE_PATH,
+                    f"{os.path.splitext(img.file_name)[0]}_thumbnail.png"))
+            session.delete(img)
+        
+    def details(self,dict_replace,template): 
+        details = []
+        load_image_failed = f"""onerror=\"this.onerror=null;this.src='{self.app.store_config.LOAD_IMAGE_FAILED_REPLACE}';\""""
+        with self.app.db_session.session_scope() as session:
+            product = self.parent(session)
+            for row in product.images:
+                dict_replace.update({"parent_id":product.id,
+                    "tooltip_title":row.file_name,
+                    "rowid":row.id})
+                    
+                details.append([template(dict_replace)]+
+                    ['<img style="width:200px;"'+
+                    f'{load_image_failed} src="{self.app.store_config.PRODUCT_IMAGE_PATH}{f"{os.path.splitext(row.file_name)[0]}_thumbnail.png"}"'])
+                   
+        return {'fields':['圖片'],'data':details}         
+        
 class SubArticle(BaseSub):
     def __init__(self,app,id,detail_id):
         super().__init__(app,id,detail_id)
